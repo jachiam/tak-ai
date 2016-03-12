@@ -29,6 +29,7 @@ function get_player_score(node,player)
 		strength = strength + island_strengths[i]
 	end
 
+	opponent = 3 - player
 	stacks = {}
 	stack_strengths = {}
 	stack_strength_contrib = 0
@@ -39,11 +40,11 @@ function get_player_score(node,player)
 				if node.board[{i,j,h,player}]:sum() > 1 then
 					stack = node.board[{i,j}]
 					table.insert(stacks,stack)
-					reserves = stack[{{},1,1}]:sum()
-					captives = stack[{{},2,1}]:sum()
+					reserves = stack[{{},player,1}]:sum()
+					captives = stack[{{},opponent,1}]:sum()
 					stack_strength = reserves^2.2 + captives^1.2
-					one_below = (stack[{node.heights[{i,j}]-1,1,{}}]:sum() == 1)
-					cap = (stack[{node.heights[{i,j}],1,3}] == 1)
+					one_below = (stack[{node.heights[{i,j}]-1,player,{}}]:sum() == 1)
+					cap = (stack[{node.heights[{i,j}],player,3}] == 1)
 					if one_below and cap then
 						stack_strength = stack_strength*2
 					end
@@ -133,6 +134,7 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 		else
 			depth = levelp2
 		end
+		print(depth)
 		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player(),mcts)
 		node:make_move_by_ptn(ptn)
 		print('Made move ' .. ptn)

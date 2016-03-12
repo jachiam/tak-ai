@@ -33,7 +33,7 @@ gameptn = "[Size \"5\"]\n" ..
 "\n10. Fb4 	"
 -- t:play_game_from_ptn(gameptn)
 
-generate_game_by_alphabeta(t,1,2,5,true,true)
+--generate_game_by_alphabeta(t,1,2,5,true,true)
 
 require 'tak_policy.lua'
 
