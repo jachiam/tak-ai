@@ -1,6 +1,7 @@
 require 'tak_game'
 
 function love.load()
+  success = love.window.setMode(0,0) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
   boardsize = 5 -- FIXME this shouldn't be hard-coded
   TAK = tak:__init(boardsize)
@@ -18,7 +19,6 @@ function love.load()
 
   Pieces = {{WTile, WWall, WCaps},
             {BTile, BWall, BCaps}}
-
 end
 
 function love.draw()
