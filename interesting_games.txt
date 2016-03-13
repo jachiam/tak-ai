@@ -1,0 +1,48 @@
+(AI level 2 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fc2 Fa3 
+2. Fd4 Fd3 
+3. 1d4-1 Fd2 
+4. 2d3-2 1c2>1 
+5. Fb3 Fd1 
+6. Sd4 4d2<112 
+7. 1b3-1 Fd3 
+8. 1d4-1 Fd2 
+9. 2d3-2 Fd4 
+10. Fb3 1c2<1 
+11. 1b3-1 1d4-1 
+12. 2b2<2 Fc2 
+13. Fd4 Fc3 
+14. 2b2>2 1d3+1 
+15. Fb3 1c3-1 
+16. 4a2>13 Fc3 
+17. 4c2+4 Fd3 
+18. 3d2+3 Fd2 
+19. 4d3-4 Fd3
+20. Fb4 2d4-2
+21. Fc1
+
+
+
+(AI level 1 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fd2 Fd1 
+2. Fc1 Fd4 
+3. Fc2 Fd3 
+4. Fc3 1d3<1 
+5. Fb2 1d2-1 
+6. Fd2 2d1+2 
+7. Fd1 3d2-3 
+8. Fd2 4d1+4 
+9. Fd1 2c3-2 
+10. Fb1 3c2-3 
+11. 1d1<1 Sd1 
+12. 4c1+112 
+
+NOTE: white victory here is a sign that the AI engine is buggy. B11 should clearly have been Sc2 to prevent W12's game winning move. 

@@ -6,7 +6,10 @@ local tak = torch.class('tak')
 
 function tak:__init(size)
 	self.size = size or 5
-	if self.size == 4 then
+	if self.size == 3 then
+		self.piece_count = 12
+		self.cap_count = 0
+	elseif self.size == 4 then
 		self.piece_count = 15
 		self.cap_count = 0
 	elseif self.size == 5 then
@@ -419,13 +422,13 @@ function tak:check_victory_conditions()
 				if i > 1 then
 					flood_fill(unexplored,island,i-1,j)
 				end
-				if i < 5 then
+				if i < self.size then
 					flood_fill(unexplored,island,i+1,j)
 				end
 				if j > 1 then
 					flood_fill(unexplored,island,i,j-1)
 				end
-				if j < 5 then
+				if j < self.size then
 					flood_fill(unexplored,island,i,j+1)
 				end
 			end

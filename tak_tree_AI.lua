@@ -16,6 +16,7 @@ function get_player_score(node,player)
 		elseif node.winner == 0 then
 			return 0
 		else
+			-- print 'get your shit together'
 			return -9999
 		end
 	end
@@ -90,7 +91,8 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	end
 
 	local children, legal = children_of_node(node)
-	best_action = 0
+	local best_action = 0
+	local v = 0
 
 	if maximizingPlayer then
 		v = -1e9
@@ -134,7 +136,7 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 		else
 			depth = levelp2
 		end
-		print(depth)
+		--print(depth)
 		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player(),mcts)
 		node:make_move_by_ptn(ptn)
 		print('Made move ' .. ptn)
