@@ -7,33 +7,67 @@ function node_is_terminal(node)
 	return not(node.win_type == 'NA')
 end
 
+function check_wins_in_one(node,player,opponent)
+	local empty, top = node:get_empty_squares()	-- empty_squares also gives board_top, convenience hack
+	empty = empty:float()
+	you = top[{{},{},player,1}] + top[{{},{},player,3}]
+	them = top[{{},{},opponent,1}] + top[{{},{},opponent,3}]
+	you_x = you:sum(1):squeeze()
+	you_y = you:sum(2):squeeze()
+	them_x = them:sum(1):squeeze()
+	them_y = them:sum(2):squeeze()
+	empty_x = empty:sum(1):squeeze()
+	empty_y = empty:sum(2):squeeze()
+	e_x_1 = torch.eq(empty_x,1):float()
+	e_y_1 = torch.eq(empty_y,1):float()
+	your_x_wins = torch.eq(torch.add(you_x,empty_x):cmul(e_x_1),node.size):sum()
+	your_y_wins = torch.eq(torch.add(you_y,empty_y):cmul(e_y_1),node.size):sum()
+	their_x_wins = torch.eq(torch.add(them_x,empty_x):cmul(e_x_1),node.size):sum()
+	their_y_wins = torch.eq(torch.add(them_y,empty_y):cmul(e_y_1),node.size):sum()
+	return your_x_wins + your_y_wins, their_x_wins + their_y_wins
+end
+
 function get_player_score(node,player)
 
 	-- what if it's over?
 	if node_is_terminal(node) then
 		if node.winner == player then
-			return 9999 - 5*node.ply
+			return 1e8 - 5*node.ply
 		elseif node.winner == 0 then
 			return 0
 		else
-			-- print 'get your shit together'
-			return -9999
+			return -1e8
 		end
 	end
 
+	local strength = 0
+	local opponent = 3 - player
+
+	-- check if either player has easy move to win in one
+	your_wins, their_wins = check_wins_in_one(node,player,opponent)
+
+	-- if the opponent has the ability to win on this, their current turn, very bad.
+	if their_wins > 0 and node:get_player() == opponent then
+		return -1e8
+	elseif your_wins > 0 and node:get_player() == player then
+		-- but if it's your turn to go and you win in one, very good.
+		return 1e8
+	else
+		strength = strength + your_wins^6
+	end
+
+	-- heuristic strength evaluation
 	islands = node.islands[player]
 
-	strength = 0
 	island_strengths = torch.zeros(#islands)
 	for i=1,#islands do
-		island_strengths[i] = (islands[i]:sum())^3.2
+		island_strengths[i] = (islands[i]:sum())^4.2
 		strength = strength + island_strengths[i]
 	end
 
-	opponent = 3 - player
-	stacks = {}
-	stack_strengths = {}
-	stack_strength_contrib = 0
+	local stacks = {}
+	local stack_strengths = {}
+	local stack_strength_contrib = 0
 	for i=1,node.size do
 		for j=1,node.size do
 			h = node.heights[{i,j}]
@@ -64,8 +98,8 @@ function get_player_score(node,player)
 end
 
 function value_of_node(node,maximizingPlayer,maxplayeris)
-	p1_score = get_player_score(node,1)
-	p2_score = get_player_score(node,2)
+	local p1_score = get_player_score(node,1)
+	local p2_score = get_player_score(node,2)
 	score = p1_score - p2_score
 	if maxplayeris == 2 then
 		score = -score
@@ -74,8 +108,8 @@ function value_of_node(node,maximizingPlayer,maxplayeris)
 end
 
 function children_of_node(node)
-	legal = node.legal_moves_by_ply[#node.legal_moves_by_ply][2]
-	children = {}
+	local legal = node.legal_moves_by_ply[#node.legal_moves_by_ply][2]
+	local children = {}
 	for i=1,#legal do
 		local copy = node:clone()
 		copy:make_move_by_ptn(legal[i])
@@ -93,36 +127,41 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	local children, legal = children_of_node(node)
 	local best_action = 0
 	local v = 0
+	local a,b = alpha,beta
+
+	local moves_considered = {}
 
 	if maximizingPlayer then
 		v = -1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, alpha, beta, false, maxplayeris,mcts)
-			if val >= v then
+			val = alphabeta(children[i],depth- 1, a, b, false, maxplayeris,mcts)
+			table.insert(moves_considered,{legal[i],val})
+			if val > v then
 				best_action = i
 				v = val
 			end
-			alpha = math.max(alpha,v)
-			if beta <= alpha then
+			a = math.max(a,v)
+			if b <= a then
 				break
 			end
 		end
 	else
 		v = 1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, alpha, beta, true, maxplayeris,mcts)
-			if val <= v then
+			val = alphabeta(children[i],depth- 1, a, b, true, maxplayeris,mcts)
+			table.insert(moves_considered,{legal[i],val})
+			if val < v then
 				best_action = i
 				v = val
 			end
-			beta = math.min(beta,v)
-			if beta <= alpha then
+			b = math.min(b,v)
+			if b <= a then
 				break
 			end
 		end
 	end
 
-	return v, legal[best_action]
+	return v, legal[best_action], legal, moves_considered
 end
 
 function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
@@ -130,13 +169,12 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 		if node.game_over then
 			break
 		end
-		player = node:get_player()
+		local player = node:get_player()
 		if player == 1 then
 			depth = levelp1
 		else
 			depth = levelp2
 		end
-		--print(depth)
 		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player(),mcts)
 		node:make_move_by_ptn(ptn)
 		print('Made move ' .. ptn)
