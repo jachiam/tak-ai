@@ -5,7 +5,22 @@ require 'hump.gamestate'
 local 'board' = {}
 local 'menu' = {}
 
-function board:setupGraphics()
+--setup keyboard input
+input = ''
+love.keyboard.setKeyRepeat(true)
+
+function menu:draw()
+  setupGraphics()
+  instructions = 'ENTER BOARD SIZE:'
+  drawTextBox()
+end
+
+function board:draw()
+  setupBoard()
+  instructions = 'MAKE YOUR MOVE:'
+end
+
+function setupGraphics()
   -- window dimensions
   love.graphics.setBackgroundColor(200,200,200)
   love.window.setMode(0,0) --defaults to size of desktop
@@ -31,29 +46,8 @@ function board:setupBoard()
 
   math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
   tak:generate_random_game(50)
-end
-
-function board:load()
-  setupGraphics()
-  love.graphics.print('Please enter board size:')
-
-  --setup keyboard input
-  love.keyboard.setKeyRepeat(true)
-  instructions = 'MAKE YOUR MOVE:'
-  input = ''
-
-  setupBoard()
-
-  -- table of board positions
-  PosTable = {}
 
 end
---
--- function love.update(dt)
--- 	-- if game_over then
--- 	-- 	return
--- 	-- end
--- end
 
 function board:keypressed(key)
 	if key == 'escape' then
@@ -78,6 +72,8 @@ function board:draw()
   -- draw the board
   local recWid = WindowSize[1]/boardsize
   local recHgt = WindowSize[2]/boardsize
+  -- table of board positions
+  PosTable = {}
   for i=1,boardsize do
     PosTable[i] = {}
     for j=1,boardsize do
@@ -148,7 +144,7 @@ function board:draw()
   drawTextBox()
 end
 
-function board:drawTextBox()
+function drawTextBox()
   love.graphics.setColor(255,255,255)
   textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
   textBoxWidth = WindowSize[1]/3
@@ -167,4 +163,10 @@ end
 
 function board:textinput(t)
   input = input .. t
+end
+
+
+function love.load()
+  gamestate.registerEvents()
+  gamestate.switch(menu)
 end
