@@ -73,7 +73,7 @@ function tak:undo()
 	if self.ply == 0 then
 		return
 	end
-	if game_over then
+	if self.game_over then
 		self.game_over = false
 		self.winner = 0
 		self.win_type = 'NA'
@@ -96,17 +96,33 @@ function tak:reset()
 	self:__init(self.size)
 end
 
-function tak:clone()
+function tak:clone(deep)
+	if deep then
+		return self:deep_clone()
+	else
+		return self:fast_clone()
+	end
+end
+
+function tak:fast_clone()
 	copy = tak.new(self.size)
 	copy.board = self.board:clone()
 	copy.heights = self.heights:clone()
 	copy.ply = self.ply
+	copy.player_pieces = deepcopy(self.player_pieces)
+	copy.player_caps = deepcopy(self.player_caps)
 	copy.move_history_ptn = deepcopy(self.move_history_ptn)
 	copy.move_history_idx = deepcopy(self.move_history_idx)
 	copy.legal_moves_by_ply = deepcopy(self.legal_moves_by_ply)
 	copy.game_over = self.game_over
 	copy.winner = self.winner
 	copy.win_type = self.win_type
+	return copy
+end
+
+function tak:deep_clone()
+	copy = tak.new(self.size)
+	copy:play_game_from_ptn(self:game_to_ptn())
 	return copy
 end
 

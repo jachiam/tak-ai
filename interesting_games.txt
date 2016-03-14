@@ -194,4 +194,36 @@ NOTE: Not sure what happened here. Black played strong. Somehow a draw? Win cond
 25. 1b3+1 1d3<1 
 26. 4c2+4 Sb3 
 
-NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it?
+NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it? [Future note: turns out that when the AI engine was generating child nodes in the alpha-beta recursion, the child nodes didn't get information about how many pieces had been played, so it couldn't detect the draw which occurs when pieces run out. Fixed.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fb1 Fa1
+2. Fb2 Fa2
+3. Fa3 1a2-1
+4. Fc2 1b1+1
+5. 1c2<1 Fc1
+6. Fc3 Fd1
+7. Sb1 Fd3
+8. Fc4 Fd4
+9. Sd2 Sb3
+10. 3b2>3 1c1+1
+11. 1c3-1 2a1+11 
+12. Fa1 2a3-11
+13. 1a2-1 Fc1 
+14. Sc3 1c1+1
+15. 1c3-1 Fc1
+16. 1d2+1 Fa3
+17. 2c2-2 Fa4
+18. 3c1>3 Fb4
+19. 2d3+2 1b3-1
+20. Sb3 1b2>1
+21. Sb2 4c2+22 
+22. 3a1+12 Fd2 
+23. 1b2>1 Fa1
+23. Fb2 Fc1
+
+NOTE: It beat me with a flat win! Very surprising, because I had total board control for a good long while. It made some particularly insightful moves in the mid game, when it played its wall at b3 (B9), and then much later on when it moved that wall (B19). I had almost total board control and then it came from behind - it got clever in a corner! Perhaps this is a Brooker's Fall?
