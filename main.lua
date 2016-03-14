@@ -1,9 +1,12 @@
 require 'tak_game'
 
 function love.load()
-  success = love.window.setMode(0,0) --defaults to size of desktop
+  love.window.setMode(0,0) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
-  boardsize = 5 -- FIXME this shouldn't be hard-coded
+  love.graphics.print('Please enter board size:')
+
+  boardsize = 5
+
   TAK = tak:__init(boardsize)
 
   math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
@@ -26,8 +29,38 @@ function love.load()
             {BTile, BWall, BCaps}}
 end
 
+function love.update(dt)
+	if paused or game_over then
+		return
+	end
+end
+
+function love.keypressed(key)
+	if key == 'escape' then
+		love.event.quit()
+	elseif paused then
+		togglePause()
+	end
+
+	if game_over then
+		return
+	end
+
+	if key == 'p' then
+		togglePause()
+		return
+	end
+
+end
+
+function togglePause()
+	paused = not paused
+end
+
 function love.draw()
   -- draw the board
+  local recWid = WindowSize[1]/boardsize
+  local recHgt = WindowSize[2]/boardsize
   for i=1,boardsize do
     PosTable[i] = {}
     for j=1,boardsize do
@@ -51,10 +84,8 @@ function love.draw()
         end
       end
       love.graphics.setColor(thisSpaceColor)
-      local recX = 10+i*WindowSize[1]/boardsize * WHRatio
-      local recY = 10+j*WindowSize[2]/boardsize * WHRatio
-      local recWid = WindowSize[1]/boardsize * WHRatio
-      local recHgt = WindowSize[2]/boardsize * WHRatio
+      local recX = (i-1)*WindowSize[1]/(1.15*boardsize)
+      local recY = (j-1)*WindowSize[2]/(1.15*boardsize)
 
       PosTable[i][j] = {recX+recWid/5, recY+recHgt/5}
 
@@ -77,7 +108,7 @@ function love.draw()
               local xpos = PosTable[i][j][1]
               local ypos = PosTable[i][j][2]+10
               if piece == 3 then
-                xpos = xpos+imgWid/5
+                xpos = xpos+imgWid/6
                 ypos = ypos-imgHgt/4
               elseif piece == 2 then
                 ypos = ypos-imgHgt/4
@@ -86,8 +117,9 @@ function love.draw()
               end
               -- adjust for height of stack
               ypos = ypos-(10*h)
+              imgScaleFactor = recHgt/recWid + WHRatio/boardsize
               -- params: image, x,y position, radians, x,y scaling factors
-              love.graphics.draw(img,xpos,ypos,0,WHRatio*0.8, WHRatio*0.8)
+              love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
               -- there is no piece of this type here.
             end
@@ -96,4 +128,8 @@ function love.draw()
       end
     end
   end
+
+  if paused then
+		love.graphics.printf("PAUSE", WindowSize[1]/2, WindowSize[2]/2, 10, 'center')
+	end
 end
