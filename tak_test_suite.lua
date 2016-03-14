@@ -62,7 +62,7 @@ function AI_move()
 end
 
 function against_AI()
-	t:reset()
+	--t:reset()
 	while t.win_type == 'NA' do
 		print(t:game_to_ptn())
 		print ''
