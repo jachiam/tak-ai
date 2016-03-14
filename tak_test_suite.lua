@@ -33,10 +33,51 @@ gameptn = "[Size \"5\"]\n" ..
 "\n10. Fb4 	"
 -- t:play_game_from_ptn(gameptn)
 
+gameptn2 = "[Size \"4\"]\n" ..
+"\n1. Fd2 Fd1 " ..
+"\n2. Fc1 Fd4 " ..
+"\n3. Fc2 Fd3 " ..
+"\n4. Fc3 1d3<1 " ..
+"\n5. Fb2 1d2-1 " ..
+"\n6. Fd2 2d1+2 " ..
+"\n7. Fd1 3d2-3 " ..
+"\n8. Fd2 4d1+4 " ..
+"\n9. Fd1 2c3-2 " ..
+"\n10. Fb1 3c2-3 " ..
+"\n11. 1d1<1" --Sd1 
+-- 12. 4c1+112 	
+t:reset()
+--t:play_game_from_ptn(gameptn2)
 --generate_game_by_alphabeta(t,1,2,5,true,true)
 
+function player_move(ptn)
+	valid = t:make_move_by_ptn(ptn)
+	return valid
+end
+
+AI_level = 3
+function AI_move()
+	v, ptn = alphabeta(t,AI_level,-1e9,1e9,true,t:get_player(),true)
+	t:make_move_by_ptn(ptn)
+end
+
+function against_AI()
+	t:reset()
+	while t.win_type == 'NA' do
+		print(t:game_to_ptn())
+		print ''
+		ptn = io.read()
+		if player_move(ptn) then
+			AI_move()
+		end
+	end
+	print('Game Over: ' .. t.outstr)
+end
+
+--[[
 require 'tak_policy.lua'
 
 tp = tak_policy.new(t.size,t.max_height,#t.move2ptn)
 p = tp.network:getParameters()
-print(p:size())
+print(p:size())]]
+

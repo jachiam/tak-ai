@@ -53,6 +53,7 @@ function tak:__init(size)
 	self.ply = 0	-- how many plys have elapsed since the start of the game?
 	self.move_history_ptn = {}
 	self.move_history_idx = {}
+	self.board_history = {self.board:clone()}
 	self.legal_moves_by_ply = {}
 
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
@@ -77,6 +78,12 @@ function tak:undo()
 	self.move_history_ptn[#self.move_history_ptn] = nil
 	self.move_history_idx[#self.move_history_idx] = nil
 	self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
+	self.board_history[#self.board_history] = nil
+	self.board:copy(self.board_history[#self.board_history])
+	self.player_pieces = {self.piece_count - self.board[{{},{},{},1,{1,2}}]:sum(), 
+			      self.piece_count - self.board[{{},{},{},2,{1,2}}]:sum()}
+	self.player_caps =   {self.cap_count - self.board[{{},{},{},1,3}]:sum(), 
+			      self.cap_count - self.board[{{},{},{},2,3}]:sum()}
 	self.ply = self.ply - 1
 end
 
@@ -273,6 +280,7 @@ end
 function tak:get_player()
 	-- on the first turn of each player, they play a piece belonging to
 	-- the opposite player
+	local player
 	if self.ply < 2 then
 		player = 2 - self.ply
 	else
@@ -283,7 +291,7 @@ function tak:get_player()
 end
 
 function tak:populate_legal_moves_at_this_ply()
-	player = self:get_player()
+	local player = self:get_player()
 	if #self.legal_moves_by_ply < self.ply+1 then
 		legal_moves_ptn, legal_moves_mask = self:get_legal_moves(player)
 		table.insert(self.legal_moves_by_ply,{player,legal_moves_ptn,legal_moves_mask})
@@ -291,11 +299,11 @@ function tak:populate_legal_moves_at_this_ply()
 end
 
 function tak:make_move_by_idx(move_idx)
-	self:make_move(self.move2ptn[move_idx],move_idx)
+	return self:make_move(self.move2ptn[move_idx],move_idx)
 end
 
 function tak:make_move_by_ptn(move_ptn)
-	self:make_move(move_ptn,self.ptn2move[move_ptn])
+	return self:make_move(move_ptn,self.ptn2move[move_ptn])
 end
 
 function tak:make_move(ptn,idx)
@@ -396,15 +404,18 @@ function tak:make_move(ptn,idx)
 
 	self:populate_legal_moves_at_this_ply()
 
+	table.insert(self.board_history,self.board:clone())
+
 	return true
 end
 
 function tak:check_victory_conditions()
-	player_one_remaining = self.player_pieces[1] + self.player_caps[1]
-	player_two_remaining = self.player_pieces[2] + self.player_caps[2]
+	local player_one_remaining = self.player_pieces[1] + self.player_caps[1]
+	local player_two_remaining = self.player_pieces[2] + self.player_caps[2]
 
 	-- if the game board is full or either player has run out of pieces, trigger end
 	empty, board_top = self:get_empty_squares()
+	end_is_nigh = false
 	if empty:sum() == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
 		end_is_nigh = true
 	end
@@ -499,7 +510,19 @@ function tak:check_victory_conditions()
 
 	self.game_over = road_win or end_is_nigh
 
-	return self.game_over, self.winner, self.win_type, p1_rw, p2_rw, p1_paths, p2_paths
+	if self.game_over then
+		if self.winner == 1 then
+			outstr = self.win_type .. ' - 0'
+		elseif self.winner == 2 then
+			outstr = '0 - ' .. self.win_type
+		else
+			outstr = '1/2 - 1/2'
+		end
+		-- print('GAME OVER: ' .. outstr)
+		self.outstr = outstr
+	end
+
+	return self.game_over, self.winner, self.win_type, p1_rw, p2_rw
 
 end
 
@@ -533,14 +556,13 @@ function tak:game_to_ptn()
 end
 
 function tak:play_game_from_ptn(ptngame)
+	print 'Playing the following game: '
 	print(ptngame)
 	l,u = string.find(ptngame,"Size")
 	size = tonumber(string.sub(ptngame,u+3,u+3))
 	self:__init(size)
-	iterator = string.lower(gameptn):gmatch("%w%a%d[<>%+%-]?%d*")
+	iterator = string.lower(ptngame):gmatch("%w%a%d[<>%+%-]?%d*")
 	for ptn_move in iterator do
-		print(ptn_move)
 		self:make_move_by_ptn(ptn_move)
-		print('did move')
 	end		
 end
