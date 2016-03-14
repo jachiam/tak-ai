@@ -54,6 +54,7 @@ function tak:__init(size)
 	self.move_history_ptn = {}
 	self.move_history_idx = {}
 	self.board_history = {self.board:clone()}
+	self.heights_history = {self.heights:clone()}
 	self.legal_moves_by_ply = {}
 
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
@@ -68,8 +69,10 @@ function tak:__init(size)
 
 end
 
--- TODO: finish 'undo' function
 function tak:undo()
+	if self.ply == 0 then
+		return
+	end
 	if game_over then
 		self.game_over = false
 		self.winner = 0
@@ -79,7 +82,9 @@ function tak:undo()
 	self.move_history_idx[#self.move_history_idx] = nil
 	self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
 	self.board_history[#self.board_history] = nil
+	self.heights_history[#self.heights_history] = nil
 	self.board:copy(self.board_history[#self.board_history])
+	self.heights:copy(self.heights_history[#self.heights_history])
 	self.player_pieces = {self.piece_count - self.board[{{},{},{},1,{1,2}}]:sum(), 
 			      self.piece_count - self.board[{{},{},{},2,{1,2}}]:sum()}
 	self.player_caps =   {self.cap_count - self.board[{{},{},{},1,3}]:sum(), 
@@ -405,6 +410,7 @@ function tak:make_move(ptn,idx)
 	self:populate_legal_moves_at_this_ply()
 
 	table.insert(self.board_history,self.board:clone())
+	table.insert(self.heights_history,self.heights:clone())
 
 	return true
 end

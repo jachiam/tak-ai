@@ -161,3 +161,37 @@ NOTE: white forces a draw here. this is the first game where I can't detect any 
 18. 1c1+1 Fa3 
 
 NOTE: Not sure what happened here. Black played strong. Somehow a draw? Win condition seems mistaken. [Future note: turns out to have been an error in the victory condition checker. It never set 'end_is_nigh' to false, and 'end is night' was global... very bad. I hate Lua variable scoping sometimes.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. Fc2 Fa1 
+4. Fa4 Fb1 
+5. Fb3 Fc1 
+6. Fd1 1c1+1 
+7. 1b2+1 Fa3 
+8. 1b3<1 Fc3 
+9. 2a3-2 1a1+1 
+10. Sb2 Fa1 
+11. 1b2<1 Fc1 
+12. 1d1<1 2c2-2 
+13. Sd1 Fb2 
+14. 1d1<1 Fd2 
+15. 2c1<2 1c3>1 
+16. Fc3 Fd4 
+17. Fd1 Fc2 
+18. 1c1+1 1b2>1 
+19. 2c1+2 1d2<1 
+20. Sd2 3c2+12 
+21. 1d2<1 Fd2 
+22. 2c2+2 1d2<1 
+23. 3c3-3 Fb4 
+24. 1a4>1 2c4<2 
+25. 1b3+1 1d3<1 
+26. 4c2+4 Sb3 
+
+NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it?
