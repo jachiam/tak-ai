@@ -7,32 +7,29 @@ function love.load()
   TAK = tak:__init(boardsize)
 
   math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
+  tak:generate_random_game(50)
 
   -- strings representing pieces and tiles
   -- TODO: pictures instead
-  WTile = "img/wtile.png"
-  BTile = "img/btile.png"
-  WWall = "img/wwall.png"
-  BWall = "img/bwall.png"
-  WCaps = "img/wcaps.png"
-  BCaps = "img/bcaps.png"
+  WTile = love.graphics.newImage("img/wtile.png")
+  BTile = love.graphics.newImage("img/btile.png")
+  WWall = love.graphics.newImage("img/wwall.png")
+  BWall = love.graphics.newImage("img/bwall.png")
+  WCaps = love.graphics.newImage("img/wcaps.png")
+  BCaps = love.graphics.newImage("img/bcaps.png")
   -- for drawing board
   WHRatio = 0.7
+  -- table of board positions
+  PosTable = {}
 
   Pieces = {{WTile, WWall, WCaps},
             {BTile, BWall, BCaps}}
 end
 
 function love.draw()
-
-  --[[ draw the board
+  -- draw the board
   for i=1,boardsize do
-
-  end ]]--
-
-  -- loop over EVERY ONE of the FIVE DIMENSIONS
-  -- [vortex noises]
-  for i=1,boardsize do
+    PosTable[i] = {}
     for j=1,boardsize do
       -- color the space
       local thisSpaceColor = {}
@@ -59,21 +56,42 @@ function love.draw()
       local recWid = WindowSize[1]/boardsize * WHRatio
       local recHgt = WindowSize[2]/boardsize * WHRatio
 
+      PosTable[i][j] = {recX+recWid/5, recY+recHgt/5}
+
       love.graphics.rectangle('fill', recX, recY, recWid, recHgt)
-      --local height = tak.board:size(3)
-      --STACK HEIGHT COMING SOON
-      --for h=1,height do
-          for team=1,2 do
-            for piece=1,3 do
-              --FIXME remember to fix the [1] below when adding stack height
-              if tak.board[i][j][1][team][piece] ~= 0 then
-                love.graphics.print(Pieces[team][piece], WindowSize[1]*(i/boardsize)-(i*0.5/boardsize), WindowSize[2]*(j/boardsize))
+    end
+  end
+
+  -- 2. draw pieces on board
+  love.graphics.setColor(255,255,255) -- to correctly display images
+  for i=1,boardsize do
+    for j=1, boardsize do
+      local stackHeight = 10 -- FIXME: not actual stack maximum
+      for h=1,stackHeight do
+        for team=1,2 do
+          for piece=1,3 do
+            if tak.board[i][j][1][team][piece] ~= 0 then
+              local img = Pieces[team][piece]
+              local imgHgt = img:getHeight()
+              local imgWid = img:getWidth()
+              local xpos = PosTable[i][j][1]
+              local ypos = PosTable[i][j][2]
+              if piece == 2 then
+                 ypos = ypos-imgHgt/3
+              elseif piece == 3 then
+                xpos = xpos+imgWid/4
+                ypos = ypos-imgHgt/3
               else
-                -- not really an 'else'. we don't need to draw nothingness
+                ypos = ypos-(stackHeight*imgWid)/imgWid
               end
+              -- params: image, x,y position, radians, x,y scaling factors
+              love.graphics.draw(img,xpos,ypos,0,WHRatio*0.8, WHRatio*0.8)
+            else
+              -- there is no piece here. do nothing
             end
           end
-        --end
+        end
+      end
     end
   end
 end
