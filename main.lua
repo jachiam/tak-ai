@@ -1,17 +1,12 @@
 require 'tak_game'
+utf8 = require('utf8')
 
 function love.load()
+  -- setup graphics
+	love.graphics.setBackgroundColor(200,200,200)
   love.window.setMode(0,0) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
   love.graphics.print('Please enter board size:')
-
-  boardsize = 5
-
-  TAK = tak:__init(boardsize)
-
-  math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
-  tak:generate_random_game(50)
-
   -- strings representing pieces and tiles
   -- TODO: pictures instead
   WTile = love.graphics.newImage("img/wtile.png")
@@ -22,39 +17,48 @@ function love.load()
   BCaps = love.graphics.newImage("img/bcaps.png")
   -- for drawing board
   WHRatio = WindowSize[2]/WindowSize[1]
+  Pieces = {{WTile, WWall, WCaps},
+    {BTile, BWall, BCaps}}
+
+  --setup keyboard input
+  love.keyboard.setKeyRepeat(true)
+  input = 'MAKE YOUR MOVE:'
+
+  -- setup game
+  boardsize = 5
+  TAK = tak:__init(boardsize)
+
+  math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
+  tak:generate_random_game(50)
+
   -- table of board positions
   PosTable = {}
 
-  Pieces = {{WTile, WWall, WCaps},
-            {BTile, BWall, BCaps}}
 end
 
 function love.update(dt)
-	if paused or game_over then
-		return
-	end
+	-- if game_over then
+	-- 	return
+	-- end
 end
 
 function love.keypressed(key)
 	if key == 'escape' then
-		love.event.quit()
-	elseif paused then
-		togglePause()
-	end
+    love.event.quit()
+  end
 
-	if game_over then
-		return
-	end
+  -- taken from love wiki: [[
+  if key == "backspace" then
+       -- get the byte offset to the last UTF-8 character in the string.
+       local byteoffset = utf8.offset(input, -1)
 
-	if key == 'p' then
-		togglePause()
-		return
-	end
-
-end
-
-function togglePause()
-	paused = not paused
+       if byteoffset then
+           -- remove the last UTF-8 character.
+           -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+           input = string.sub(input, 1, byteoffset - 1)
+       end
+   end
+   -- ]]
 end
 
 function love.draw()
@@ -69,23 +73,23 @@ function love.draw()
       if i % 2 == 0 then
         if j % 2 == 0 then
           -- [0,0] [2,2] etc
-          thisSpaceColor = {35,33,33}
+          thisSpaceColor = {111,111,111}
         else
           -- [0,1] [0,3] etc
-          thisSpaceColor = {225,222,222}
+          thisSpaceColor = {175,175,175}
         end
       else
         if j % 2 == 0 then
           -- [1,0] [1,2] etc
-          thisSpaceColor = {225,222,222}
+          thisSpaceColor = {175,175,175}
         else
           -- [1,1] [1,3] etc
-          thisSpaceColor = {35,33,33}
+          thisSpaceColor = {111,111,111}
         end
       end
       love.graphics.setColor(thisSpaceColor)
-      local recX = (i-1)*WindowSize[1]/(1.15*boardsize)
-      local recY = (j-1)*WindowSize[2]/(1.15*boardsize)
+      local recX = (i-1)*WindowSize[1]/(1.15*boardsize)+WindowSize[1]/20
+      local recY = (j-1)*WindowSize[2]/(1.15*boardsize)+WindowSize[2]/20
 
       PosTable[i][j] = {recX+recWid/5, recY+recHgt/5}
 
@@ -128,8 +132,19 @@ function love.draw()
       end
     end
   end
+  drawTextBox()
+end
 
-  if paused then
-		love.graphics.printf("PAUSE", WindowSize[1]/2, WindowSize[2]/2, 10, 'center')
-	end
+function drawTextBox()
+  love.graphics.setColor(255,255,255)
+  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
+  textBoxWidth = WindowSize[1]/3
+  textBoxHeight = WindowSize[2]/20
+  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
+  love.graphics.setColor(0,0,0)
+  love.graphics.printf(input,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
+end
+
+function love.textinput(t)
+  input = input .. t
 end
