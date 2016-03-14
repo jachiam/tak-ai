@@ -18,7 +18,7 @@ function love.load()
   WCaps = love.graphics.newImage("img/wcaps.png")
   BCaps = love.graphics.newImage("img/bcaps.png")
   -- for drawing board
-  WHRatio = 0.7
+  WHRatio = WindowSize[2]/WindowSize[1]
   -- table of board positions
   PosTable = {}
 
@@ -66,28 +66,30 @@ function love.draw()
   love.graphics.setColor(255,255,255) -- to correctly display images
   for i=1,boardsize do
     for j=1, boardsize do
-      local stackHeight = 10 -- FIXME: not actual stack maximum
-      for h=1,stackHeight do
+      local maxStack = 10 -- FIXME: not actual stack maximum
+      for h=1,maxStack do
         for team=1,2 do
           for piece=1,3 do
-            if tak.board[i][j][1][team][piece] ~= 0 then
+            if tak.board[i][j][h][team][piece] ~= 0 then
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
               local xpos = PosTable[i][j][1]
-              local ypos = PosTable[i][j][2]
-              if piece == 2 then
-                 ypos = ypos-imgHgt/3
-              elseif piece == 3 then
-                xpos = xpos+imgWid/4
-                ypos = ypos-imgHgt/3
+              local ypos = PosTable[i][j][2]+10
+              if piece == 3 then
+                xpos = xpos+imgWid/5
+                ypos = ypos-imgHgt/4
+              elseif piece == 2 then
+                ypos = ypos-imgHgt/4
               else
-                ypos = ypos-(stackHeight*imgWid)/imgWid
+                -- it's a normal piece.
               end
+              -- adjust for height of stack
+              ypos = ypos-(10*h)
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,WHRatio*0.8, WHRatio*0.8)
             else
-              -- there is no piece here. do nothing
+              -- there is no piece of this type here.
             end
           end
         end
