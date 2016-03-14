@@ -1,48 +1,61 @@
 require 'tak_game'
 utf8 = require('utf8')
+require 'hump.gamestate'
 
-function love.load()
-  -- setup graphics
-	love.graphics.setBackgroundColor(200,200,200)
+local 'board' = {}
+local 'menu' = {}
+
+function board:setupGraphics()
+  -- window dimensions
+  love.graphics.setBackgroundColor(200,200,200)
   love.window.setMode(0,0) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
-  love.graphics.print('Please enter board size:')
-  -- strings representing pieces and tiles
-  -- TODO: pictures instead
+
+  -- images representing pieces and tiles
   WTile = love.graphics.newImage("img/wtile.png")
   BTile = love.graphics.newImage("img/btile.png")
   WWall = love.graphics.newImage("img/wwall.png")
   BWall = love.graphics.newImage("img/bwall.png")
   WCaps = love.graphics.newImage("img/wcaps.png")
   BCaps = love.graphics.newImage("img/bcaps.png")
+
   -- for drawing board
   WHRatio = WindowSize[2]/WindowSize[1]
   Pieces = {{WTile, WWall, WCaps},
     {BTile, BWall, BCaps}}
+end
 
-  --setup keyboard input
-  love.keyboard.setKeyRepeat(true)
-  input = 'MAKE YOUR MOVE:'
-
-  -- setup game
+function board:setupBoard()
   boardsize = 5
   TAK = tak:__init(boardsize)
 
   math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
   tak:generate_random_game(50)
+end
+
+function board:load()
+  setupGraphics()
+  love.graphics.print('Please enter board size:')
+
+  --setup keyboard input
+  love.keyboard.setKeyRepeat(true)
+  instructions = 'MAKE YOUR MOVE:'
+  input = ''
+
+  setupBoard()
 
   -- table of board positions
   PosTable = {}
 
 end
+--
+-- function love.update(dt)
+-- 	-- if game_over then
+-- 	-- 	return
+-- 	-- end
+-- end
 
-function love.update(dt)
-	-- if game_over then
-	-- 	return
-	-- end
-end
-
-function love.keypressed(key)
+function board:keypressed(key)
 	if key == 'escape' then
     love.event.quit()
   end
@@ -61,7 +74,7 @@ function love.keypressed(key)
    -- ]]
 end
 
-function love.draw()
+function board:draw()
   -- draw the board
   local recWid = WindowSize[1]/boardsize
   local recHgt = WindowSize[2]/boardsize
@@ -135,16 +148,23 @@ function love.draw()
   drawTextBox()
 end
 
-function drawTextBox()
+function board:drawTextBox()
   love.graphics.setColor(255,255,255)
   textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
   textBoxWidth = WindowSize[1]/3
   textBoxHeight = WindowSize[2]/20
   love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
-  love.graphics.setColor(0,0,0)
-  love.graphics.printf(input,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
+  local textToDraw
+  if input ~= '' then
+    love.graphics.setColor(0,0,0)
+    textToDraw = input
+  else
+    love.graphics.setColor(88,88,88)
+    textToDraw = instructions
+  end
+  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
 end
 
-function love.textinput(t)
+function board:textinput(t)
   input = input .. t
 end
