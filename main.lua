@@ -358,6 +358,12 @@ function over:draw()
   drawTextBox({0,0,0},{255,255,255},{255,255,255})
 end
 
+function over:keyreleased(key)
+  if key == 'escape' then
+    love.event.quit()
+  end
+end
+
 --[[
 
   THE FINAL COUNTDOWN:
@@ -365,11 +371,11 @@ end
 
 ]]--
 
-  -- just in case:
-  math.randomseed( os.time() )
-  local rando = math.random() -- Don't call math.random() more than 1x/sec
-
 function love.load()
   Gamestate.registerEvents()
   Gamestate.switch(menu)
 end
+
+-- just in case:
+math.randomseed( os.time() )
+local rando = math.random() -- Don't call math.random() more than 1x/sec
