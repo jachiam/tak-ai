@@ -1,29 +1,113 @@
+--[[
+
+  "Y'ALL READY FOR THIS?"
+
+  TAK: THE GAME: THE UNNECESSARILY AWFUL GUI:
+    THE EXTENSION OF THE NOT-PARTICULARLY-FUNNY RUNNING GAG:
+      THE DOWNFALL OF HUMANITY:
+        THE FIRMWARE UPDATE:
+          GENISYS
+
+  GUI FOR JOSH ACHIAM'S SELF-PLAYING, HUMAN-SLAYING TAK ARTIFICIAL INTELLIGENCE
+    WRITTEN BY TOBIAS MERKLE
+      PRODUCED BY SEVERAL THOUSAND GALLONS OF COFFEE
+        SPECIAL THANKS TO THE LOVE TEAM AND THE #LOVE IRC CHANNEL
+          SHOUT OUT TO JOSEFNPAT, YOU THE REAL MVP
+
+]]--
+
 require 'tak_game'
-utf8 = require('utf8')
-require 'hump.gamestate'
+utf8 = require('utf8') -- for text input
+Gamestate = require('hump.gamestate') -- for switching between menu and board
+Timer = require('hump.timer') -- ?
 
-local 'board' = {}
-local 'menu' = {}
+-- initialize game states
+local board = {}
+local menu = {}
 
---setup keyboard input
+-- setup keyboard input --
+-- placeholder text for input field (global)
+instructions = 'ENTER BOARD SIZE:'
 input = ''
+-- allow for held-keys to repeat input (mostly for backspaces)
 love.keyboard.setKeyRepeat(true)
+function love.textinput(t)
+  input = input .. t
+end
 
+
+--[[
+
+  MENU GAMESTATE
+
+    Each :method is actually a LOVE method (eg. draw, update, etc.)
+
+]]--
 function menu:draw()
   setupGraphics()
-  instructions = 'ENTER BOARD SIZE:'
   drawTextBox()
 end
+
+function menu:update(dt)
+  Timer.update(dt)
+end
+
+function menu:keyreleased(key, code)
+  if key == 'return' then
+    input = tonumber(input)
+    if input ~= nil and input >= 2 and input <= 10 then
+      boardsize = input
+      Gamestate.switch(board)
+    else
+      input = ''
+      instructions = 'PLEASE ENTER A VALID SIZE (2-10):'
+      Gamestate.switch(menu)
+    end
+  end
+end
+
+--[[
+
+  BOARD GAMESTATE
+
+    As above, each of these methods is a LOVE method that is unique
+      to this specific state
+
+]]--
 
 function board:draw()
   setupBoard()
   instructions = 'MAKE YOUR MOVE:'
 end
 
+--[[
+
+  STATE-AGNOSTIC FUNCTIONS
+    ALT. TITLE 'OMNIFUNCTIONALS'
+
+]]
+
+function drawTextBox()
+  love.graphics.setColor(255,255,255)
+  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
+  textBoxWidth = WindowSize[1]/3
+  textBoxHeight = WindowSize[2]/20
+  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
+  local textToDraw
+  if input ~= '' then
+    love.graphics.setColor(0,0,0)
+    textToDraw = input
+  else
+    love.graphics.setColor(88,88,88)
+    textToDraw = instructions
+  end
+  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
+end
+
 function setupGraphics()
   -- window dimensions
   love.graphics.setBackgroundColor(200,200,200)
-  love.window.setMode(0,0) --defaults to size of desktop
+  -- love.window.setMode(1000,750) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
 
   -- images representing pieces and tiles
@@ -41,12 +125,10 @@ function setupGraphics()
 end
 
 function board:setupBoard()
-  boardsize = 5
   TAK = tak:__init(boardsize)
 
   math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
   tak:generate_random_game(50)
-
 end
 
 function board:keypressed(key)
@@ -144,29 +226,7 @@ function board:draw()
   drawTextBox()
 end
 
-function drawTextBox()
-  love.graphics.setColor(255,255,255)
-  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
-  textBoxWidth = WindowSize[1]/3
-  textBoxHeight = WindowSize[2]/20
-  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
-  local textToDraw
-  if input ~= '' then
-    love.graphics.setColor(0,0,0)
-    textToDraw = input
-  else
-    love.graphics.setColor(88,88,88)
-    textToDraw = instructions
-  end
-  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
-end
-
-function board:textinput(t)
-  input = input .. t
-end
-
-
 function love.load()
-  gamestate.registerEvents()
-  gamestate.switch(menu)
+  Gamestate.registerEvents()
+  Gamestate.switch(menu)
 end
