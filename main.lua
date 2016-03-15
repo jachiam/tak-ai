@@ -26,6 +26,7 @@ local rando = math.random() -- Don't call math.random() more than 1x/sec
 -- initialize game states
 local board = {}
 local menu = {}
+local over = {}
 
 -- setup keyboard input --
 -- placeholder text for input field (global)
@@ -66,6 +67,10 @@ function menu:keyreleased(key, code)
       Gamestate.switch(menu)
     end
   end
+
+  if key = 'escape' then
+    love.event.quit()
+  end
 end
 
 
@@ -80,7 +85,7 @@ end
 
 function board:draw()
   TAK = tak:__init(boardsize)
-  tak:generate_random_game(20)
+
   -- draw the board
   local recWid = WindowSize[1]/boardsize
   local recHgt = WindowSize[2]/boardsize
@@ -122,7 +127,7 @@ function board:draw()
   love.graphics.setColor(255,255,255) -- to correctly display images
   for i=1,boardsize do
     for j=1, boardsize do
-      local maxStack = 10 -- FIXME: not actual stack maximum
+      local maxStack = 41
       for h=1,maxStack do
         for team=1,2 do
           for piece=1,3 do
@@ -159,11 +164,7 @@ function board:draw()
 end
 
 function board:keyreleased(key)
-  if key == 'escape' then
-    love.event.quit()
-  end
-
-  -- taken from love wiki: [[
+  -- taken from love wiki: code for interpreting backspaces
   if key == "backspace" then
     -- get the byte offset to the last UTF-8 character in the string.
     local byteoffset = utf8.offset(input, -1)
@@ -174,9 +175,30 @@ function board:keyreleased(key)
       input = string.sub(input, 1, byteoffset - 1)
     end
   end
-  -- ]]
+
+  if key == 'escape' then
+    love.event.quit()
+  end
+
+  if key == 'return' then
+    move = input
+    if tak.is_move_valid(move) then
+      tak.make_move(move)
+    else
+      move = nil
+      input = 'ENTER A VALID MOVE:'
+    end
+  end
+
 end
 
+function board:update()
+  if tak.winner ~= nil then
+    Gamestate.switch(over,tak.winner)
+  end
+
+
+end
 
 --[[
 

@@ -13,7 +13,7 @@ function tak:__init(size)
 		self.piece_count = 15
 		self.cap_count = 0
 	elseif self.size == 5 then
-		self.piece_count = 20 
+		self.piece_count = 20
 		self.cap_count = 1
 	elseif self.size == 6 then
 		self.piece_count = 30
@@ -28,7 +28,7 @@ function tak:__init(size)
 		print 'Invalid size'
 		return
 	end
-	
+
 	self.carry_limit = self.size
 	self.max_height = 2*self.piece_count + 1
 	self.player_pieces = {self.piece_count, self.piece_count}
@@ -38,11 +38,11 @@ function tak:__init(size)
 	-- Index 3:   height in stack
 	-- Index 4:   player owning piece (1 for player 1, 2 for player 2)
 	-- Index 5:   type of stone on this square (1 for flat, 2 for standing, 3 for cap)
-	-- values: 
+	-- values:
 		-- 0 means 'there is no stone of this description here'
 		-- 1 means 'there is a stone of this description here'
 		-- e.g, if self.board[1,3,1,2,3] = 1, that means,
-		--      at position (1,3,1), player 2 has a capstone. 
+		--      at position (1,3,1), player 2 has a capstone.
 	self.board = torch.zeros(self.size,self.size,self.max_height,2,3):float()
 
 	-- convenience variable for keeping track of the topmost entry in each position
@@ -85,9 +85,9 @@ function tak:undo()
 	self.heights_history[#self.heights_history] = nil
 	self.board:copy(self.board_history[#self.board_history])
 	self.heights:copy(self.heights_history[#self.heights_history])
-	self.player_pieces = {self.piece_count - self.board[{{},{},{},1,{1,2}}]:sum(), 
+	self.player_pieces = {self.piece_count - self.board[{{},{},{},1,{1,2}}]:sum(),
 			      self.piece_count - self.board[{{},{},{},2,{1,2}}]:sum()}
-	self.player_caps =   {self.cap_count - self.board[{{},{},{},1,3}]:sum(), 
+	self.player_caps =   {self.cap_count - self.board[{{},{},{},1,3}]:sum(),
 			      self.cap_count - self.board[{{},{},{},2,3}]:sum()}
 	self.ply = self.ply - 1
 end
@@ -179,7 +179,7 @@ function tak:get_legal_moves(player)
 		-- well: we already know, from the fact that this one is in stack_moves_by_pos,
 		-- that it is /legal/ in the sense that it does not put pieces off the board.
 		-- but it could run into walls. that is what we are here to check.
-		-- is there a wall or a cap somewhere in its way? 
+		-- is there a wall or a cap somewhere in its way?
 		-- and if so, do we flatten the wall with a capstone, or not?
 		stack_move = self.stack_moves[stack_move_index]
 
@@ -278,7 +278,7 @@ function tak:get_legal_moves(player)
 	for i=1,#legal_moves_ptn do
 		legal_move_mask[self.ptn2move[legal_moves_ptn[i]]] = 1
 	end
-	
+
 	return legal_moves_ptn, legal_move_mask
 end
 
@@ -346,12 +346,12 @@ function tak:make_move(ptn,idx)
 		self.player_pieces[player] = self.player_pieces[player] - 1
 	elseif move_type == 's' then
 		self.heights[{i,j}] = 1
-		self.board[{i,j,1,player,2}] = 1		
-		self.player_pieces[player] = self.player_pieces[player] - 1		
+		self.board[{i,j,1,player,2}] = 1
+		self.player_pieces[player] = self.player_pieces[player] - 1
 	elseif move_type == 'c' then
 		self.heights[{i,j}] = 1
 		self.board[{i,j,1,player,3}] = 1
-		self.player_caps[player] = self.player_caps[player] - 1		
+		self.player_caps[player] = self.player_caps[player] - 1
 	else
 		-- oooh this is gonna be hard
 		-- welcome to index magic and duct tape... but you're reading this code, so you already knew that
@@ -365,7 +365,7 @@ function tak:make_move(ptn,idx)
 		-- clear off the original stack
 		self.board[{i,j,{h-stacksum+1,h},{},{}}]:zero()
 		self.heights[{i,j}] = h - stacksum
-	
+
 		pos_in_hand = 1
 
 		x = i
@@ -383,7 +383,7 @@ function tak:make_move(ptn,idx)
 
 			dropno = tonumber(string.sub(stackstr,k,k))
 			h = self.heights[{x,y}] + 1
-			
+
 			-- this bit actually drops things from the hand onto the board
 			self.board[{x,y,{h,h+dropno-1},{},{}}]:copy(hand[{{pos_in_hand,pos_in_hand+dropno-1},{},{}}])
 			self.heights[{x,y}] = h + dropno - 1
@@ -511,7 +511,7 @@ function tak:check_victory_conditions()
 		else
 			self.winner = 0
 			self.win_type = 'DRAW'
-		end			
+		end
 	end
 
 	self.game_over = road_win or end_is_nigh
@@ -570,5 +570,5 @@ function tak:play_game_from_ptn(ptngame)
 	iterator = string.lower(ptngame):gmatch("%w%a%d[<>%+%-]?%d*")
 	for ptn_move in iterator do
 		self:make_move_by_ptn(ptn_move)
-	end		
+	end
 end
