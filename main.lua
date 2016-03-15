@@ -20,6 +20,8 @@ require 'tak_game'
 utf8 = require('utf8') -- for text input
 Gamestate = require('hump.gamestate') -- for switching between menu and board
 Timer = require('hump.timer') -- ?
+math.randomseed( os.time() )
+local rando = math.random() -- Don't call math.random() more than 1x/sec
 
 -- initialize game states
 local board = {}
@@ -66,6 +68,7 @@ function menu:keyreleased(key, code)
   end
 end
 
+
 --[[
 
   BOARD GAMESTATE
@@ -76,81 +79,8 @@ end
 ]]--
 
 function board:draw()
-  setupBoard()
-  instructions = 'MAKE YOUR MOVE:'
-end
-
---[[
-
-  STATE-AGNOSTIC FUNCTIONS
-    ALT. TITLE 'OMNIFUNCTIONALS'
-
-]]
-
-function drawTextBox()
-  love.graphics.setColor(255,255,255)
-  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
-  textBoxWidth = WindowSize[1]/3
-  textBoxHeight = WindowSize[2]/20
-  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
-  local textToDraw
-  if input ~= '' then
-    love.graphics.setColor(0,0,0)
-    textToDraw = input
-  else
-    love.graphics.setColor(88,88,88)
-    textToDraw = instructions
-  end
-  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
-end
-
-function setupGraphics()
-  -- window dimensions
-  love.graphics.setBackgroundColor(200,200,200)
-  -- love.window.setMode(1000,750) --defaults to size of desktop
-  WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
-
-  -- images representing pieces and tiles
-  WTile = love.graphics.newImage("img/wtile.png")
-  BTile = love.graphics.newImage("img/btile.png")
-  WWall = love.graphics.newImage("img/wwall.png")
-  BWall = love.graphics.newImage("img/bwall.png")
-  WCaps = love.graphics.newImage("img/wcaps.png")
-  BCaps = love.graphics.newImage("img/bcaps.png")
-
-  -- for drawing board
-  WHRatio = WindowSize[2]/WindowSize[1]
-  Pieces = {{WTile, WWall, WCaps},
-    {BTile, BWall, BCaps}}
-end
-
-function board:setupBoard()
   TAK = tak:__init(boardsize)
-
-  math.randomseed( os.time() ) -- Don't call math.random() more than 1x/sec
-  tak:generate_random_game(50)
-end
-
-function board:keypressed(key)
-	if key == 'escape' then
-    love.event.quit()
-  end
-
-  -- taken from love wiki: [[
-  if key == "backspace" then
-       -- get the byte offset to the last UTF-8 character in the string.
-       local byteoffset = utf8.offset(input, -1)
-
-       if byteoffset then
-           -- remove the last UTF-8 character.
-           -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-           input = string.sub(input, 1, byteoffset - 1)
-       end
-   end
-   -- ]]
-end
-
-function board:draw()
+  tak:generate_random_game(20)
   -- draw the board
   local recWid = WindowSize[1]/boardsize
   local recHgt = WindowSize[2]/boardsize
@@ -223,8 +153,82 @@ function board:draw()
       end
     end
   end
+
+  instructions = 'MAKE YOUR MOVE:'
   drawTextBox()
 end
+
+function board:keyreleased(key)
+  if key == 'escape' then
+    love.event.quit()
+  end
+
+  -- taken from love wiki: [[
+  if key == "backspace" then
+    -- get the byte offset to the last UTF-8 character in the string.
+    local byteoffset = utf8.offset(input, -1)
+
+    if byteoffset then
+      -- remove the last UTF-8 character.
+      -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+      input = string.sub(input, 1, byteoffset - 1)
+    end
+  end
+  -- ]]
+end
+
+
+--[[
+
+  STATE-AGNOSTIC FUNCTIONS
+    ALT. TITLE 'OMNIFUNCTIONALS'
+
+]]
+
+function drawTextBox()
+  love.graphics.setColor(255,255,255)
+  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
+  textBoxWidth = WindowSize[1]/3
+  textBoxHeight = WindowSize[2]/20
+  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
+  local textToDraw
+  if input ~= '' then
+    love.graphics.setColor(0,0,0)
+    textToDraw = input
+  else
+    love.graphics.setColor(88,88,88)
+    textToDraw = instructions
+  end
+  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
+end
+
+function setupGraphics()
+  -- window dimensions
+  love.graphics.setBackgroundColor(200,200,200)
+  -- love.window.setMode(1100,750) --defaults to size of desktop
+  WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
+
+  -- images representing pieces and tiles
+  WTile = love.graphics.newImage("img/wtile.png")
+  BTile = love.graphics.newImage("img/btile.png")
+  WWall = love.graphics.newImage("img/wwall.png")
+  BWall = love.graphics.newImage("img/bwall.png")
+  WCaps = love.graphics.newImage("img/wcaps.png")
+  BCaps = love.graphics.newImage("img/bcaps.png")
+
+  -- for drawing board
+  WHRatio = WindowSize[2]/WindowSize[1]
+  Pieces = {{WTile, WWall, WCaps},
+    {BTile, BWall, BCaps}}
+end
+
+
+--[[
+
+  THE FINAL COUNTDOWN:
+    The function that starts the game itself
+
+]]--
 
 function love.load()
   Gamestate.registerEvents()
