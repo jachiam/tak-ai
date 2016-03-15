@@ -327,7 +327,7 @@ function tak:make_move(ptn,idx)
 	-- otherwise, reject, and do not increment ply
 	-- note: legal moves for a ply are generated before the ply is played (hence ply+1)
 
-	if not(self.legal_moves_by_ply[self.ply+1][3][idx] > 0) then
+	if self.legal_moves_by_ply[self.ply+1][3][idx] == nil or not(self.legal_moves_by_ply[self.ply+1][3][idx] > 0) then
 		print 'Move was not legal.'
 		return false
 	end

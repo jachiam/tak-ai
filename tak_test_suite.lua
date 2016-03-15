@@ -6,7 +6,7 @@ t:make_move_by_ptn('fa1')	-- black plays a white flat at a1
 t:make_move_by_ptn('fa3')     -- white plays flat at a3
 t:make_move_by_ptn('cb2')	-- black plays cap at b2
 t:make_move_by_ptn('fb3')	-- white plays flat at b3
-t:make_move_by_ptn('1a2+1')   -- black moves flat from a2 to a3 
+t:make_move_by_ptn('1a2+1')   -- black moves flat from a2 to a3
 t:generate_random_game(6)	]]
 --t:make_move_by_ptn('fe1')
 --t:make_move_by_ptn('fd1')
@@ -19,7 +19,7 @@ t:generate_random_game(6)	]]
 --t:make_move_by_ptn('fe5')
 go, w, wt, p1rw, p2rw, p1p, p2p = t:check_victory_conditions()
 
---s = t:clone() 
+--s = t:clone()
 gameptn = "[Size \"5\"]\n" ..
 "\n1. Fa3 Fd1 " ..
 "\n2. Sd2 Se5 " ..
@@ -44,8 +44,8 @@ gameptn2 = "[Size \"4\"]\n" ..
 "\n8. Fd2 4d1+4 " ..
 "\n9. Fd1 2c3-2 " ..
 "\n10. Fb1 3c2-3 " ..
-"\n11. 1d1<1" --Sd1 
--- 12. 4c1+112 	
+"\n11. 1d1<1" --Sd1
+-- 12. 4c1+112
 t:reset()
 --t:play_game_from_ptn(gameptn2)
 --generate_game_by_alphabeta(t,1,2,5,true,true)
@@ -80,4 +80,3 @@ require 'tak_policy.lua'
 tp = tak_policy.new(t.size,t.max_height,#t.move2ptn)
 p = tp.network:getParameters()
 print(p:size())]]
-

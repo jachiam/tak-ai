@@ -16,14 +16,15 @@
 
 ]]--
 
-require 'tak_game'
-utf8 = require('utf8') -- for text input
-Gamestate = require('hump.gamestate') -- for switching between menu and board
-Timer = require('hump.timer') -- ?
-math.randomseed( os.time() )
-local rando = math.random() -- Don't call math.random() more than 1x/sec
+local ENM = require('move_enumerator')
+local TAK = require('tak_game')
+local TAI = require ('tak_tree_AI')
+local TTS = require('tak_test_suite')
+local utf8 = require('utf8') -- for text input
+local Gamestate = require('hump.gamestate') -- for switching between menu and board
+local Timer = require('hump.timer') -- ?
 
--- initialize game states
+-- initialize gamestates
 local board = {}
 local menu = {}
 local over = {}
@@ -34,6 +35,7 @@ instructions = 'ENTER BOARD SIZE:'
 input = ''
 -- allow for held-keys to repeat input (mostly for backspaces)
 love.keyboard.setKeyRepeat(true)
+
 function love.textinput(t)
   input = input .. t
 end
@@ -56,19 +58,20 @@ function menu:update(dt)
 end
 
 function menu:keyreleased(key, code)
+  local teamselect = false
   if key == 'return' then
     input = tonumber(input)
-    if input ~= nil and input >= 2 and input <= 10 then
-      boardsize = input
+    if input ~= nil and input >= 3 and input <= 10 then
+      boardsize, input = input, ''
       Gamestate.switch(board)
     else
       input = ''
-      instructions = 'PLEASE ENTER A VALID SIZE (2-10):'
+      instructions = 'PLEASE ENTER A VALID SIZE (3-10):'
       Gamestate.switch(menu)
     end
   end
 
-  if key = 'escape' then
+  if key == 'escape' then
     love.event.quit()
   end
 end
@@ -83,8 +86,12 @@ end
 
 ]]--
 
+function board:enter()
+  t = tak.new(boardsize)
+end
+
 function board:draw()
-  TAK = tak:__init(boardsize)
+  love.graphics.clear()
 
   -- draw the board
   local recWid = WindowSize[1]/boardsize
@@ -127,11 +134,11 @@ function board:draw()
   love.graphics.setColor(255,255,255) -- to correctly display images
   for i=1,boardsize do
     for j=1, boardsize do
-      local maxStack = 41
+      local maxStack = 10
       for h=1,maxStack do
         for team=1,2 do
           for piece=1,3 do
-            if tak.board[i][j][h][team][piece] ~= 0 then
+            if t.board[i][j][h][team][piece] ~= 0 then
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
@@ -147,7 +154,7 @@ function board:draw()
               end
               -- adjust for height of stack
               ypos = ypos-(10*h)
-              imgScaleFactor = recHgt/recWid + WHRatio/boardsize
+              imgScaleFactor = recWid*0.75
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
@@ -158,6 +165,8 @@ function board:draw()
       end
     end
   end
+
+
 
   instructions = 'MAKE YOUR MOVE:'
   drawTextBox()
@@ -181,31 +190,54 @@ function board:keyreleased(key)
   end
 
   if key == 'return' then
-    move = input
-    if tak.is_move_valid(move) then
-      tak.make_move(move)
+    move, input = input, ''
+    if move == '' or move == nil then
+      return
+    end
+    if player_move(move) then
+      player_turn = false
     else
       move = nil
-      input = 'ENTER A VALID MOVE:'
+      input = ''
+      instructions = 'ENTER A VALID MOVE:'
+      drawTextBox()
     end
   end
 
 end
 
-function board:update()
-  if tak.winner ~= nil then
-    Gamestate.switch(over,tak.winner)
+draw_duration = 2
+time_elapsed = 0
+function board:update(dt)
+  if t.win_type ~= 'NA' then
+    Gamestate.switch(over,t.winner)
   end
 
-
+  if not player_turn then
+    instructions = 'AI IS THINKING...'
+    AI_move()
+    player_turn = true
+  else
+    instructions = 'YOUR TURN...'
+  end
+  -- 
+  -- time_elapsed = time_elapsed + dt
+  -- if time_elapsed >= draw_duration then
+  --   board:draw()
+  -- end
 end
+
+-- function board:mousemoved()
+--   mouseX, mouseY = love.mouse.getX(), love.mouse.getY()
+--   if
+-- end
 
 --[[
 
   STATE-AGNOSTIC FUNCTIONS
     ALT. TITLE 'OMNIFUNCTIONALS'
 
-]]
+]]--
 
 function drawTextBox()
   love.graphics.setColor(255,255,255)
@@ -247,10 +279,33 @@ end
 
 --[[
 
+  GAME OVER MENU:
+    What happens when the AI beats you
+
+]]--
+
+function over:draw()
+  love.graphics.clear()
+  love.graphics.setBackgroundColor(0,0,0)
+  if t.win_type == 'R' then
+    win_str = 'WINNER: PLAYER #'..t.winner
+  else
+    win_str = 'DRAW!'
+  end
+  love.graphics.setColor(255,255,255)
+  love.graphics.print(win_str, WindowSize[1]/2,WindowSize[2]/2)
+end
+
+--[[
+
   THE FINAL COUNTDOWN:
     The function that starts the game itself
 
 ]]--
+
+  -- just in case:
+  math.randomseed( os.time() )
+  local rando = math.random() -- Don't call math.random() more than 1x/sec
 
 function love.load()
   Gamestate.registerEvents()
