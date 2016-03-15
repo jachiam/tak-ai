@@ -48,6 +48,10 @@ end
     Each :method is actually a LOVE method (eg. draw, update, etc.)
 
 ]]--
+function menu:enter()
+  teamselect = false
+end
+
 function menu:draw()
   setupGraphics()
   drawTextBox()
@@ -58,16 +62,33 @@ function menu:update(dt)
 end
 
 function menu:keyreleased(key, code)
-  local teamselect = false
   if key == 'return' then
-    input = tonumber(input)
-    if input ~= nil and input >= 3 and input <= 10 then
-      boardsize, input = input, ''
-      Gamestate.switch(board)
+    if not teamselect then
+      input = tonumber(input)
+      if input ~= nil and input >= 3 and input <= 10 then
+        boardsize, input = input, ''
+        teamselect = true
+        instructions = 'SELECT TEAM (B/W):'
+      else
+        input = ''
+        instructions = 'PLEASE ENTER A VALID SIZE (3-10):'
+        Gamestate.switch(menu)
+      end
     else
-      input = ''
-      instructions = 'PLEASE ENTER A VALID SIZE (3-10):'
-      Gamestate.switch(menu)
+      input = input:lower()
+      if input == 'b' or input == 'w' then
+        if input == 'b' then
+          player_team = 2
+          Gamestate.switch(board)
+        else
+          player_team = 1
+          player_turn = true
+          Gamestate.switch(board)
+        end
+      else
+        input = ''
+        instructions = 'ENTER VALID TEAM (B/W):'
+      end
     end
   end
 
@@ -87,15 +108,26 @@ end
 ]]--
 
 function board:enter()
+  input = ''
   t = tak.new(boardsize)
 end
 
 function board:draw()
   love.graphics.clear()
 
-  -- draw the board
+  drawBoard()
+  drawPieces()
+
+  instructions = 'MAKE YOUR MOVE:'
+  drawTextBox()
+end
+
+function drawBoard()
+  -- ht/wd of each tile
   local recWid = WindowSize[1]/boardsize
   local recHgt = WindowSize[2]/boardsize
+  imgScaleFactor = recHgt/recWid -- must be global for drawPieces
+
   -- table of board positions
   PosTable = {}
   for i=1,boardsize do
@@ -124,26 +156,30 @@ function board:draw()
       local recX = (i-1)*WindowSize[1]/(1.15*boardsize)+WindowSize[1]/20
       local recY = (j-1)*WindowSize[2]/(1.15*boardsize)+WindowSize[2]/20
 
+      -- save the position of the rectangle for image renders
       PosTable[i][j] = {recX+recWid/5, recY+recHgt/5}
-
       love.graphics.rectangle('fill', recX, recY, recWid, recHgt)
     end
   end
+  boarddrawn = true
+end
 
-  -- 2. draw pieces on board
-  love.graphics.setColor(255,255,255) -- to correctly display images
+function drawPieces()
   for i=1,boardsize do
     for j=1, boardsize do
       local maxStack = 10
       for h=1,maxStack do
         for team=1,2 do
           for piece=1,3 do
+            local nopieces = 0
+            xpos = PosTable[i][j][1]
+            ypos = PosTable[i][j][2]+10
+            -- check if piece at this position
             if t.board[i][j][h][team][piece] ~= 0 then
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
-              local xpos = PosTable[i][j][1]
-              local ypos = PosTable[i][j][2]+10
+              -- debug.debug()
               if piece == 3 then
                 xpos = xpos+imgWid/6
                 ypos = ypos-imgHgt/4
@@ -154,22 +190,36 @@ function board:draw()
               end
               -- adjust for height of stack
               ypos = ypos-(10*h)
-              imgScaleFactor = recWid*0.75
               -- params: image, x,y position, radians, x,y scaling factors
+              love.graphics.setColor(255,255,255) -- to correctly display images
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
-              -- there is no piece of this type here.
+              -- nopieces = nopieces + 1
+              -- if nopieces >= 3 then
+              --   drawButtons(xpos,ypos)
+              -- end
             end
           end
         end
       end
     end
   end
+end
 
-
-
-  instructions = 'MAKE YOUR MOVE:'
-  drawTextBox()
+function drawButtons(x,y)
+  if x == nil or y == nil then
+    return
+  end
+  buttonColor = {0,100,200}
+  strokeColor = {0,0,0}
+  for quadx=0,1 do
+    for quady=0,1 do
+      love.graphics.setColor(buttonColor)
+      love.graphics.rectangle('fill',x+(quadx*20),y+(quady*10),20,10)
+      love.graphics.setColor(strokeColor)
+      love.graphics.rectangle('line',x+(quadx*20),y+(quady*10),20,10)
+    end
+  end
 end
 
 function board:keyreleased(key)
@@ -200,7 +250,6 @@ function board:keyreleased(key)
       move = nil
       input = ''
       instructions = 'ENTER A VALID MOVE:'
-      drawTextBox()
     end
   end
 
@@ -215,12 +264,17 @@ function board:update(dt)
 
   if not player_turn then
     instructions = 'AI IS THINKING...'
+    drawTextBox()
     AI_move()
     player_turn = true
   else
     instructions = 'YOUR TURN...'
+    drawTextBox()
   end
-  -- 
+
+  if boarddrawn then
+    drawPieces()
+  end
   -- time_elapsed = time_elapsed + dt
   -- if time_elapsed >= draw_duration then
   --   board:draw()
@@ -239,18 +293,29 @@ end
 
 ]]--
 
-function drawTextBox()
-  love.graphics.setColor(255,255,255)
+function drawTextBox(bg,text,ph)
+  -- check for custom colors
+  if bg == nil then
+    bg = {255,255,255}
+  end
+  if txt_color == nil then
+    txt_color = {0,0,0}
+  end
+  if ph == nil then
+    ph = {88,88,88}
+  end
+
+  love.graphics.setColor(bg)
   textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
   textBoxWidth = WindowSize[1]/3
   textBoxHeight = WindowSize[2]/20
   love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
   local textToDraw
   if input ~= '' then
-    love.graphics.setColor(0,0,0)
+    love.graphics.setColor(txt_color)
     textToDraw = input
   else
-    love.graphics.setColor(88,88,88)
+    love.graphics.setColor(ph)
     textToDraw = instructions
   end
   love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
@@ -262,9 +327,9 @@ function setupGraphics()
   -- love.window.setMode(1100,750) --defaults to size of desktop
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
 
-  -- images representing pieces and tiles
-  WTile = love.graphics.newImage("img/wtile.png")
-  BTile = love.graphics.newImage("img/btile.png")
+  -- images representing pieces and flats
+  WTile = love.graphics.newImage("img/wflat.png")
+  BTile = love.graphics.newImage("img/bflat.png")
   WWall = love.graphics.newImage("img/wwall.png")
   BWall = love.graphics.newImage("img/bwall.png")
   WCaps = love.graphics.newImage("img/wcaps.png")
@@ -287,13 +352,10 @@ end
 function over:draw()
   love.graphics.clear()
   love.graphics.setBackgroundColor(0,0,0)
-  if t.win_type == 'R' then
-    win_str = 'WINNER: PLAYER #'..t.winner
-  else
-    win_str = 'DRAW!'
-  end
-  love.graphics.setColor(255,255,255)
-  love.graphics.print(win_str, WindowSize[1]/2,WindowSize[2]/2)
+  drawBoard()
+  drawPieces()
+  instructions = t.outstr
+  drawTextBox({0,0,0},{255,255,255},{255,255,255})
 end
 
 --[[
