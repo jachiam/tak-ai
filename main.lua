@@ -55,6 +55,7 @@ end
 function menu:draw()
   setupGraphics()
   drawTextBox()
+  drawLogo()
 end
 
 function menu:update(dt)
@@ -101,6 +102,17 @@ function menu:keyreleased(key, code)
   end
 end
 
+function drawLogo()
+  logo = love.graphics.newImage("img/logo.png")
+  w, h = logo:getDimensions()
+  x, y = WindowSize[1]/4, WindowSize[2]/6
+
+  wsfact = 0.5/(w/WindowSize[1])
+  hsfact = 0.5/(h/WindowSize[2])
+  sf = math.min(wsfact, hsfact)
+  love.graphics.draw(logo,x,y,0,sf,sf)
+end
+
 
 --[[
 
@@ -121,8 +133,6 @@ function board:draw()
 
   drawBoard()
   drawPieces()
-
-  instructions = 'MAKE YOUR MOVE:'
   drawTextBox()
 end
 
@@ -219,10 +229,7 @@ function drawPieces()
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
-              -- nopieces = nopieces + 1
-              -- if nopieces >= 3 then
-              --   drawButtons(xpos,ypos)
-              -- end
+              -- no pieces of that kind here
             end
           end
         end
@@ -231,20 +238,22 @@ function drawPieces()
   end
 end
 
-function drawButtons(x,y)
+function findLegalSpots(player)
+
+end
+
+function drawButton(x,y,stroke,fill)
   if x == nil or y == nil then
     return
+  elseif stroke == nil or fill == nil then
+    local stroke = {0,0,0}
+    local fill = {0,100,200}
   end
-  buttonColor = {0,100,200}
-  strokeColor = {0,0,0}
-  for quadx=0,1 do
-    for quady=0,1 do
-      love.graphics.setColor(buttonColor)
-      love.graphics.rectangle('fill',x+(quadx*20),y+(quady*10),20,10)
-      love.graphics.setColor(strokeColor)
-      love.graphics.rectangle('line',x+(quadx*20),y+(quady*10),20,10)
-    end
-  end
+
+  love.graphics.setColor(fill)
+  love.graphics.rectangle('fill',x,y,20,10)
+  love.graphics.setColor(stroke)
+  love.graphics.rectangle('line',x,y,20,10)
 end
 
 function board:keyreleased(key)
@@ -280,28 +289,18 @@ function board:update(dt)
   end
 
   if not player_turn then
-    instructions = 'AI IS THINKING...'
-    drawTextBox()
     AI_move()
     player_turn = true
   else
-    instructions = 'YOUR TURN...'
+    instructions = 'MAKE YOUR MOVE...'
     drawTextBox()
   end
 
   if boarddrawn then
     drawPieces()
   end
-  -- time_elapsed = time_elapsed + dt
-  -- if time_elapsed >= draw_duration then
-  --   board:draw()
-  -- end
 end
 
--- function board:mousemoved()
---   mouseX, mouseY = love.mouse.getX(), love.mouse.getY()
---   if
--- end
 
 --[[
 
@@ -370,6 +369,7 @@ function backspace(key)
   end
 end
 
+
 --[[
 
   GAME OVER MENU:
@@ -391,6 +391,7 @@ function over:keyreleased(key)
     love.event.quit()
   end
 end
+
 
 --[[
 
