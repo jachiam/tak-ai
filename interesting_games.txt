@@ -226,4 +226,65 @@ NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end
 23. 1b2>1 Fa1
 23. Fb2 Fc1
 
+Winner: black
+
 NOTE: It beat me with a flat win! Very surprising, because I had total board control for a good long while. It made some particularly insightful moves in the mid game, when it played its wall at b3 (B9), and then much later on when it moved that wall (B19). I had almost total board control and then it came from behind - it got clever in a corner! Perhaps this is a Brooker's Fall?
+
+(Qu4Z {white} vs. AI level 3 / 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 1a3-1 
+5. Fb1 2a2>2 
+6. Fa2 Fb3 
+7. 1b1+1 1b3-1 
+8. 1a2>1 Sb3 
+9. 4b2>22 1b3-1 
+10. Fd3 3b2>12 
+11. Fc3 4d2+13 
+12. Fb2 Fb3 
+13. Fa2 1b3-1 
+14. 1a2>1 Fb3 
+15. Fa2 1b3-1 
+16. 1a2>1 2d3<2 
+17. Fa2 Fa3 
+18. 4b2+22 	
+
+Winner: white
+
+NOTE: AI level 4 took over for moves B8 and B9, while other moves were played by AI level 3. AI did not succeed - possibly due to irrecoverable early game mistakes. 
+
+(me {white} vs. AI level 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 Fb3 
+5. Fd3 Fc2
+6. Fd2 1c2>1 
+7. Sc3 Fc4
+8. 1d3-1 1a3-1
+9. 1a1+1 Sc2
+10. Fb1 1c2>1
+11. Fa3 4d2<112
+12. 1d4<1 3a2+3
+13. 1c3<1 2b2>2
+14. 2b3+2 Fd2
+15. Fb2 Fd3
+16. Fb3 Fc3
+17. 1b3>1 4a3>13
+18. 1b2<1 Sb2
+19. Sc1 Fd1
+20. Fd4 4c3+4
+21. 1c1>1 Fa3
+22. 3a2+12 Fa1
+23. 1b1<1 Fa2
+
+Outcome: Draw
+
+NOTE: Wanted to examine the last game, starting with letting AI level 4 take over at B4. AI played a strong game and often took initiative. Through what was mostly luck I forced it into a draw. At W22, I thought I had a chancea at winning; the AI could see farther than I could. 

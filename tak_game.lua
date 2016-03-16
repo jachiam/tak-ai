@@ -327,6 +327,23 @@ function tak:make_move_by_ptn(move_ptn)
 	return self:make_move(move_ptn,self.ptn2move[move_ptn])
 end
 
+function tak:accept_user_ptn(move_ptn)
+	move_ptn = string.lower(move_ptn)
+	if move_ptn == string.match(move_ptn,'%a%d') then
+		move_ptn = 'f' .. move_ptn
+	elseif move_ptn == string.match(move_ptn,'%a%d[<>%+%-]') then
+		move_ptn = '1' .. move_ptn .. '1'
+	end
+	idx = self.ptn2move[move_ptn]
+	
+	if idx == nil then
+		print 'Did not recognize move.'
+		return false
+	end
+
+	return self:make_move_by_ptn(move_ptn), move_ptn, idx	-- last two outputs are for debug only
+end
+
 function tak:make_move(ptn,idx)
 
 	if self.game_over then

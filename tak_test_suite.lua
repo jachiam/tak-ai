@@ -50,15 +50,26 @@ t:reset()
 --t:play_game_from_ptn(gameptn2)
 --generate_game_by_alphabeta(t,1,2,5,true,true)
 
+--io.input('game.txt')
+--gptn = io.read('*all')
+function data(filename)
+	local f = torch.DiskFile(filename)
+	local gptn = f:readString('*a')
+	f:close()
+	return gptn
+end
+
+--[[
 function player_move(ptn)
-	valid = t:make_move_by_ptn(ptn)
+	valid = t:accept_user_ptn(ptn)
 	return valid
 end
 
 AI_level = 3
 function AI_move()
-	v, ptn = alphabeta(t,AI_level,-1e9,1e9,true,t:get_player(),true)
-	t:make_move_by_ptn(ptn)
+	v, ptn = alphabeta(t,AI_level,-1e9,1e9,true,t:get_player())
+	print('AI move: ' .. ptn)
+	t:accept_user_ptn(ptn)
 end
 
 function against_AI()
@@ -72,7 +83,8 @@ function against_AI()
 		end
 	end
 	print('Game Over: ' .. t.outstr)
-end
+end 
+]]
 
 --[[
 require 'tak_policy.lua'

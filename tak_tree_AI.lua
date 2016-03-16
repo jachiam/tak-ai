@@ -119,7 +119,7 @@ function children_of_node(node)
 end
 
 --TODO: figure out an implementation of MCTS to improve game speed
-function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
+function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris)
 	if depth == 0 or node_is_terminal(node) then
 		return value_of_node(node,maximizingPlayer,maxplayeris)
 	end
@@ -134,7 +134,7 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	if maximizingPlayer then
 		v = -1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, a, b, false, maxplayeris,mcts)
+			val = alphabeta(children[i],depth- 1, a, b, false, maxplayeris)
 			table.insert(moves_considered,{legal[i],val})
 			if val > v then
 				best_action = i
@@ -148,7 +148,7 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	else
 		v = 1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, a, b, true, maxplayeris,mcts)
+			val = alphabeta(children[i],depth- 1, a, b, true, maxplayeris)
 			table.insert(moves_considered,{legal[i],val})
 			if val < v then
 				best_action = i
@@ -164,7 +164,7 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	return v, legal[best_action], legal, moves_considered
 end
 
-function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
+function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,debug)
 	for i=1,num_moves do
 		if node.game_over then
 			break
@@ -175,7 +175,7 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 		else
 			depth = levelp2
 		end
-		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player(),mcts)
+		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player())
 		node:make_move_by_ptn(ptn)
 		print('Made move ' .. ptn)
 
@@ -185,4 +185,35 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 			print ''
 		end
 	end
+end
+
+function AI_move(node,AI_level,debug)
+	v, ptn, _, mc = alphabeta(node,AI_level,-1e9,1e9,true,node:get_player())
+	if debug then
+		print('AI move: ' .. ptn .. ', Value: ' .. v)
+	end
+	node:make_move_by_ptn(ptn)
+	return mc
+end
+
+function against_AI(node,AI_level,debug)
+	level = AI_level or 2
+	all_moves_considered_by_ply = {}
+	while node.win_type == 'NA' do
+		if debug then
+			print(node:game_to_ptn())
+			print ''
+		end
+		ptn = io.read()
+		if ptn == 'quit' then
+			break
+		end
+		valid = node:accept_user_ptn(ptn)
+		if valid and not(node.game_over) then	-- if user move is valid and executes and didn't end the game
+			mc = AI_move(node,AI_level,debug)
+			all_moves_considered_by_ply[node.ply] = mc	-- prior to ply, these moves were considered
+		end
+	end
+	print('Game Over: ' .. node.outstr)
+	return mc
 end
