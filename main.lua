@@ -62,6 +62,10 @@ function menu:update(dt)
 end
 
 function menu:keyreleased(key, code)
+  if key == 'backspace' then
+    backspace(key)
+  end
+
   if key == 'return' then
     if not teamselect then
       input = tonumber(input)
@@ -124,9 +128,8 @@ end
 
 function drawBoard()
   -- ht/wd of each tile
-  local recWid = WindowSize[1]/boardsize
-  local recHgt = WindowSize[2]/boardsize
-  imgScaleFactor = recHgt/recWid -- must be global for drawPieces
+  recWid = WindowSize[1]/boardsize
+  recHgt = WindowSize[2]/boardsize
 
   -- table of board positions
   PosTable = {}
@@ -157,7 +160,7 @@ function drawBoard()
       local recY = (j-1)*WindowSize[2]/(1.15*boardsize)+WindowSize[2]/20
 
       -- save the position of the rectangle for image renders
-      PosTable[i][j] = {recX+recWid/5, recY+recHgt/5}
+      PosTable[i][j] = {recX, recY}
       love.graphics.rectangle('fill', recX, recY, recWid, recHgt)
     end
   end
@@ -165,33 +168,55 @@ function drawBoard()
 end
 
 function drawPieces()
+  empty_square = torch.zeros(2,3):float()
   for i=1,boardsize do
     for j=1, boardsize do
-      local maxStack = 10
+      local maxStack = 41
       for h=1,maxStack do
+        if t.board[i][j][h] ~= nil
+        and t.board[i][j][h]:sum() == 0 then
+          break
+        end
         for team=1,2 do
           for piece=1,3 do
             local nopieces = 0
             xpos = PosTable[i][j][1]
-            ypos = PosTable[i][j][2]+10
+            ypos = PosTable[i][j][2]
             -- check if piece at this position
             if t.board[i][j][h][team][piece] ~= 0 then
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
-              -- debug.debug()
               if piece == 3 then
-                xpos = xpos+imgWid/6
-                ypos = ypos-imgHgt/4
+                -- capstone. place in center
+                xpos = xpos + recWid/2 - imgWid/2
+                ypos = ypos - recWid/3
               elseif piece == 2 then
                 ypos = ypos-imgHgt/4
               else
                 -- it's a normal piece.
+                -- -- center piece on tile:
+                xpos = xpos + recWid/10
+                ypos = ypos + recHgt/10
               end
               -- adjust for height of stack
               ypos = ypos-(10*h)
+
+              --[[ determine image scaling factor.
+                    we want displayed image height ==
+                    90% of tile height, as a rule.
+                    However, we should err on the
+                    side of smaller. ]]
+
+              imgHgtScaleFactor = 0.75/(imgHgt/recHgt)
+              imgWidScaleFactor = 0.75/(imgWid/recWid)
+
+              imgScaleFactor = math.min(imgHgtScaleFactor,
+                                        imgWidScaleFactor)
+
+              love.graphics.setColor(255,255,255) -- to correctly display color
+
               -- params: image, x,y position, radians, x,y scaling factors
-              love.graphics.setColor(255,255,255) -- to correctly display images
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
               -- nopieces = nopieces + 1
@@ -223,16 +248,8 @@ function drawButtons(x,y)
 end
 
 function board:keyreleased(key)
-  -- taken from love wiki: code for interpreting backspaces
-  if key == "backspace" then
-    -- get the byte offset to the last UTF-8 character in the string.
-    local byteoffset = utf8.offset(input, -1)
-
-    if byteoffset then
-      -- remove the last UTF-8 character.
-      -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-      input = string.sub(input, 1, byteoffset - 1)
-    end
+  if key == 'backspace' then
+    backspace(key)
   end
 
   if key == 'escape' then
@@ -341,6 +358,17 @@ function setupGraphics()
     {BTile, BWall, BCaps}}
 end
 
+function backspace(key)
+-- taken from love wiki: code for interpreting backspaces
+  -- get the byte offset to the last UTF-8 character in the string.
+  local byteoffset = utf8.offset(input, -1)
+
+  if byteoffset then
+    -- remove the last UTF-8 character.
+    -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+    input = string.sub(input, 1, byteoffset - 1)
+  end
+end
 
 --[[
 
