@@ -1,5 +1,11 @@
 [Size "4"]
 
-1. Fa4 Fa1 
-2. Fb2 Fb4 
-3. Fd4 Fa3 
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 	1a1+1
+8. Fc3 Fd3
+9. Fc4 

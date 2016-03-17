@@ -4,7 +4,9 @@ require 'move_enumerator'
 
 local tak = torch.class('tak')
 
-function tak:__init(size)
+-- N.B.: The "making_a_copy" argument is used when making a fast clone of a tak game,
+-- which is helpful in the AI tree search.
+function tak:__init(size,making_a_copy)
 	self.size = size or 5
 	if self.size == 3 then
 		self.piece_count = 12
@@ -31,6 +33,7 @@ function tak:__init(size)
 	
 	self.carry_limit = self.size
 	self.max_height = 2*self.piece_count + 1
+	if making_a_copy then return end
 	self.player_pieces = {self.piece_count, self.piece_count}
 	self.player_caps = {self.cap_count, self.cap_count}
 
@@ -105,7 +108,7 @@ function tak:clone(deep)
 end
 
 function tak:fast_clone()
-	copy = tak.new(self.size)
+	local copy = tak.new(self.size,true)
 	copy.board = self.board:clone()
 	copy.heights = self.heights:clone()
 	copy.ply = self.ply
@@ -117,11 +120,19 @@ function tak:fast_clone()
 	copy.game_over = self.game_over
 	copy.winner = self.winner
 	copy.win_type = self.win_type
+	copy.move2ptn = self.move2ptn
+	copy.ptn2move = self.ptn2move
+	copy.stack_moves_by_pos = self.stack_moves_by_pos
+	copy.stack_sums = self.stack_sums
+	copy.stack_moves = self.stack_moves
+	copy.islands = {{},{}}
+	copy.board_history = {}
+	copy.heights_history = {}
 	return copy
 end
 
 function tak:deep_clone()
-	copy = tak.new(self.size)
+	local copy = tak.new(self.size)
 	copy:play_game_from_ptn(self:game_to_ptn())
 	return copy
 end
@@ -168,9 +179,9 @@ function tak:board_to_TPS()
 end
 
 function tak:get_board_top()
-	board_top = torch.zeros(self.size,self.size,2,3):float()
+	local board_top = torch.zeros(self.size,self.size,2,3):float()
 	-- top_heights are 'n' if there is a stack of size 'n' or 1 if empty
-	top_heights = (self.heights + torch.eq(self.heights,0):long()):long()
+	local top_heights = (self.heights + torch.eq(self.heights,0):long()):long()
 	for i=1,self.size do
 		for j=1,self.size do
 			board_top[{i,j}] = self.board[{i,j,top_heights[{i,j}]}]
@@ -180,7 +191,7 @@ function tak:get_board_top()
 end
 
 function tak:get_empty_squares()
-	board_top = self:get_board_top()
+	local board_top = self:get_board_top()
 	return torch.eq(board_top:sum(3):sum(4):squeeze(),0), board_top
 end
 
@@ -189,6 +200,12 @@ function tak:is_board_valid()
 end
 
 function tak:get_legal_moves(player)
+
+	local legal_moves_ptn = {}
+	local empty_squares, board_top = self:get_empty_squares()
+	local letters = {'a','b','c','d','e','f','g','h'}
+
+	local top_walls, top_caps, walls_on_path, caps_on_path, walls_in_way, caps_in_way
 
 	local function check_stack_move(i,j,pos,stack_move_index)
 		-- how do we check whether a stack move is valid?
@@ -265,9 +282,6 @@ function tak:get_legal_moves(player)
 		end
 	end
 
-	legal_moves_ptn = {}
-	empty_squares, board_top = self:get_empty_squares()
-	letters = {'a','b','c','d','e','f','g','h'}
 	for i=1,self.size do
 		for j=1,self.size do
 			pos = letters[i] .. j
@@ -290,7 +304,7 @@ function tak:get_legal_moves(player)
 		end
 	end
 
-	legal_move_mask = torch.zeros(#self.move2ptn)
+	local legal_move_mask = torch.zeros(#self.move2ptn)
 	for i=1,#legal_moves_ptn do
 		legal_move_mask[self.ptn2move[legal_moves_ptn[i]]] = 1
 	end
@@ -314,7 +328,7 @@ end
 function tak:populate_legal_moves_at_this_ply()
 	local player = self:get_player()
 	if #self.legal_moves_by_ply < self.ply+1 then
-		legal_moves_ptn, legal_moves_mask = self:get_legal_moves(player)
+		local legal_moves_ptn, legal_moves_mask = self:get_legal_moves(player)
 		table.insert(self.legal_moves_by_ply,{player,legal_moves_ptn,legal_moves_mask})
 	end
 end
@@ -361,6 +375,7 @@ function tak:make_move(ptn,idx)
 	-- note: legal moves for a ply are generated before the ply is played (hence ply+1)
 
 	if not(self.legal_moves_by_ply[self.ply+1][3][idx] > 0) then
+		print('Tried move ' .. ptn ..' with idx ' .. idx)
 		print 'Move was not legal.'
 		return false
 	end
@@ -394,7 +409,7 @@ function tak:make_move(ptn,idx)
 		stack_amts = {}
 		h = self.heights[{i,j}]
 		-- get the stack in your hand
-		hand = self.board[{i,j,{h-stacksum+1,h},{},{}}]:clone()
+		local hand = self.board[{i,j,{h-stacksum+1,h},{},{}}]:clone()
 		-- clear off the original stack
 		self.board[{i,j,{h-stacksum+1,h},{},{}}]:zero()
 		self.heights[{i,j}] = h - stacksum
@@ -453,15 +468,17 @@ function tak:check_victory_conditions()
 	local player_two_remaining = self.player_pieces[2] + self.player_caps[2]
 
 	-- if the game board is full or either player has run out of pieces, trigger end
-	empty, board_top = self:get_empty_squares()
-	end_is_nigh = false
+	local empty, board_top = self:get_empty_squares()
+	local end_is_nigh = false
 	if empty:sum() == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
 		end_is_nigh = true
 	end
 
 	-- let's find us some islands
+	local unexplored_nodes, islands
+
 	local function get_islands(player)
-		top = self:get_board_top()
+		top = board_top
 		top_flats_and_caps = top[{{},{},player,1}] + top[{{},{},player,3}]
 		top_walls = top[{{},{},player,2}]
 
@@ -497,6 +514,7 @@ function tak:check_victory_conditions()
 		return islands
 	end
 
+
 	local function check_road_wins()
 		rw = {}
 		for player=1,2 do
@@ -515,8 +533,8 @@ function tak:check_victory_conditions()
 		return rw[1], rw[2]
 	end
 
-	p1_rw, p2_rw = check_road_wins()
-	road_win = p1_rw or p2_rw
+	local p1_rw, p2_rw = check_road_wins()
+	local road_win = p1_rw or p2_rw
 
 	if road_win then
 		if p1_rw and not(p2_rw) then
