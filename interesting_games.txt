@@ -194,4 +194,160 @@ NOTE: Not sure what happened here. Black played strong. Somehow a draw? Win cond
 25. 1b3+1 1d3<1 
 26. 4c2+4 Sb3 
 
-NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it?
+NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it? [Future note: turns out that when the AI engine was generating child nodes in the alpha-beta recursion, the child nodes didn't get information about how many pieces had been played, so it couldn't detect the draw which occurs when pieces run out. Fixed.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fb1 Fa1
+2. Fb2 Fa2
+3. Fa3 1a2-1
+4. Fc2 1b1+1
+5. 1c2<1 Fc1
+6. Fc3 Fd1
+7. Sb1 Fd3
+8. Fc4 Fd4
+9. Sd2 Sb3
+10. 3b2>3 1c1+1
+11. 1c3-1 2a1+11 
+12. Fa1 2a3-11
+13. 1a2-1 Fc1 
+14. Sc3 1c1+1
+15. 1c3-1 Fc1
+16. 1d2+1 Fa3
+17. 2c2-2 Fa4
+18. 3c1>3 Fb4
+19. 2d3+2 1b3-1
+20. Sb3 1b2>1
+21. Sb2 4c2+22 
+22. 3a1+12 Fd2 
+23. 1b2>1 Fa1
+23. Fb2 Fc1
+
+Winner: black
+
+NOTE: It beat me with a flat win! Very surprising, because I had total board control for a good long while. It made some particularly insightful moves in the mid game, when it played its wall at b3 (B9), and then much later on when it moved that wall (B19). I had almost total board control and then it came from behind - it got clever in a corner! Perhaps this is a Brooker's Fall?
+
+(Qu4Z {white} vs. AI level 3 / 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 1a3-1 
+5. Fb1 2a2>2 
+6. Fa2 Fb3 
+7. 1b1+1 1b3-1 
+8. 1a2>1 Sb3 
+9. 4b2>22 1b3-1 
+10. Fd3 3b2>12 
+11. Fc3 4d2+13 
+12. Fb2 Fb3 
+13. Fa2 1b3-1 
+14. 1a2>1 Fb3 
+15. Fa2 1b3-1 
+16. 1a2>1 2d3<2 
+17. Fa2 Fa3 
+18. 4b2+22 	
+
+Winner: white
+
+NOTE: AI level 4 took over for moves B8 and B9, while other moves were played by AI level 3. AI did not succeed - possibly due to irrecoverable early game mistakes. 
+
+(me {white} vs. AI level 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 Fb3 
+5. Fd3 Fc2
+6. Fd2 1c2>1 
+7. Sc3 Fc4
+8. 1d3-1 1a3-1
+9. 1a1+1 Sc2
+10. Fb1 1c2>1
+11. Fa3 4d2<112
+12. 1d4<1 3a2+3
+13. 1c3<1 2b2>2
+14. 2b3+2 Fd2
+15. Fb2 Fd3
+16. Fb3 Fc3
+17. 1b3>1 4a3>13
+18. 1b2<1 Sb2
+19. Sc1 Fd1
+20. Fd4 4c3+4
+21. 1c1>1 Fa3
+22. 3a2+12 Fa1
+23. 1b1<1 Fa2
+
+Outcome: Draw
+
+NOTE: Wanted to examine the last game, starting with letting AI level 4 take over at B4. AI played a strong game and often took initiative. Through what was mostly luck I forced it into a draw. At W22, I thought I had a chancea at winning; the AI could see farther than I could. 
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 	1a1+1
+8. Fc3 Fd3
+9. Fc4 2a2+2
+10. 1b3<1 Sa1
+11. Fb4 1a1>1
+12. 4a3>112
+
+Outcome: white wins, and both sides know that it's inevitable at B10
+
+NOTE: White seems to come from a weak position at the start, but turns the game around. B9 appears to be a crucial mistake which enables white to guarantee victory. Curious to see if a better move is possible there.
+
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves,
+human intervention at move B9)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 1a1+1 
+8. Fc3 Fd3 
+9. Fc4 Fd4 
+10. Fb4 Fc2 
+11. 1d1+1 1c2>1 
+12. 1c4>1 3d2+12 
+13. 1c3>1 3d4-3 
+14. Fc4 4d3-4 
+15. 1c4>1 1d3+1 
+16. Fd1 Fb2 
+17. 1d1+1 3d4-12 
+18. 1b3-1 Fd1 
+19. Sd4 3d2<12 
+20. 1c2<1 1b1+1 
+21. Sc2 2b2+2 
+22. 1d4-1 4b2+13 
+23. 1a3>1 4b4-4 
+24. 1c2>1 Sb2 
+25. Fb4 Fc4 
+26. 1b4-1 1b2+1 
+27. 4d2<112 1b3-1 
+28. Fa1 Fa3 
+29. Fb1 	
+	
+Outcome: white wins, inevitable at B27.
+
+NOTE: This is a variation on the previous game, where the losing move (B9) has been replaced with a (possibly better) move. The game here lasts significantly longer, suggesting that the revision does indeed remove white's immediate win. I personally have a hard time seeing why the game is already over at B27, though. White is ahead in the flat count, but couldn't black play 2b3-2?

@@ -7,24 +7,28 @@ function node_is_terminal(node)
 	return not(node.win_type == 'NA')
 end
 
-function check_wins_in_one(node,player,opponent)
+function check_wins_in_one(node,player)
 	local empty, top = node:get_empty_squares()	-- empty_squares also gives board_top, convenience hack
+	local your_flats = top[{{},{},player,1}]:sum()
+	local their_flats = top[{{},{},3 - player, 1}]:sum()
+	if torch.any(empty) and node.player_pieces[player] == 1 and your_flats >= their_flats then
+		your_flat_wins = 1
+	else
+		your_flat_wins = 0
+	end
 	empty = empty:float()
+	local you, them, you_x, you_y, empty_x, empty_y, e_x_1, e_y_1
+	local your_x_wins, your_y_wins
 	you = top[{{},{},player,1}] + top[{{},{},player,3}]
-	them = top[{{},{},opponent,1}] + top[{{},{},opponent,3}]
 	you_x = you:sum(1):squeeze()
 	you_y = you:sum(2):squeeze()
-	them_x = them:sum(1):squeeze()
-	them_y = them:sum(2):squeeze()
 	empty_x = empty:sum(1):squeeze()
 	empty_y = empty:sum(2):squeeze()
 	e_x_1 = torch.eq(empty_x,1):float()
 	e_y_1 = torch.eq(empty_y,1):float()
 	your_x_wins = torch.eq(torch.add(you_x,empty_x):cmul(e_x_1),node.size):sum()
 	your_y_wins = torch.eq(torch.add(you_y,empty_y):cmul(e_y_1),node.size):sum()
-	their_x_wins = torch.eq(torch.add(them_x,empty_x):cmul(e_x_1),node.size):sum()
-	their_y_wins = torch.eq(torch.add(them_y,empty_y):cmul(e_y_1),node.size):sum()
-	return your_x_wins + your_y_wins, their_x_wins + their_y_wins
+	return your_x_wins + your_y_wins + your_flat_wins
 end
 
 function get_player_score(node,player)
@@ -33,30 +37,31 @@ function get_player_score(node,player)
 	if node_is_terminal(node) then
 		if node.winner == player then
 			return 1e8 - 5*node.ply
-		elseif node.winner == 0 then
-			return 0
 		else
-			return -1e8
+			return 0
 		end
 	end
 
 	local strength = 0
 	local opponent = 3 - player
 
-	-- check if either player has easy move to win in one
-	your_wins, their_wins = check_wins_in_one(node,player,opponent)
+	-- check if you have the ability to win in one move,
+	-- by the most obvious methods (road across col or row, flat win)
+	your_wins = check_wins_in_one(node,player)
 
-	-- if the opponent has the ability to win on this, their current turn, very bad.
-	if their_wins > 0 and node:get_player() == opponent then
-		return -1e8
-	elseif your_wins > 0 and node:get_player() == player then
-		-- but if it's your turn to go and you win in one, very good.
+	-- if it is your turn and you can win in one move, very good!
+	if your_wins > 0 and node:get_player() == player then
 		return 1e8
 	else
+		-- if you can threaten more than one win at once, very strong.
 		strength = strength + your_wins^6
 	end
 
-	-- heuristic strength evaluation
+	-- heuristic strength evaluation:
+	-- bulky islands (contiguous regions of pieces you control) are powerful,
+	-- stacks are good too (but not quite as good). 
+	-- encapsulates adage, 'place if you can, move if you must.'
+	-- also, walls are somewhat weak; they should only be deployed as necessary.
 	islands = node.islands[player]
 
 	island_strengths = torch.zeros(#islands)
@@ -81,7 +86,8 @@ function get_player_score(node,player)
 					one_below = (stack[{node.heights[{i,j}]-1,player,{}}]:sum() == 1)
 					cap = (stack[{node.heights[{i,j}],player,3}] == 1)
 					if one_below and cap then
-						stack_strength = stack_strength*2
+						-- hard-capped stacks are super strong
+						stack_strength = stack_strength*3
 					end
 					table.insert(stack_strengths,stack_strength)
 					stack_strength_contrib = stack_strength_contrib + stack_strength
@@ -100,7 +106,7 @@ end
 function value_of_node(node,maximizingPlayer,maxplayeris)
 	local p1_score = get_player_score(node,1)
 	local p2_score = get_player_score(node,2)
-	score = p1_score - p2_score
+	local score = p1_score - p2_score
 	if maxplayeris == 2 then
 		score = -score
 	end
@@ -109,7 +115,8 @@ end
 
 function children_of_node(node)
 	local legal = node.legal_moves_by_ply[#node.legal_moves_by_ply][2]
-	local children = {}
+	-- slightly hacky lua black magic to reduce number of table rehashes, saves some time
+	local children = {nil,nil,nil,nil,nil}
 	for i=1,#legal do
 		local copy = node:clone()
 		copy:make_move_by_ptn(legal[i])
@@ -118,10 +125,9 @@ function children_of_node(node)
 	return children, legal
 end
 
---TODO: figure out an implementation of MCTS to improve game speed
-function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
+function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris)
 	if depth == 0 or node_is_terminal(node) then
-		return value_of_node(node,maximizingPlayer,maxplayeris)
+		return value_of_node(node,maximizingPlayer,maxplayeris), nil, nil, nil, 1
 	end
 
 	local children, legal = children_of_node(node)
@@ -130,12 +136,14 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	local a,b = alpha,beta
 
 	local moves_considered = {}
+	local num_leaves = 0
 
 	if maximizingPlayer then
 		v = -1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, a, b, false, maxplayeris,mcts)
+			val, _, _, _, nl = alphabeta(children[i],depth- 1, a, b, false, maxplayeris)
 			table.insert(moves_considered,{legal[i],val})
+			num_leaves = num_leaves + nl
 			if val > v then
 				best_action = i
 				v = val
@@ -148,8 +156,9 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 	else
 		v = 1e9
 		for i=1,#children do
-			val = alphabeta(children[i],depth- 1, a, b, true, maxplayeris,mcts)
+			val, _, _, _, nl = alphabeta(children[i],depth- 1, a, b, true, maxplayeris)
 			table.insert(moves_considered,{legal[i],val})
+			num_leaves = num_leaves + nl
 			if val < v then
 				best_action = i
 				v = val
@@ -161,10 +170,10 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,mcts)
 		end
 	end
 
-	return v, legal[best_action], legal, moves_considered
+	return v, legal[best_action], legal, moves_considered, num_leaves
 end
 
-function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
+function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,debug)
 	for i=1,num_moves do
 		if node.game_over then
 			break
@@ -175,9 +184,7 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 		else
 			depth = levelp2
 		end
-		v, ptn = alphabeta(node,depth,-1e9,1e9,true,node:get_player(),mcts)
-		node:make_move_by_ptn(ptn)
-		print('Made move ' .. ptn)
+		AI_move(node,depth,debug)
 
 		if debug then
 			print ''
@@ -185,4 +192,35 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,mcts,debug)
 			print ''
 		end
 	end
+end
+
+function AI_move(node,AI_level,debug)
+	v, ptn, _, mc, nl = alphabeta(node,AI_level,-1e9,1e9,true,node:get_player())
+	if debug then
+		print('AI move: ' .. ptn .. ', Value: ' .. v .. ', Num Leaves: ' .. nl)
+	end
+	node:make_move_by_ptn(ptn)
+	return mc
+end
+
+function against_AI(node,AI_level,debug)
+	level = AI_level or 2
+	all_moves_considered_by_ply = {}
+	while node.win_type == 'NA' do
+		if debug then
+			print(node:game_to_ptn())
+			print ''
+		end
+		ptn = io.read()
+		if ptn == 'quit' then
+			break
+		end
+		valid = node:accept_user_ptn(ptn)
+		if valid and not(node.game_over) then	-- if user move is valid and executes and didn't end the game
+			mc = AI_move(node,AI_level,debug)
+			all_moves_considered_by_ply[node.ply] = mc	-- prior to ply, these moves were considered
+		end
+	end
+	print('Game Over: ' .. node.outstr)
+	return mc
 end
