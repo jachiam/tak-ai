@@ -26,13 +26,19 @@ local Gamestate = require('hump.gamestate') -- for switching between menu and bo
 -- initialize gamestates
 local menu = {}
 local board = {}
-local over = {}
+local pause = {}
 
 -- setup keyboard input --
 -- placeholder text for input field (global)
 instructions = 'ENTER BOARD SIZE:'
+ups = 0
 input = ''
-log = {}
+log = {'','','','','','',''}
+user = ''
+opponent = 'TAKAI'
+foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
+
+game_inprogress = false
 -- allow for held-keys to repeat input (mostly for backspaces)
 love.keyboard.setKeyRepeat(true)
 
@@ -54,8 +60,14 @@ end
 
 function menu:draw()
   setupGraphics()
-  drawTextBox()
-  drawLogo(WindowSize[1]/3)
+  drawSidebar(WindowSize[1]/3)
+  drawConsole()
+
+  love.graphics.setColor(255,255,255)
+  local intro = "Choose a board size (3-8) \n" ..
+    "and pick a team \n" ..
+    "to begin play."
+  love.graphics.printf(intro,WindowSize[1]/2,WindowSize[2]/2,250,'center')
 end
 
 function menu:keyreleased(key, code)
@@ -76,7 +88,7 @@ function menu:keyreleased(key, code)
         Gamestate.switch(menu)
       end
     else
-      input = input:lower()
+      input = input:lower() -- :lower() converts to lower-case
       if input == 'b' or input == 'w' then
         if input == 'b' then
           player_team = 2
@@ -97,7 +109,9 @@ function menu:keyreleased(key, code)
   end
 end
 
-function drawLogo(abs_wid)
+function drawSidebar(abs_wid)
+  love.graphics.setColor(11,11,11)
+  love.graphics.rectangle('fill',0,0,abs_wid,WindowSize[2])
   local logo = love.graphics.newImage('img/logo.png')
   local width = logo:getWidth()
   local height = logo:getHeight()
@@ -106,8 +120,10 @@ function drawLogo(abs_wid)
   end
   local ratio = abs_wid/width
   love.graphics.setColor(255,255,255)
-  love.graphics.draw(logo,0,0,0,ratio,ratio)
-  slogan = "PTN to move\n" --[[""'help' to list commands\n"]] .. "[esc] to quit"
+  love.graphics.draw(logo,5,5,0,ratio,ratio)
+  slogan = "PTN to move\n" ..
+    "'help' to list commands\n" ..
+    "[esc] to quit"
   love.graphics.printf(slogan,0,height,250,'center',0)
 end
 
@@ -121,19 +137,25 @@ end
 
 ]]--
 
-function board:enter()
+function board:enter(_,continue)
+  game_inprogress = true
   input = ''
+  user = ''
   AI_LEVEL = 3
-  t = tak.new(boardsize)
+  if continue then
+    return
+  else
+    t = tak.new(boardsize)
+  end
 end
 
 function board:draw()
   -- love.graphics.clear()
 
-  drawLogo(WindowSize[1]/3)
+  drawSidebar(WindowSize[1]/3)
   drawBoard()
   drawPieces()
-  drawTextBox()
+  drawConsole()
 end
 
 function drawBoard()
@@ -206,7 +228,7 @@ function drawPieces()
                 -- it's a normal piece.
                 -- -- center piece on tile:
                 xpos = xpos + recSize/10 -- TODO Gamestate.recWid/Hgt
-                ypos = ypos + recSize/4
+                ypos = ypos + recSize/6
               end
               -- pad on top, and adjust for height of stack
               ypos = ypos + recSize/3 - (10*h)
@@ -252,6 +274,23 @@ function board:keyreleased(key)
     love.event.quit()
   end
 
+  if key == 'up' then
+    if ups < #log then
+      ups = ups + 1
+      input = log[#log+1-ups]
+    else
+      ups = 0
+      input = ''
+    end
+  end
+
+  if key == 'down' then
+    if ups > 0 then
+      ups = ups - 1
+      input = log[#log+1-ups]
+    end
+  end
+
   if key == 'return' then
     table.insert(log,input)
     move = input
@@ -263,6 +302,7 @@ function board:keyreleased(key)
     else
       interpret(input)
     end
+    ups = 0
     input = ''
   end
 end
@@ -272,13 +312,6 @@ function interpret(command)
   for word in string.gmatch(command, "%a+") do
     table.insert(tinput,word)
     print(word)
-  end
-
-  print (tinput)
-  for k,v in pairs(tinput) do
-    print (k)
-    print (v)
-    print ('--')
   end
 
   cli_parse(tinput)
@@ -302,38 +335,59 @@ function cli_parse(cmdtable)
     -- TODO import game from file
   elseif cmd == 'name' or cmd == 'user' then
     -- TODO set username
+    user = cmdtable[2]
     print ('user is now known as ' .. cmdtable[2])
-    print ('** WARN: DIDN\'T ACTUALLY**')
   elseif cmd == 'opp' then
-    -- TODO set opponent
-    print ('opponent has been set to ' .. cmdtable[2])
-    print ('** WARN: DIDN\'T ACTUALLY**')
-    t:reset()
+    local s = "opponent not recognized"
+    if cmdtable[2] ~= nil
+    and foes[cmdtable[2]:upper()] ~= nil then
+      s = 'opponent has been set to ' .. cmdtable[2]
+      opponent = cmdtable[2]:upper()
+    end
+    table.insert(log, s)
+    print(s)
   elseif cmd == 'level' then
     local lv = cmdtable[2]
     if tonumber(lv) ~= nil then
       print ('AI has been set to level ' .. cmdtable[2])
-      AI_LEVEL = cmdtable[2]
-      t:reset()
+      AI_LEVEL = cmdtable[2]+2
     end
-  elseif cmd == 'new' then
+  elseif cmd == 'new' or cmd == 'reset' then
     t:reset()
-  elseif cmd == 'undo' then
+    -- if cmdtable[2] ~= nil
+    -- and tonumber(cmdtable[2]) ~= nil
+    -- and (5 - tonumber(cmdtable[2]) < 3) then
+    --   boardsize = cmdtable[2]
+    --   Gamestate.switch(board)
+    -- end
+  elseif cmd == 'undo' or cmd == 'oops' then
     t:undo()
-  elseif cmd == 'resign' then
+    t:undo()
+  elseif cmd == 'resign' or cmd == 'dammit' then
     -- TODO resign
-  elseif cmd == 'quit' or cmd == 'exit' then
+  elseif cmd == 'quit' or cmd == 'exit' or cmd == 'logout' or cmd == 'bye' then
     love.event.quit()
+  elseif cmd == 'help' or cmd == '?' or cmd == 'list' then
+    Gamestate.switch(pause)
+  elseif cmd == 'win' then
+    instructions = 'Nice try.'
+  elseif cmd == 'ai' then
+    AI_move(t,AI_LEVEL,true)
   end
 end
 
 function board:update(dt)
+  if input == nil then
+    input = ''
+  end
+
   if t.win_type ~= 'NA' then
-    Gamestate.switch(over,t.winner)
+    input = ''
+    instructions = t.outstr
   end
 
   if not player_turn then
-    instructions = 'AI IS THINKING...'
+    instructions = opponent .. ' IS THINKING...'
     board:draw()
     love.graphics.present()
     AI_move(t,AI_LEVEL,true)
@@ -351,8 +405,12 @@ end
 
 ]]--
 
-function drawTextBox(bg,text,ph)
+function drawConsole(bg,text,ph)
   -- check for custom colors
+  local bg = bg
+  local txt_color = text
+  local ph = ph
+
   if bg == nil then
     bg = {22,22,22}
   end
@@ -363,39 +421,72 @@ function drawTextBox(bg,text,ph)
     ph = {88,88,88}
   end
 
+  if not player_turn and game_inprogress then
+    bg = {50,50,100}
+    txt_color= {0,0,0}
+    ph = {230,230,230}
+  end
+
   love.graphics.setColor(bg)
-  textBoxCorner = {0,WindowSize[2]*4/5}
-  textBoxWidth = WindowSize[1]/3
-  textBoxHeight = WindowSize[2]/5
-  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight+5)
+  consoleCorner = {0,WindowSize[2]*4/5}
+  consoleWidth = WindowSize[1]/3
+  consoleHeight = WindowSize[2]/5
+  love.graphics.rectangle('fill',consoleCorner[1],consoleCorner[2],consoleWidth,consoleHeight+5)
   love.graphics.setColor(111,111,111)
-  love.graphics.rectangle('line',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
+  love.graphics.rectangle('line',consoleCorner[1],consoleCorner[2],consoleWidth,consoleHeight)
+
+  -- draw last 5 lines of log
+  love.graphics.setColor(ph)
+  for l=1,7 do
+    log_str = '' .. log[#log+1-l]
+    love.graphics.printf(log_str,consoleCorner[1]+5,WindowSize[2]-15*(l+1),consoleWidth-5,'left',0)
+  end
+
   local textToDraw
   if input ~= '' then
     love.graphics.setColor(txt_color)
-    textToDraw = '> ' .. input .. '_'
+    textToDraw = user .. '> ' .. input .. '_'
   else
     love.graphics.setColor(ph)
     textToDraw = '! ' .. instructions
   end
 
-  -- draw last 5 lines of log
-  for l=1,5 do
-    -- love.graphics.printf(log[#log-l])
+  -- draw CLI
+  love.graphics.printf(textToDraw,consoleCorner[1]+5,WindowSize[2]-15,consoleWidth-5,'left',0)
+
+  -- finally, draw the PTN display
+  if consoleWidth ~= nil and consoleHeight ~= nil then
+    drawPTN(consoleWidth,consoleHeight,WindowSize[2]*1/3)
   end
-  love.graphics.printf(textToDraw,textBoxCorner[1]+5,WindowSize[2]-15,textBoxWidth-5,'left',0)
+end
+
+function drawPTN(ptn_w,ptn_h,ptn_y)
+  love.graphics.setColor(22,22,22)
+  local total_h = WindowSize[1]/3
+  love.graphics.rectangle('fill',0,ptn_y,ptn_w,total_h)
+  love.graphics.setColor(77,77,77)
+  love.graphics.rectangle('line',0,ptn_y,ptn_w,total_h)
+  love.graphics.setColor(200,200,200)
+
+  if t ~= nil then
+    local ptn = t:game_to_ptn()
+    local ptnlines = {'','','','','','','','','','','','','','','','','',''}
+    for line in string.gmatch(ptn,".+$") do
+      table.insert(ptnlines, line)
+    end
+
+    for l=1,18 do
+      local line = '' .. ptnlines[#ptnlines+1-l]
+      love.graphics.print(line, 5, ptn_y+5*l)
+    end
+  end
 end
 
 function setupGraphics()
   -- window dimensions
   love.graphics.setBackgroundColor(11,11,11)
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
-  -- if not fs then
-  --   love.window.setMode(0,0)
-  --   local w,h = love.graphics.getDimensions()
-  --   love.window.setMode(w,h)
-  -- end
-  fs = true
+  fs = false
 
   -- images representing pieces and flats
   -- TODO: color tint
@@ -405,11 +496,10 @@ function setupGraphics()
   BWall = love.graphics.newImage("img/bwall.png")
   WCaps = love.graphics.newImage("img/wcaps.png")
   BCaps = love.graphics.newImage("img/bcaps.png")
-  Pieces = {{WTile, WWall, WCaps},
-            {BTile, BWall, BCaps}}
-
-  -- for drawing board
-  WHRatio = WindowSize[2]/WindowSize[1]
+  Pieces = {
+    {WTile, WWall, WCaps},
+    {BTile, BWall, BCaps}
+  }
 end
 
 function backspace(key)
@@ -427,23 +517,36 @@ end
 
 --[[
 
-  GAME OVER MENU:
+  PAUSE/GAME OVER MENU:
     What happens when the AI beats you
 
 ]]--
 
-function over:draw()
+function pause:draw()
   love.graphics.clear()
-  love.graphics.setBackgroundColor(0,0,0)
+  love.graphics.setBackgroundColor(125,100,100)
+  setupGraphics()
   drawBoard()
   drawPieces()
-  instructions = t.outstr
-  drawTextBox({0,0,0},{255,255,255},{255,255,255})
+
+  local menuW, menuH = WindowSize[1]/2, WindowSize[2]/4
+  love.graphics.setColor(230,200,200)
+  love.graphics.rectangle('fill',menuW/2,menuH,menuW,menuH)
+  local help = "[esc]: quit\n" ..
+    "> export [filename]: save game to filename.ptn\n" ..
+    "> import [filename]: load game from filename.ptn\n" ..
+    "> new: start new game\n" ..
+    "> undo: undo last move\n" ..
+    "> name [username]: set your name\n" ..
+    "> level [1-3]: set AI level\n" ..
+    "> fs: toggle fullscreen"
+  love.graphics.setColor(0,0,0)
+  love.graphics.print(help, menuW/2+5, menuH+5)
 end
 
-function over:keyreleased(key)
+function pause:keyreleased(key)
   if key == 'escape' then
-    love.event.quit()
+    Gamestate.switch(board,true)
   end
 end
 
