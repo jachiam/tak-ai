@@ -1,0 +1,353 @@
+(AI level 2 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fc2 Fa3 
+2. Fd4 Fd3 
+3. 1d4-1 Fd2 
+4. 2d3-2 1c2>1 
+5. Fb3 Fd1 
+6. Sd4 4d2<112 
+7. 1b3-1 Fd3 
+8. 1d4-1 Fd2 
+9. 2d3-2 Fd4 
+10. Fb3 1c2<1 
+11. 1b3-1 1d4-1 
+12. 2b2<2 Fc2 
+13. Fd4 Fc3 
+14. 2b2>2 1d3+1 
+15. Fb3 1c3-1 
+16. 4a2>13 Fc3 
+17. 4c2+4 Fd3 
+18. 3d2+3 Fd2 
+19. 4d3-4 Fd3
+20. Fb4 2d4-2
+21. Fc1
+
+
+
+(AI level 1 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fd2 Fd1 
+2. Fc1 Fd4 
+3. Fc2 Fd3 
+4. Fc3 1d3<1 
+5. Fb2 1d2-1 
+6. Fd2 2d1+2 
+7. Fd1 3d2-3 
+8. Fd2 4d1+4 
+9. Fd1 2c3-2 
+10. Fb1 3c2-3 
+11. 1d1<1 Sd1 
+12. 4c1+112 
+
+NOTE: white victory here is a sign that the AI engine is buggy. B11 should clearly have been Sc2 to prevent W12's game winning move. 
+
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fb1 Fd2 
+2. Fc2 Fa1 
+3. Fb2 1b1+1 
+4. Fc1 2b2>2 
+5. Fd1 3c2>3 
+6. Fb1 1a1>1 
+7. Fc2 2b1>2 
+8. Fb2 3c1+3 
+9. Fa2 Fc1 
+10. Fa1 Fc3 
+11. 1b2>1 1c1+1 
+12. Fa3 2c2<11 
+13. 1a1+1 Fb3 
+14. Fa1 1b3<1 
+15. 2a2+2 4c2<13 
+16. 3a3-3 4d2<112 
+17. 1b2<1 Fa4 
+18. 3a2+12 	
+
+NOTE: white victory is another AI engine bug.
+
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fa2 Fa3 
+3. Fb1 1a3-1 
+4. Fb2 2a2>2 
+5. Fa2 3b2<3 
+6. Fb2 4a2>4 
+7. Fa2 Fa3 
+8. Fc1 Fd1 
+9. Fc2 1d1<1 
+10. 1a2>1 2c1<2 
+11. 3b2+12 3b1+3 
+12. Fc3 1a3>1 
+13. Fc4 2b3>2 
+14. Fb3 1a4>1 
+15. 1b3>1 2b4>2 
+16. 3c3<12 1b4-1 
+17. Fa2 2b3<2 
+18. Fb1 4a3-13 
+19. Fc1 	
+
+NOTE: white's last move ties the game: by exhausting its flats, it forces a draw. this is actually a good move, considering black controls everything on the board. black's early game moves are bad, though, because they spend too much time capturing white's pieces in stacks insteady of putting down pieces of their own. this is a failure of the heuristic value function. 
+
+-- new version of AI has been implemented. --
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fb4 Fc4 
+2. Fa1 Fa2 
+3. 1a1>1 Fa1 
+4. Fa3 1a1>1 
+5. Fa1 1a2>1 
+6. 1a1>1 1b2-1 
+7. Fa1 Fa2 
+8. 1a1>1 1a2+1 
+9. Fa1 Sc1 
+10. 1a1>1 Fa1 
+11. Fa2 1a1>1 
+12. Fa1 2a3>2 
+13. 1a1>1 1b4>1 
+14. Fa1 Sb2 
+15. 1a1>1 Fa1 
+16. 1a2+1 1b2+1 
+17. Fa2 1a1+1 
+18. Fa1 2a2>2 
+19. 1a1>1 Fa1 
+20. Fa2 1a1+1 
+21. Fa1 2a2>2 
+22. 1a1>1 Fa1 
+23. Fa2 1a1+1 
+24. Fa1 	
+
+NOTE: white forces a draw here. this is the first game where I can't detect any obvious mistakes; looks like both players are making reasonable decisions. white continually tries to build in lower right, but black blocks it too effectively. more creative play by white would be necessary. black played better than white but couldn't manage a win: bad AI or first-player advantage?
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. Fc2 Fa1 
+4. Fa4 Fb1 
+5. Fb3 Fc1 
+6. Fd1 1c1+1 
+7. 1b2+1 Fa3 
+8. 1b3<1 Fc3 
+9. 2a3-2 1a1+1 
+10. Sb2 Fa1 
+11. 1b2<1 Fc1 
+12. 1d1<1 2c2-2 
+13. Sd1 Fb2 
+14. 1d1<1 Fd2 
+15. 2c1<2 1c3>1 
+16. Fc3 Fd4 
+17. Fd1 Fc2 
+18. 1c1+1 Fa3 
+
+NOTE: Not sure what happened here. Black played strong. Somehow a draw? Win condition seems mistaken. [Future note: turns out to have been an error in the victory condition checker. It never set 'end_is_nigh' to false, and 'end is night' was global... very bad. I hate Lua variable scoping sometimes.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. Fc2 Fa1 
+4. Fa4 Fb1 
+5. Fb3 Fc1 
+6. Fd1 1c1+1 
+7. 1b2+1 Fa3 
+8. 1b3<1 Fc3 
+9. 2a3-2 1a1+1 
+10. Sb2 Fa1 
+11. 1b2<1 Fc1 
+12. 1d1<1 2c2-2 
+13. Sd1 Fb2 
+14. 1d1<1 Fd2 
+15. 2c1<2 1c3>1 
+16. Fc3 Fd4 
+17. Fd1 Fc2 
+18. 1c1+1 1b2>1 
+19. 2c1+2 1d2<1 
+20. Sd2 3c2+12 
+21. 1d2<1 Fd2 
+22. 2c2+2 1d2<1 
+23. 3c3-3 Fb4 
+24. 1a4>1 2c4<2 
+25. 1b3+1 1d3<1 
+26. 4c2+4 Sb3 
+
+NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it? [Future note: turns out that when the AI engine was generating child nodes in the alpha-beta recursion, the child nodes didn't get information about how many pieces had been played, so it couldn't detect the draw which occurs when pieces run out. Fixed.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fb1 Fa1
+2. Fb2 Fa2
+3. Fa3 1a2-1
+4. Fc2 1b1+1
+5. 1c2<1 Fc1
+6. Fc3 Fd1
+7. Sb1 Fd3
+8. Fc4 Fd4
+9. Sd2 Sb3
+10. 3b2>3 1c1+1
+11. 1c3-1 2a1+11 
+12. Fa1 2a3-11
+13. 1a2-1 Fc1 
+14. Sc3 1c1+1
+15. 1c3-1 Fc1
+16. 1d2+1 Fa3
+17. 2c2-2 Fa4
+18. 3c1>3 Fb4
+19. 2d3+2 1b3-1
+20. Sb3 1b2>1
+21. Sb2 4c2+22 
+22. 3a1+12 Fd2 
+23. 1b2>1 Fa1
+23. Fb2 Fc1
+
+Winner: black
+
+NOTE: It beat me with a flat win! Very surprising, because I had total board control for a good long while. It made some particularly insightful moves in the mid game, when it played its wall at b3 (B9), and then much later on when it moved that wall (B19). I had almost total board control and then it came from behind - it got clever in a corner! Perhaps this is a Brooker's Fall?
+
+(Qu4Z {white} vs. AI level 3 / 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 1a3-1 
+5. Fb1 2a2>2 
+6. Fa2 Fb3 
+7. 1b1+1 1b3-1 
+8. 1a2>1 Sb3 
+9. 4b2>22 1b3-1 
+10. Fd3 3b2>12 
+11. Fc3 4d2+13 
+12. Fb2 Fb3 
+13. Fa2 1b3-1 
+14. 1a2>1 Fb3 
+15. Fa2 1b3-1 
+16. 1a2>1 2d3<2 
+17. Fa2 Fa3 
+18. 4b2+22 	
+
+Winner: white
+
+NOTE: AI level 4 took over for moves B8 and B9, while other moves were played by AI level 3. AI did not succeed - possibly due to irrecoverable early game mistakes. 
+
+(me {white} vs. AI level 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 Fb3 
+5. Fd3 Fc2
+6. Fd2 1c2>1 
+7. Sc3 Fc4
+8. 1d3-1 1a3-1
+9. 1a1+1 Sc2
+10. Fb1 1c2>1
+11. Fa3 4d2<112
+12. 1d4<1 3a2+3
+13. 1c3<1 2b2>2
+14. 2b3+2 Fd2
+15. Fb2 Fd3
+16. Fb3 Fc3
+17. 1b3>1 4a3>13
+18. 1b2<1 Sb2
+19. Sc1 Fd1
+20. Fd4 4c3+4
+21. 1c1>1 Fa3
+22. 3a2+12 Fa1
+23. 1b1<1 Fa2
+
+Outcome: Draw
+
+NOTE: Wanted to examine the last game, starting with letting AI level 4 take over at B4. AI played a strong game and often took initiative. Through what was mostly luck I forced it into a draw. At W22, I thought I had a chancea at winning; the AI could see farther than I could. 
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 	1a1+1
+8. Fc3 Fd3
+9. Fc4 2a2+2
+10. 1b3<1 Sa1
+11. Fb4 1a1>1
+12. 4a3>112
+
+Outcome: white wins, and both sides know that it's inevitable at B10
+
+NOTE: White seems to come from a weak position at the start, but turns the game around. B9 appears to be a crucial mistake which enables white to guarantee victory. Curious to see if a better move is possible there.
+
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves,
+human intervention at move B9)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 1a1+1 
+8. Fc3 Fd3 
+9. Fc4 Fd4 
+10. Fb4 Fc2 
+11. 1d1+1 1c2>1 
+12. 1c4>1 3d2+12 
+13. 1c3>1 3d4-3 
+14. Fc4 4d3-4 
+15. 1c4>1 1d3+1 
+16. Fd1 Fb2 
+17. 1d1+1 3d4-12 
+18. 1b3-1 Fd1 
+19. Sd4 3d2<12 
+20. 1c2<1 1b1+1 
+21. Sc2 2b2+2 
+22. 1d4-1 4b2+13 
+23. 1a3>1 4b4-4 
+24. 1c2>1 Sb2 
+25. Fb4 Fc4 
+26. 1b4-1 1b2+1 
+27. 4d2<112 1b3-1 
+28. Fa1 Fa3 
+29. Fb1 	
+	
+Outcome: white wins, inevitable at B27.
+
+NOTE: This is a variation on the previous game, where the losing move (B9) has been replaced with a (possibly better) move. The game here lasts significantly longer, suggesting that the revision does indeed remove white's immediate win. I personally have a hard time seeing why the game is already over at B27, though. White is ahead in the flat count, but couldn't black play 2b3-2?

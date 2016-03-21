@@ -16,54 +16,30 @@
 
 ]]--
 
-local loveframes = require('LoveFrames')
-local ENM = require('move_enumerator')
+-- TODO Goature tut
+
 local TAK = require('tak_game')
 local TAI = require ('tak_tree_AI')
-local TTS = require('tak_test_suite')
 local utf8 = require('utf8') -- for text input
 local Gamestate = require('hump.gamestate') -- for switching between menu and board
 
 -- initialize gamestates
-local board = {}
 local menu = {}
+local board = {}
 local over = {}
 
 -- setup keyboard input --
 -- placeholder text for input field (global)
 instructions = 'ENTER BOARD SIZE:'
 input = ''
+log = {}
 -- allow for held-keys to repeat input (mostly for backspaces)
 love.keyboard.setKeyRepeat(true)
 
 function love.textinput(t)
   input = input .. t
-  loveframes.textinput(t)
 end
 
-function love.draw()
-  loveframes.draw()
-end
-
-function love.update()
-  loveframes.update()
-end
-
-function love.keypressed(key)
-  loveframes.keypressed(key)
-end
-
-function love.keyreleased(key)
-  loveframes.keyreleased(key)
-end
-
-function love.mousepressed(x,y,button)
-  loveframes.mousepressed(x,y,button)
-end
-
-function love.mousereleased(x,y,button)
-  loveframes.mousereleased(x,y,button)
-end
 
 --[[
 
@@ -79,7 +55,7 @@ end
 function menu:draw()
   setupGraphics()
   drawTextBox()
-  drawLogo()
+  drawLogo(WindowSize[1]/3)
 end
 
 function menu:keyreleased(key, code)
@@ -104,12 +80,11 @@ function menu:keyreleased(key, code)
       if input == 'b' or input == 'w' then
         if input == 'b' then
           player_team = 2
-          Gamestate.switch(board)
         else
           player_team = 1
           player_turn = true
-          Gamestate.switch(board)
         end
+        Gamestate.switch(board)
       else
         input = ''
         instructions = 'ENTER VALID TEAM (B/W):'
@@ -122,9 +97,18 @@ function menu:keyreleased(key, code)
   end
 end
 
-function drawLogo()
-  local image = loveframes.Create("image", menu)
-  image:SetImage("img/logo.png")
+function drawLogo(abs_wid)
+  local logo = love.graphics.newImage('img/logo.png')
+  local width = logo:getWidth()
+  local height = logo:getHeight()
+  if not abs_wid then
+    abs_wid = width
+  end
+  local ratio = abs_wid/width
+  love.graphics.setColor(255,255,255)
+  love.graphics.draw(logo,0,0,0,ratio,ratio)
+  slogan = "PTN to move\n" --[[""'help' to list commands\n"]] .. "[esc] to quit"
+  love.graphics.printf(slogan,0,height,250,'center',0)
 end
 
 
@@ -139,53 +123,56 @@ end
 
 function board:enter()
   input = ''
+  AI_LEVEL = 3
   t = tak.new(boardsize)
 end
 
 function board:draw()
-  love.graphics.clear()
+  -- love.graphics.clear()
 
-  drawTextBox()
+  drawLogo(WindowSize[1]/3)
   drawBoard()
   drawPieces()
+  drawTextBox()
 end
 
 function drawBoard()
   -- ht/wd of each tile
-  recWid = WindowSize[1]/boardsize
-  recHgt = WindowSize[2]/boardsize
+  recSize = 0.75*WindowSize[2]/boardsize
+  origin = {(WindowSize[1]*0.95)-(boardsize*recSize),WindowSize[2]/20}
 
   -- table of board positions
   PosTable = {}
+  local cols = {1,2,3,4,5,6,7,8}
+  local rows = {'a','b','c','d','e','f','g','h'}
+  switch = false
   for i=1,boardsize do
     PosTable[i] = {}
     for j=1,boardsize do
       -- color the space
       local thisSpaceColor = {}
-      if i % 2 == 0 then
-        if j % 2 == 0 then
-          -- [0,0] [2,2] etc
-          thisSpaceColor = {111,111,111}
-        else
-          -- [0,1] [0,3] etc
-          thisSpaceColor = {175,175,175}
-        end
+      if switch then
+        thisSpaceColor = {111,111,111}
       else
-        if j % 2 == 0 then
-          -- [1,0] [1,2] etc
-          thisSpaceColor = {175,175,175}
-        else
-          -- [1,1] [1,3] etc
-          thisSpaceColor = {111,111,111}
-        end
+        thisSpaceColor = {222,222,222}
       end
+
+      switch = not switch
+
       love.graphics.setColor(thisSpaceColor)
-      local recX = (i-1)*WindowSize[1]/(1.15*boardsize)+WindowSize[1]/20
-      local recY = (j-1)*WindowSize[2]/(1.15*boardsize)+WindowSize[2]/20
+
+      local recX = (i-1)*recSize+origin[1]
+      local recY = (j-1)*recSize+origin[2]
 
       -- save the position of the rectangle for image renders
       PosTable[i][j] = {recX, recY}
-      love.graphics.rectangle('fill', recX, recY, recWid, recHgt)
+      love.graphics.rectangle('fill', recX, recY, recSize, recSize)
+      love.graphics.setColor(0,0,0)
+      local sq = rows[i] .. cols[boardsize+1-j]
+      love.graphics.print(sq, recX, recY)
+    end
+    if boardsize % 2 == 0 then
+      switch = not switch
     end
   end
   boarddrawn = true
@@ -195,51 +182,47 @@ function drawPieces()
   empty_square = torch.zeros(2,3):float()
   for i=1,boardsize do
     for j=1, boardsize do
-      local maxStack = 41
+      local maxStack = 41 -- TODO
       for h=1,maxStack do
-        if t.board[i][j][h] ~= nil
-        and t.board[i][j][h]:sum() == 0 then
+        local p = t.board[i][boardsize+1-j][h]
+        if p ~= nil and p:sum() == 0 then -- TODO
           break
         end
         for team=1,2 do
           for piece=1,3 do
-            local nopieces = 0
             xpos = PosTable[i][j][1]
             ypos = PosTable[i][j][2]
             -- check if piece at this position
-            if t.board[i][j][h][team][piece] ~= 0 then
+            if p[team][piece] ~= 0 then
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
               if piece == 3 then
                 -- capstone. place in center
-                xpos = xpos + recWid/2 - imgWid/2
-                ypos = ypos - recWid/3
+                xpos = xpos + recSize/2
               elseif piece == 2 then
-                ypos = ypos-imgHgt/4
+                xpos = xpos + recSize/8
               else
                 -- it's a normal piece.
                 -- -- center piece on tile:
-                xpos = xpos + recWid/10
-                ypos = ypos + recHgt/10
+                xpos = xpos + recSize/10 -- TODO Gamestate.recWid/Hgt
+                ypos = ypos + recSize/4
               end
-              -- adjust for height of stack
-              ypos = ypos-(10*h)
+              -- pad on top, and adjust for height of stack
+              ypos = ypos + recSize/3 - (10*h)
 
               --[[ determine image scaling factor.
                     we want displayed image height ==
                     90% of tile height, as a rule.
                     However, we should err on the
                     side of smaller. ]]
-
-              imgHgtScaleFactor = 0.75/(imgHgt/recHgt)
-              imgWidScaleFactor = 0.75/(imgWid/recWid)
+              imgHgtScaleFactor = 0.75/(imgHgt/recSize)
+              imgWidScaleFactor = 0.75/(imgWid/recSize)
 
               imgScaleFactor = math.min(imgHgtScaleFactor,
                                         imgWidScaleFactor)
 
               love.graphics.setColor(255,255,255) -- to correctly display color
-
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
@@ -252,65 +235,111 @@ function drawPieces()
   end
 end
 
-function findLegalSpots(player)
-
-end
-
-function drawButton(x,y,stroke,fill)
-  if x == nil or y == nil then
-    return
-  elseif stroke == nil or fill == nil then
-    local stroke = {0,0,0}
-    local fill = {0,100,200}
-  end
-
-  love.graphics.setColor(fill)
-  love.graphics.rectangle('fill',x,y,20,10)
-  love.graphics.setColor(stroke)
-  love.graphics.rectangle('line',x,y,20,10)
-end
-
-function board:keyreleased(key)
+function menu:keypressed(key)
   if key == 'backspace' then
     backspace(key)
   end
+end
 
+function board:keypressed(key)
+  if key == 'backspace' then
+    backspace(key)
+  end
+end
+
+function board:keyreleased(key)
   if key == 'escape' then
     love.event.quit()
   end
 
   if key == 'return' then
-    move, input = input, ''
+    table.insert(log,input)
+    move = input
     if move == '' or move == nil then
       return
     end
-    if player_move(move) then
+    if t:accept_user_ptn(move) then
       player_turn = false
     else
-      move = nil
-      input = ''
-      instructions = 'ENTER A VALID MOVE:'
+      interpret(input)
     end
+    input = ''
   end
-
 end
 
-draw_duration = 2
-time_elapsed = 0
+function interpret(command)
+  local tinput = {}
+  for word in string.gmatch(command, "%a+") do
+    table.insert(tinput,word)
+    print(word)
+  end
+
+  print (tinput)
+  for k,v in pairs(tinput) do
+    print (k)
+    print (v)
+    print ('--')
+  end
+
+  cli_parse(tinput)
+end
+
+function cli_parse(cmdtable)
+  cmd = cmdtable[1]
+  if cmd == 'fs' or cmd == 'fullscreen' then
+    if not fs then
+      love.graphics.setMode(0,0)
+      winDims = love.graphics.getDimensions()
+      love.graphics.setMode(winDims[1],winDims[2])
+      fs = true
+    else
+      love.graphics.setMode(WindowSize[1],WindowSize[2])
+      fs = false
+    end
+  elseif cmd == 'export' then
+    -- TODO write to file
+  elseif cmd == 'import' then
+    -- TODO import game from file
+  elseif cmd == 'name' or cmd == 'user' then
+    -- TODO set username
+    print ('user is now known as ' .. cmdtable[2])
+    print ('** WARN: DIDN\'T ACTUALLY**')
+  elseif cmd == 'opp' then
+    -- TODO set opponent
+    print ('opponent has been set to ' .. cmdtable[2])
+    print ('** WARN: DIDN\'T ACTUALLY**')
+    t:reset()
+  elseif cmd == 'level' then
+    local lv = cmdtable[2]
+    if tonumber(lv) ~= nil then
+      print ('AI has been set to level ' .. cmdtable[2])
+      AI_LEVEL = cmdtable[2]
+      t:reset()
+    end
+  elseif cmd == 'new' then
+    t:reset()
+  elseif cmd == 'undo' then
+    t:undo()
+  elseif cmd == 'resign' then
+    -- TODO resign
+  elseif cmd == 'quit' or cmd == 'exit' then
+    love.event.quit()
+  end
+end
+
 function board:update(dt)
   if t.win_type ~= 'NA' then
     Gamestate.switch(over,t.winner)
   end
 
   if not player_turn then
-    AI_move()
+    instructions = 'AI IS THINKING...'
+    board:draw()
+    love.graphics.present()
+    AI_move(t,AI_LEVEL,true)
     player_turn = true
   else
-    instructions = 'MAKE YOUR MOVE...'
-  end
-
-  if boarddrawn then
-    drawPieces()
+    instructions = 'MAKE YOUR MOVE:'
   end
 end
 
@@ -322,95 +351,65 @@ end
 
 ]]--
 
-function drawTeStBox ()
-  local frame = loveframes.Create('frame')
-  frame:SetName("Text Input")
-  frame:SetSize(500, 90)
-
-    local textinput = loveframes.Create("textinput", frame)
-  textinput:SetPos(5, 30)
-  textinput:SetWidth(490)
-  textinput.OnEnter = function(object)
-      if not textinput.multiline then
-          object:Clear()
-      end
-  end
-  textinput:SetFont(love.graphics.newFont(12))
-
-  local togglebutton = loveframes.Create("button", frame)
-  togglebutton:SetPos(5, 60)
-  togglebutton:SetWidth(490)
-  togglebutton:SetText("Toggle Multiline")
-  togglebutton.OnClick = function(object)
-      if textinput.multiline then
-          frame:SetHeight(90)
-          frame:Center()
-          togglebutton:SetPos(5, 60)
-          textinput:SetMultiline(false)
-          textinput:SetHeight(25)
-          textinput:SetText(input)
-      else
-          frame:SetHeight(365)
-          frame:Center()
-          togglebutton:SetPos(5, 335)
-          textinput:SetMultiline(true)
-          textinput:SetHeight(300)
-          textinput:SetText(instructions)
-      end
-  end
-end
-
 function drawTextBox(bg,text,ph)
   -- check for custom colors
   if bg == nil then
-    bg = {255,255,255}
+    bg = {22,22,22}
   end
   if txt_color == nil then
-    txt_color = {0,0,0}
+    txt_color = {255,255,255}
   end
   if ph == nil then
     ph = {88,88,88}
   end
 
   love.graphics.setColor(bg)
-  textBoxCorner = {WindowSize[1]/3, WindowSize[2]*18/20}
+  textBoxCorner = {0,WindowSize[2]*4/5}
   textBoxWidth = WindowSize[1]/3
-  textBoxHeight = WindowSize[2]/20
-  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
+  textBoxHeight = WindowSize[2]/5
+  love.graphics.rectangle('fill',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight+5)
+  love.graphics.setColor(111,111,111)
+  love.graphics.rectangle('line',textBoxCorner[1],textBoxCorner[2],textBoxWidth,textBoxHeight)
   local textToDraw
   if input ~= '' then
     love.graphics.setColor(txt_color)
-    textToDraw = input
+    textToDraw = '> ' .. input .. '_'
   else
     love.graphics.setColor(ph)
-    textToDraw = instructions
+    textToDraw = '! ' .. instructions
   end
-  love.graphics.printf(textToDraw,textBoxCorner[1]+5,textBoxCorner[2]+5,1000,'left',0,2,2)
+
+  -- draw last 5 lines of log
+  for l=1,5 do
+    -- love.graphics.printf(log[#log-l])
+  end
+  love.graphics.printf(textToDraw,textBoxCorner[1]+5,WindowSize[2]-15,textBoxWidth-5,'left',0)
 end
 
 function setupGraphics()
   -- window dimensions
-  love.graphics.setBackgroundColor(200,200,200)
+  love.graphics.setBackgroundColor(11,11,11)
   WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
-  if not fs then
-    love.window.setMode(0,0)
-    local w,h = love.graphics.getDimensions()
-    love.window.setMode(w,h)
-  end
+  -- if not fs then
+  --   love.window.setMode(0,0)
+  --   local w,h = love.graphics.getDimensions()
+  --   love.window.setMode(w,h)
+  -- end
   fs = true
 
   -- images representing pieces and flats
+  -- TODO: color tint
   WTile = love.graphics.newImage("img/wflat.png")
   BTile = love.graphics.newImage("img/bflat.png")
   WWall = love.graphics.newImage("img/wwall.png")
   BWall = love.graphics.newImage("img/bwall.png")
   WCaps = love.graphics.newImage("img/wcaps.png")
   BCaps = love.graphics.newImage("img/bcaps.png")
+  Pieces = {{WTile, WWall, WCaps},
+            {BTile, BWall, BCaps}}
 
   -- for drawing board
   WHRatio = WindowSize[2]/WindowSize[1]
-  Pieces = {{WTile, WWall, WCaps},
-    {BTile, BWall, BCaps}}
 end
 
 function backspace(key)
