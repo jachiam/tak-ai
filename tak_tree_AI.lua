@@ -17,7 +17,7 @@ function check_wins_in_one(node,player)
 		your_flat_wins = 0
 	end
 	empty = empty:float()
-	local you, them, you_x, you_y, empty_x, empty_y, e_x_1, e_y_1
+	local you, you_x, you_y, empty_x, empty_y, e_x_1, e_y_1
 	local your_x_wins, your_y_wins
 	you = top[{{},{},player,1}] + top[{{},{},player,3}]
 	you_x = you:sum(1):squeeze()
@@ -117,11 +117,17 @@ function children_of_node(node)
 	local legal = node.legal_moves_by_ply[#node.legal_moves_by_ply][2]
 	-- slightly hacky lua black magic to reduce number of table rehashes, saves some time
 	local children = {nil,nil,nil,nil,nil}
-	for i=1,#legal do
+	--[[for i=1,#legal do
 		local copy = node:clone()
 		copy:make_move_by_ptn(legal[i])
 		table.insert(children,copy)
+	end]]
+	for _,ptn in pairs(legal) do
+		local copy = node:clone()
+		copy:make_move_by_ptn(ptn)
+		table.insert(children,copy)
 	end
+
 	return children, legal
 end
 
@@ -174,11 +180,14 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris)
 end
 
 function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,debug)
-	for i=1,num_moves do
-		if node.game_over then
-			break
+
+	local function step()
+		local player
+		if node.ply < 2 then
+			player = node.ply + 1
+		else
+			player = node:get_player()
 		end
-		local player = node:get_player()
 		if player == 1 then
 			depth = levelp1
 		else
@@ -192,10 +201,29 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,debug)
 			print ''
 		end
 	end
+
+	if num_moves >= 1 then
+		for i=1,num_moves do
+			if node.game_over then
+				break
+			end
+			step()
+		end
+	else
+		while not(node.game_over) do
+			step()
+		end
+	end
 end
 
 function AI_move(node,AI_level,debug)
-	v, ptn, _, mc, nl = alphabeta(node,AI_level,-1e9,1e9,true,node:get_player())
+	local player
+	if node.ply < 2 then
+		player = node.ply + 1
+	else
+		player = node:get_player()
+	end
+	v, ptn, _, mc, nl = alphabeta(node,AI_level,-1e9,1e9,true,player)
 	if debug then
 		print('AI move: ' .. ptn .. ', Value: ' .. v .. ', Num Leaves: ' .. nl)
 	end

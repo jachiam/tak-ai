@@ -93,3 +93,4 @@ tp = tak_policy.new(t.size,t.max_height,#t.move2ptn)
 p = tp.network:getParameters()
 print(p:size())]]
 
+

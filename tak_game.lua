@@ -9,13 +9,13 @@ local tak = torch.class('tak')
 function tak:__init(size,making_a_copy)
 	self.size = size or 5
 	if self.size == 3 then
-		self.piece_count = 12
+		self.piece_count = 10
 		self.cap_count = 0
 	elseif self.size == 4 then
 		self.piece_count = 15
 		self.cap_count = 0
 	elseif self.size == 5 then
-		self.piece_count = 20 
+		self.piece_count = 21 
 		self.cap_count = 1
 	elseif self.size == 6 then
 		self.piece_count = 30
@@ -205,7 +205,7 @@ function tak:get_legal_moves(player)
 	local empty_squares, board_top = self:get_empty_squares()
 	local letters = {'a','b','c','d','e','f','g','h'}
 
-	local top_walls, top_caps, walls_on_path, caps_on_path, walls_in_way, caps_in_way
+	local top_walls, top_caps, walls_on_path, caps_on_path, walls_in_way, caps_in_way, x, y
 
 	local function check_stack_move(i,j,pos,stack_move_index)
 		-- how do we check whether a stack move is valid?
@@ -384,7 +384,7 @@ function tak:make_move(ptn,idx)
 	table.insert(self.move_history_idx,idx)
 	move_type = string.sub(ptn,1,1)
 	letter = string.sub(ptn,2,2)
-	l2i = {a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8}
+	local l2i = {a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8}
 	i = l2i[letter]
 	j = tonumber(string.sub(ptn,3,3))
 
@@ -591,6 +591,14 @@ function tak:generate_random_game(max_moves)
 	end
 end
 
+function tak:simulate_random_game()
+	while not(self.game_over) do
+		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+		move = torch.random(1,#legal)
+		self:make_move_by_ptn(legal[move])
+	end
+end
+
 function tak:game_to_ptn()
 	game_ptn = '[Size "' .. self.size .. '"]\n\n'
 
@@ -612,9 +620,11 @@ function tak:game_to_ptn()
 	return game_ptn
 end
 
-function tak:play_game_from_ptn(ptngame)
-	print 'Playing the following game: '
-	print(ptngame)
+function tak:play_game_from_ptn(ptngame,quiet)
+	if not(quiet) then
+		print 'Playing the following game: '
+		print(ptngame)
+	end
 	l,u = string.find(ptngame,"Size")
 	size = tonumber(string.sub(ptngame,u+3,u+3))
 	self:__init(size)
@@ -623,3 +633,5 @@ function tak:play_game_from_ptn(ptngame)
 		self:make_move_by_ptn(ptn_move)
 	end		
 end
+
+return tak
