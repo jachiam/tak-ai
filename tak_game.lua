@@ -358,10 +358,10 @@ function tak:accept_user_ptn(move_ptn)
 	return self:make_move_by_ptn(move_ptn), move_ptn, idx	-- last two outputs are for debug only
 end
 
-function tak:make_move(ptn,idx)
+function tak:make_move(ptn,idx,verbose)
 
 	if self.game_over then
-		print 'Game is over.'
+		if verbose then print 'Game is over.' end
 		return false
 	end
 
@@ -375,8 +375,10 @@ function tak:make_move(ptn,idx)
 	-- note: legal moves for a ply are generated before the ply is played (hence ply+1)
 
 	if not(self.legal_moves_by_ply[self.ply+1][3][idx] > 0) then
-		print('Tried move ' .. ptn ..' with idx ' .. idx)
-		print 'Move was not legal.'
+		if verbose then
+			print('Tried move ' .. ptn ..' with idx ' .. idx)
+			print 'Move was not legal.'
+		end
 		return false
 	end
 

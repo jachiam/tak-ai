@@ -1,23 +1,7 @@
 require 'tak_game'
 require 'tak_tree_AI'
+require 'tak_mcts_AI'
 t = tak.new(4)
---[[t:make_move_by_ptn('fa2')	-- white plays a black flat at a2
-t:make_move_by_ptn('fa1')	-- black plays a white flat at a1
-t:make_move_by_ptn('fa3')     -- white plays flat at a3
-t:make_move_by_ptn('cb2')	-- black plays cap at b2
-t:make_move_by_ptn('fb3')	-- white plays flat at b3
-t:make_move_by_ptn('1a2+1')   -- black moves flat from a2 to a3 
-t:generate_random_game(6)	]]
---t:make_move_by_ptn('fe1')
---t:make_move_by_ptn('fd1')
---t:make_move_by_ptn('fe2')
---t:make_move_by_ptn('fd2')
---t:make_move_by_ptn('fe3')
---t:make_move_by_ptn('fd3')
---t:make_move_by_ptn('fe4')
---t:make_move_by_ptn('fd4')
---t:make_move_by_ptn('fe5')
-go, w, wt, p1rw, p2rw, p1p, p2p = t:check_victory_conditions()
 
 --s = t:clone() 
 gameptn = "[Size \"5\"]\n" ..
@@ -60,37 +44,19 @@ function data(filename)
 end
 
 --[[
-function player_move(ptn)
-	valid = t:accept_user_ptn(ptn)
-	return valid
-end
-
-AI_level = 3
-function AI_move()
-	v, ptn = alphabeta(t,AI_level,-1e9,1e9,true,t:get_player())
-	print('AI move: ' .. ptn)
-	t:accept_user_ptn(ptn)
-end
-
-function against_AI()
-	--t:reset()
-	while t.win_type == 'NA' do
-		print(t:game_to_ptn())
-		print ''
-		ptn = io.read()
-		if player_move(ptn) then
-			AI_move()
-		end
-	end
-	print('Game Over: ' .. t.outstr)
-end 
-]]
-
---[[
 require 'tak_policy.lua'
 
 tp = tak_policy.new(t.size,t.max_height,#t.move2ptn)
 p = tp.network:getParameters()
 print(p:size())]]
 
-
+function minimax_vs_montecarlo(game,UCB,smart,mintime)
+	local mintime = mintime or 60
+	while not(game.game_over) do
+		start_time = os.time()
+		AI_move(game,3,true)
+		time_elapsed = os.time() - start_time
+		monte_carlo_move(game,math.max(3*time_elapsed,mintime),true,UCB,smart)
+		print(game:game_to_ptn())
+	end
+end
