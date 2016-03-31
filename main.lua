@@ -34,7 +34,7 @@ instructions = 'ENTER BOARD SIZE:'
 ups = 0
 input = ''
 log = {'','','','','','',''}
-user = ''
+user = 'USER'
 opponent = 'TAKAI'
 foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
 
@@ -386,12 +386,16 @@ function board:update(dt)
     instructions = t.outstr
   end
 
-  if not player_turn then
+  if not player_turn and t.win_type == 'NA' then
     instructions = opponent .. ' IS THINKING...'
     board:draw()
     love.graphics.present()
     AI_move(t,AI_LEVEL,true)
     player_turn = true
+  elseif player_turn and t.win_type ~= 'NA' then
+    instructions = opponent .. ' WINS!'
+  elseif not player_turn and t.win_type ~= 'NA' then
+    instructions = user .. ' WINS!'
   else
     instructions = 'MAKE YOUR MOVE:'
   end
