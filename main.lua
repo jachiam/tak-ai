@@ -34,7 +34,7 @@ instructions = 'ENTER BOARD SIZE:'
 ups = 0
 input = ''
 log = {'','','','','','',''}
-user = 'USER'
+user = 'HUMAN'
 opponent = 'TAKAI'
 foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
 
@@ -140,7 +140,7 @@ end
 function board:enter(_,continue)
   game_inprogress = true
   input = ''
-  user = ''
+  user = 'HUMAN'
   AI_LEVEL = 3
   if continue then
     return
@@ -464,9 +464,11 @@ function drawConsole(bg,text,ph)
   end
 end
 
-function drawPTN(ptn_w,ptn_h,ptn_y)
+function drawPTN(ptn_w,ptn_h,ptn_y) 
   love.graphics.setColor(22,22,22)
   local total_h = WindowSize[1]/3
+  local visible_lines = total_h / 15
+  visible_lines = 3 -- TODO DELETE THIS
   love.graphics.rectangle('fill',0,ptn_y,ptn_w,total_h)
   love.graphics.setColor(77,77,77)
   love.graphics.rectangle('line',0,ptn_y,ptn_w,total_h)
@@ -474,13 +476,18 @@ function drawPTN(ptn_w,ptn_h,ptn_y)
 
   if t ~= nil then
     local ptn = t:game_to_ptn()
-    local ptnlines = {'','','','','','','','','','','','','','','','','',''}
+    local ptnlines = {}
     for line in string.gmatch(ptn,".+$") do
       table.insert(ptnlines, line)
     end
 
-    for l=1,18 do
-      local line = '' .. ptnlines[#ptnlines+1-l]
+    for l=1,visible_lines do
+      local line = ptnlines[#ptnlines+1-l]
+      if line ~= nil then
+        line = '' .. ptnlines[#ptnlines+1-l]
+      else
+        line = ''
+      end
       love.graphics.print(line, 5, ptn_y+5*l)
     end
   end
@@ -534,9 +541,10 @@ function pause:draw()
   drawPieces()
 
   local menuW, menuH = WindowSize[1]/2, WindowSize[2]/4
-  love.graphics.setColor(230,200,200)
+  love.graphics.setColor(0,0,0)
   love.graphics.rectangle('fill',menuW/2,menuH,menuW,menuH)
-  local help = "[esc]: quit\n" ..
+  local help = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
+    "[esc]: quit\n" ..
     "> export [filename]: save game to filename.ptn\n" ..
     "> import [filename]: load game from filename.ptn\n" ..
     "> new: start new game\n" ..
@@ -544,8 +552,9 @@ function pause:draw()
     "> name [username]: set your name\n" ..
     "> level [1-3]: set AI level\n" ..
     "> fs: toggle fullscreen"
-  love.graphics.setColor(0,0,0)
+  love.graphics.setColor(230,200,200)
   love.graphics.print(help, menuW/2+5, menuH+5)
+  love.graphics.rectangle('line',menuW/2,menuH,menuW,menuH)
 end
 
 function pause:keyreleased(key)
