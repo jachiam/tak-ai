@@ -37,6 +37,15 @@ log = {'','','','','','',''}
 user = 'HUMAN'
 opponent = 'TAKAI'
 foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
+pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
+    "[esc]: quit\n" ..
+    "> export [filename]: save game to filename.ptn\n" ..
+    "> import [filename]: load game from filename.ptn\n" ..
+    "> new: start new game\n" ..
+    "> undo: undo last move\n" ..
+    "> name [username]: set your name\n" ..
+    "> level [1-3]: set AI level\n" ..
+    "> fs: toggle fullscreen"
 
 game_inprogress = false
 -- allow for held-keys to repeat input (mostly for backspaces)
@@ -368,7 +377,7 @@ function cli_parse(cmdtable)
   elseif cmd == 'quit' or cmd == 'exit' or cmd == 'logout' or cmd == 'bye' then
     love.event.quit()
   elseif cmd == 'help' or cmd == '?' or cmd == 'list' then
-    Gamestate.switch(pause)
+    Gamestate.switch(pause,true)
   elseif cmd == 'win' then
     instructions = 'Nice try.'
   elseif cmd == 'ai' then
@@ -393,9 +402,11 @@ function board:update(dt)
     AI_move(t,AI_LEVEL,true)
     player_turn = true
   elseif player_turn and t.win_type ~= 'NA' then
-    instructions = opponent .. ' WINS!'
+    pausemenu = opponent .. ' WINS!'
+    Gamestate.switch(pause)
   elseif not player_turn and t.win_type ~= 'NA' then
-    instructions = user .. ' WINS!'
+    pausemenu = user .. ' WINS!'
+    Gamestate.switch(pause)
   else
     instructions = 'MAKE YOUR MOVE:'
   end
@@ -476,10 +487,16 @@ function drawPTN(ptn_w,ptn_h,ptn_y)
 
   if t ~= nil then
     local ptn = t:game_to_ptn()
-    local ptnlines = {}
-    for line in string.gmatch(ptn,".+$") do
+    local ptnlines = {} 
+    for line in string.gmatch(ptn,"(\d)?.?.\d") do
       table.insert(ptnlines, line)
+      print ('LEGNTH OF PTNLINES = '..#ptnlines)
     end
+
+-- for l=1,7 do
+--     log_str = '' .. log[#log+1-l]
+--     love.graphics.printf(log_str,consoleCorner[1]+5,WindowSize[2]-15*(l+1),consoleWidth-5,'left',0)
+--   end
 
     for l=1,visible_lines do
       local line = ptnlines[#ptnlines+1-l]
@@ -533,6 +550,20 @@ end
 
 ]]--
 
+function pause:enter(gameover)
+  if not gameover then 
+    pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
+    "[esc]: quit\n" ..
+    "> export [filename]: save game to filename.ptn\n" ..
+    "> import [filename]: load game from filename.ptn\n" ..
+    "> new: start new game\n" ..
+    "> undo: undo last move\n" ..
+    "> name [username]: set your name\n" ..
+    "> level [1-3]: set AI level\n" ..
+    "> fs: toggle fullscreen"
+  end
+end
+
 function pause:draw()
   love.graphics.clear()
   love.graphics.setBackgroundColor(125,100,100)
@@ -543,17 +574,8 @@ function pause:draw()
   local menuW, menuH = WindowSize[1]/2, WindowSize[2]/4
   love.graphics.setColor(0,0,0)
   love.graphics.rectangle('fill',menuW/2,menuH,menuW,menuH)
-  local help = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
-    "[esc]: quit\n" ..
-    "> export [filename]: save game to filename.ptn\n" ..
-    "> import [filename]: load game from filename.ptn\n" ..
-    "> new: start new game\n" ..
-    "> undo: undo last move\n" ..
-    "> name [username]: set your name\n" ..
-    "> level [1-3]: set AI level\n" ..
-    "> fs: toggle fullscreen"
   love.graphics.setColor(230,200,200)
-  love.graphics.print(help, menuW/2+5, menuH+5)
+  love.graphics.print(pausemenu, menuW/2+5, menuH+5)
   love.graphics.rectangle('line',menuW/2,menuH,menuW,menuH)
 end
 
