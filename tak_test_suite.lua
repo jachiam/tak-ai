@@ -1,6 +1,6 @@
 require 'tak_game'
 require 'tak_tree_AI'
-require 'tak_mcts_AI'
+require 'tak_flatmc_AI'
 t = tak.new(4)
 
 --s = t:clone() 
@@ -56,7 +56,7 @@ function minimax_vs_montecarlo(game,UCB,smart,mintime)
 		start_time = os.time()
 		AI_move(game,3,true)
 		time_elapsed = os.time() - start_time
-		monte_carlo_move(game,math.max(3*time_elapsed,mintime),true,UCB,smart)
+		flat_monte_carlo_move(game,math.max(3*time_elapsed,mintime),true,UCB,smart,true)
 		print(game:game_to_ptn())
 	end
 end

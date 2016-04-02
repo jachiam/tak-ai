@@ -47,7 +47,7 @@ end
 
 function simulate_game(node,smart,epsilon)
 	local sim = node:clone()
-	local eps = epsilon or 0.1
+	local eps = epsilon or 0.5
 	local p, a
 	while not(sim.game_over) do
 		if smart and torch.uniform() > eps then
@@ -63,7 +63,9 @@ end
 
 -- if UCB flag is true, then this uses an upper confidence bound policy to select nodes to evaluate,
 -- otherwise it uses a heuristic policy.
-function action_values(node,time,UCB,smart)
+-- if smart flag is true, uses epsilon-greedy alpha-beta minimax (of depth 1) in rollout policy.
+-- if check flag is true, checks using alpha-beta minimax (of depth 2) whether moves guarantee defeat/victory in 2.
+function action_values(node,time,UCB,smart,check)
 	local p, legal
 	if not(UCB) then
 		p,_,legal = selection_policy(node,true)
@@ -75,14 +77,16 @@ function action_values(node,time,UCB,smart)
 	local num_visited = torch.zeros(legal[3]:size())
 	local player = node:get_player()
 	local legal_moves = legal[3]:byte()
+	local losing_moves = num_visited:clone()
+	local winning_moves = num_visited:clone()
 
 	local function value(s)
 		if s.winner == player then
 			return 1
 		elseif s.winner == 0 then
-			return 0
+			return 0.5
 		else
-			return -1
+			return 0
 		end
 	end
 
@@ -105,11 +109,14 @@ function action_values(node,time,UCB,smart)
 		UCB_term[legal_moves] = UCB_term[legal_moves]:cdiv(nv[legal_moves])
 		UCB_term[legal_moves]:sqrt()
 		local av = mean_av + UCB_term
+		if check then
+			av[torch.eq(losing_moves,1)] = -1e10
+		end
 		local _, a = torch.max(av,1)
 		return a[1]
 	end
 
-	local a
+	local a, v, sim
 	local start = os.time()
 	while os.time() - start <= time do
 		if not(UCB) then 
@@ -117,28 +124,50 @@ function action_values(node,time,UCB,smart)
 		else
 			a = UCB_action(raw_action_values,num_visited)
 		end
-		if node:make_move_by_idx(a) then
-			sim = simulate_game(node,smart)
-			node:undo()
-			raw_action_values[a] = raw_action_values[a] + value(sim)
-			num_visited[a] = num_visited[a] + 1
+		-- check to see if this action guarantees a victory or defeat
+		if num_visited[a] == 0 and check then
+			if node:make_move_by_idx(a) then
+				v = alphabeta(node,1,-1e9,1e9,false,player)
+				if v > 9e7 then
+					winning_moves[a] = 1
+					raw_action_values[a] = 1
+				elseif v < -9e7 then
+					losing_moves[a] = 1
+					raw_action_values[a] = 0
+				end
+				node:undo()
+				num_visited[a] = num_visited[a] + 1
+			end
+		end
+		-- if this move doesn't have a guarantee, start simulating games starting at it.
+		if not(winning_moves[a] == 1 or losing_moves[a] == 1) then
+			if node:make_move_by_idx(a) then
+				sim = simulate_game(node,smart)
+				node:undo()
+				raw_action_values[a] = raw_action_values[a] + value(sim)
+				num_visited[a] = num_visited[a] + 1
+			end
 		end
 	end
 
 	action_values = means(raw_action_values,num_visited)
-	return action_values, num_visited, raw_action_values, p, legal
+	return action_values, num_visited, raw_action_values, winning_moves, losing_moves, p, legal
 end
 
-function monte_carlo_move(node,time,debug,UCB,smart)
+function flat_monte_carlo_move(node,time,debug,UCB,smart,check)
+	if node.game_over then
+		if debug then print 'Game is over.' end
+		return false
+	end
 	local start_time = os.time()
-	local av, nv, rav = action_values(node,time,UCB,smart)
+	local av, nv, rav, wm, lm = action_values(node,time,UCB,smart,check)
 	local _, a = torch.max(av,1)
 	node:make_move_by_idx(a[1])
 	local elapsed_time = os.time() - start_time
 	if debug then
 		print('MC move: ' .. node.move2ptn[a[1]] .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', Time Elapsed: ' .. elapsed_time)
 	end
-	return av, nv, rav
+	return av, nv, rav, wm, lm
 end
 
 --return mcts

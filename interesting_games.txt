@@ -351,3 +351,26 @@ human intervention at move B9)
 Outcome: white wins, inevitable at B27.
 
 NOTE: This is a variation on the previous game, where the losing move (B9) has been replaced with a (possibly better) move. The game here lasts significantly longer, suggesting that the revision does indeed remove white's immediate win. I personally have a hard time seeing why the game is already over at B27, though. White is ahead in the flat count, but couldn't black play 2b3-2?
+
+(AI level 3 {white} vs. TAKARLO DRAFT, 75s min per move {black})
+
+[Size "4"]
+
+1. Fa1 Fb1 
+2. Fa2 Fc3 
+3. Fb2 Fd2 
+4. Fa3 Fa4 
+5. Fb3 Fb4 
+6. Fc1 Fd1 
+7. Fc4 1a1>1 
+8. 1b3>1 1b4>1 
+9. Fc2 Fd3 
+10. Sd4 2b1>2 
+11. 1c2-1 Fc2 
+12. 4c1+112 1d2<1 
+13. 1c3-1 Fa1 
+14. Fb1 	
+              
+NOTE: Testing out an early TAKARLO draft. Here, Black is a flat UCB Monte Carlo agent that uses a one-step lookahead to check whether moves immediately lead to wins or losses, but otherwises uses uniformly random playouts to evaluate move qualities. Tends to run 1.5-2k simulations per move. 
+
+NOTE: Black's responses are impressive up until B11, which seems to cost it the game. It does an excellent job of encircling White, which I didn't expect it to do, given the very limited amount of computation it gets to perform - and its extremely minimal understanding of the game itself. This Monte Carlo agent might play stronger as white, when it has the initiative.
