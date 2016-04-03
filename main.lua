@@ -230,17 +230,17 @@ function drawPieces()
               local imgWid = img:getWidth()
               if piece == 3 then
                 -- capstone. place in center
-                xpos = xpos + recSize/2
+                xpos = xpos + recSize/3
               elseif piece == 2 then
                 xpos = xpos + recSize/8
               else
                 -- it's a normal piece.
-                -- -- center piece on tile:
+                -- center piece on tile:
                 xpos = xpos + recSize/10 -- TODO Gamestate.recWid/Hgt
                 ypos = ypos + recSize/6
               end
               -- pad on top, and adjust for height of stack
-              ypos = ypos + recSize/3 - (10*h)
+              ypos = ypos + recSize/3 - (imgHgt/25*h)
 
               --[[ determine image scaling factor.
                     we want displayed image height ==
@@ -314,6 +314,10 @@ function board:keyreleased(key)
     ups = 0
     input = ''
   end
+end
+
+function board:mousepressed(x,y,b)
+  print(x,y,b)
 end
 
 function interpret(command)
@@ -479,35 +483,45 @@ function drawPTN(ptn_w,ptn_h,ptn_y)
   love.graphics.setColor(22,22,22)
   local total_h = WindowSize[1]/3
   local visible_lines = total_h / 15
-  visible_lines = 3 -- TODO DELETE THIS
-  love.graphics.rectangle('fill',0,ptn_y,ptn_w,total_h)
+  visible_lines = 3
   love.graphics.setColor(77,77,77)
-  love.graphics.rectangle('line',0,ptn_y,ptn_w,total_h)
+  love.graphics.rectangle('fill',0,ptn_y,ptn_w,total_h)
   love.graphics.setColor(200,200,200)
+  love.graphics.rectangle('line',0,ptn_y,ptn_w,total_h)
 
   if t ~= nil then
     local ptn = t:game_to_ptn()
     local ptnlines = {} 
-    for line in string.gmatch(ptn,"(\d)?.?.\d") do
+    for line in string.gmatch(ptn,".+%d$-") do
       table.insert(ptnlines, line)
-      print ('LEGNTH OF PTNLINES = '..#ptnlines)
     end
 
--- for l=1,7 do
---     log_str = '' .. log[#log+1-l]
---     love.graphics.printf(log_str,consoleCorner[1]+5,WindowSize[2]-15*(l+1),consoleWidth-5,'left',0)
---   end
-
     for l=1,visible_lines do
-      local line = ptnlines[#ptnlines+1-l]
+      local line = ptnlines[l] 
       if line ~= nil then
-        line = '' .. ptnlines[#ptnlines+1-l]
+        line = '' .. ptnlines[l]
       else
         line = ''
       end
-      love.graphics.print(line, 5, ptn_y+5*l)
+      love.graphics.print(line, 5, ptn_y+15*(l-1))
     end
   end
+  drawGameViewerButtons(ptn_w,total_h,ptn_y)
+end
+
+function drawGameViewerButtons(ptn_w,ptn_h,ptn_y)
+  gvby = ptn_y+ptn_h*18/20
+  gvbw = ptn_w/2
+  gvbh = ptn_h/10
+  love.graphics.setColor(200,200,200)
+  love.graphics.rectangle('fill',0,gvby,gvbw,gvbh)
+  love.graphics.rectangle('fill',gvbw,gvby,gvbw,gvbh)
+  love.graphics.setColor(77,77,77)
+  love.graphics.rectangle('line',0,gvby,gvbw,gvbh)
+  love.graphics.rectangle('line',gvbw,gvby,gvbw,gvbh)
+  love.graphics.setColor(0,0,0)
+  love.graphics.print("Back" ,gvbw/3,gvby+gvbh/3)
+  love.graphics.print("Next",gvbw+gvbw/3,gvby+gvbh/3)
 end
 
 function setupGraphics()
