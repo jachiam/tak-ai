@@ -230,7 +230,7 @@ function drawPieces()
               local imgWid = img:getWidth()
               if piece == 3 then
                 -- capstone. place in center
-                xpos = xpos + recSize/3
+                xpos = xpos + recSize/4
               elseif piece == 2 then
                 xpos = xpos + recSize/8
               else
@@ -314,10 +314,6 @@ function board:keyreleased(key)
     ups = 0
     input = ''
   end
-end
-
-function board:mousepressed(x,y,b)
-  print(x,y,b)
 end
 
 function interpret(command)
@@ -490,20 +486,22 @@ function drawPTN(ptn_w,ptn_h,ptn_y)
   love.graphics.rectangle('line',0,ptn_y,ptn_w,total_h)
 
   if t ~= nil then
-    local ptn = t:game_to_ptn()
-    local ptnlines = {} 
-    for line in string.gmatch(ptn,".+%d$-") do
-      table.insert(ptnlines, line)
-    end
+    ptnt = t:game_to_ptn(true)
+    ptnlines = {} 
 
-    for l=1,visible_lines do
-      local line = ptnlines[l] 
+    local step = 1
+    for l=1,visible_lines,2 do
+      local line = ptnt[l]
+      if ptnt[l+1] ~= nil then
+        line = line .. ' ' .. ptnt[l+1]
+      end
       if line ~= nil then
-        line = '' .. ptnlines[l]
+        line = step .. '. ' .. line
       else
         line = ''
       end
-      love.graphics.print(line, 5, ptn_y+15*(l-1))
+      love.graphics.print(line, 5, ptn_y+15*(step))
+      step = step + 1
     end
   end
   drawGameViewerButtons(ptn_w,total_h,ptn_y)
@@ -522,6 +520,22 @@ function drawGameViewerButtons(ptn_w,ptn_h,ptn_y)
   love.graphics.setColor(0,0,0)
   love.graphics.print("Back" ,gvbw/3,gvby+gvbh/3)
   love.graphics.print("Next",gvbw+gvbw/3,gvby+gvbh/3)
+end
+
+function board:mousepressed(x,y,b)
+  if b ~= 1 then
+    return
+  end
+
+  if x < gvbw and y > gvby and y < (gvby + gvbh) then
+    -- back button
+    print('back')
+  end
+
+  if x > gvbw and x < 2*gvbw and y > gvby and y < (gvby + gvbh) then
+    -- next button
+    print('next')
+  end
 end
 
 function setupGraphics()
@@ -595,7 +609,13 @@ end
 
 function pause:keyreleased(key)
   if key == 'escape' then
-    Gamestate.switch(board,true)
+    if t.win_type == 'NA' then
+      Gamestate.switch(board,true)
+    else 
+      game_inprogress = false
+      instructions = 'TO PLAY AGAIN, ENTER A BOARD SIZE'
+      Gamestate.switch(menu)
+    end
   end
 end
 

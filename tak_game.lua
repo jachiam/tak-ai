@@ -591,25 +591,40 @@ function tak:generate_random_game(max_moves)
 	end
 end
 
-function tak:game_to_ptn()
-	game_ptn = '[Size "' .. self.size .. '"]\n\n'
+function tak:game_to_ptn(returntable)
+	if returntable then 
+		tabe = { size = self.size }
+	else
+		game_ptn = '[Size "' .. self.size .. '"]\n\n'
+	end
 
 	for i=1,#self.move_history_ptn do
-		if (i+1) % 2 == 0 then
-			j = (i + 1)/2
-			game_ptn = game_ptn .. j .. '. '
+		if not returntable then
+			if (i+1) % 2 == 0 then
+				j = (i + 1)/2
+				game_ptn = game_ptn .. j .. '. '
+			end
 		end
+
 		ptn = self.move_history_ptn[i]
 
 		ptn_tail = string.sub(ptn,2,#ptn)
 		ptn_head = string.upper(string.sub(ptn,1,1))
 
-		game_ptn = game_ptn .. ptn_head .. ptn_tail .. ' '
-		if (i+1) % 2 == 1 then
-			game_ptn = game_ptn .. '\n'
+		if returntable then
+			table.insert(tabe, ptn_head .. ptn_tail)
+		else
+			game_ptn = game_ptn .. ptn_head .. ptn_tail .. ' '
+			if (i+1) % 2 == 1 then
+				game_ptn = game_ptn .. '\n'
+			end
 		end
 	end
-	return game_ptn
+	if returntable then 
+		return tabe
+	else
+		return game_ptn
+	end
 end
 
 function tak:play_game_from_ptn(ptngame)
