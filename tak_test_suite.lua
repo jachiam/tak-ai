@@ -1,6 +1,7 @@
 require 'tak_game'
 require 'tak_tree_AI'
 require 'tak_flatmc_AI'
+require 'tak_flatmc_AI_multithreaded'
 t = tak.new(4)
 
 --s = t:clone() 
@@ -43,6 +44,8 @@ function data(filename)
 	return gptn
 end
 
+t:play_game_from_ptn(data('game.txt'))
+
 --[[
 require 'tak_policy.lua'
 
@@ -51,12 +54,33 @@ p = tp.network:getParameters()
 print(p:size())]]
 
 function minimax_vs_montecarlo(game,UCB,smart,mintime)
-	local mintime = mintime or 60
+	local mintime = mintime or 75
 	while not(game.game_over) do
 		start_time = os.time()
 		AI_move(game,3,true)
 		time_elapsed = os.time() - start_time
 		flat_monte_carlo_move(game,math.max(3*time_elapsed,mintime),true,UCB,smart,true)
+		print(game:game_to_ptn())
+	end
+end
+
+function minimax_vs_async_montecarlo(game,smart,mintime,minimax_first,partial,k)
+	local mintime = mintime or 75
+	local time_elapsed = 0
+	local partial = partial or false
+	local k = k or 10
+	while not(game.game_over) do
+		if minimax_first then
+			start_time = os.time()
+			AI_move(game,3,true)
+			time_elapsed = os.time() - start_time
+			async_flat_monte_carlo_move(game,math.max(time_elapsed,mintime),true,smart,partial,k)
+		else
+			async_flat_monte_carlo_move(game,math.max(time_elapsed,mintime),true,smart,partial,k)
+			start_time = os.time()
+			AI_move(game,3,true)
+			time_elapsed = os.time() - start_time
+		end
 		print(game:game_to_ptn())
 	end
 end

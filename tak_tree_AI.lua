@@ -100,10 +100,10 @@ function get_player_score(node,player)
 
 	strength = strength - (top_walls:sum())^3
 
-	return strength, islands, island_strengths, stacks, stack_strengths
+	return strength --, islands, island_strengths, stacks, stack_strengths
 end
 
-function value_of_node(node,maximizingPlayer,maxplayeris)
+function value_of_node(node,maxplayeris)
 	local p1_score = get_player_score(node,1)
 	local p2_score = get_player_score(node,2)
 	local score = p1_score - p2_score
@@ -133,7 +133,7 @@ end
 
 function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris)
 	if depth == 0 or node_is_terminal(node) then
-		return value_of_node(node,maximizingPlayer,maxplayeris), nil, nil, nil, 1
+		return value_of_node(node,maxplayeris), nil, nil, nil, 1
 	end
 
 	local children, legal = children_of_node(node)
@@ -217,6 +217,10 @@ function generate_game_by_alphabeta(node,levelp1,levelp2,num_moves,debug)
 end
 
 function AI_move(node,AI_level,debug)
+	if node.game_over then
+		if debug then print 'Game is over.' end
+		return false
+	end
 	local player
 	if node.ply < 2 then
 		player = node.ply + 1

@@ -370,7 +370,84 @@ NOTE: This is a variation on the previous game, where the losing move (B9) has b
 12. 4c1+112 1d2<1 
 13. 1c3-1 Fa1 
 14. Fb1 	
-              
-NOTE: Testing out an early TAKARLO draft. Here, Black is a flat UCB Monte Carlo agent that uses a one-step lookahead to check whether moves immediately lead to wins or losses, but otherwises uses uniformly random playouts to evaluate move qualities. Tends to run 1.5-2k simulations per move. 
+
+Outcome: White wins.
+
+NOTE: Testing out an early TAKARLO draft. Here, Black is a flat UCB Monte Carlo agent that uses a one-step lookahead to check whether moves immediately lead to wins or losses, but otherwises uses uniformly random playouts to evaluate move qualities. Tends to run 1.5-2k simulations per move. It gets 75s per move or 3 times how long White spent thinking.
 
 NOTE: Black's responses are impressive up until B11, which seems to cost it the game. It does an excellent job of encircling White, which I didn't expect it to do, given the very limited amount of computation it gets to perform - and its extremely minimal understanding of the game itself. This Monte Carlo agent might play stronger as white, when it has the initiative.
+
+
+(AI level 3 {white} vs. TAKARLO DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fa2 
+2. 1a2-1 Fa5 
+3. Fa2 Fb3 
+4. Ca3 Fd2 
+5. Fb1 Cc5 
+6. Fc1 Se1 
+7. Fa4 Fd5 
+8. Fb2 Fc4 
+9. Fc2 1d2>1 
+10. Fc3 Fb5 
+11. 1a4+1 Fa4 
+12. 2a5-2 Fa5 
+13. 3a4+3 Fa4 
+14. 4a5-4 Fa5 
+15. 5a4+5 Fa4 
+16. Fd1 Fe5 
+17. 1a3+1 1b5<1 
+18. Sb5 Fb4 
+19. Fa3 Fd3 
+20. Fd2 Se3 
+21. 1c3<1 1d3+1 
+22. 1b5<1 1c5<1 
+23. Fc3 1b5<1 
+24. Sb5 1b4-1 
+25. 1a3>1 Fb4 
+26. 4b3-4 1e3-1 
+27. Fa3 2e2<11 
+28. 4b2+22 1c4<1 
+29. 1b3+1 1b3<1 
+30. Fb3 Fe2 
+31. 2b4>2 1d4<1 
+32. 1c3+1 2c2+11 
+33. 1b5>1 5a5>5 
+34. 2a4-2 5b5-1112 
+35. 1b3+1 5c4<14 
+36. 1d1+1 Fb5 
+37. 1a1+1 1a1+1 
+38. Fa1 3a2>111 
+39. 1a1+1 Fa1 
+
+Outcome: Black wins.
+
+NOTE: I wanted to see how the Takarlo draft would do on a 5x5 board against Takai 3. This was a remarkable game for many reasons, and I have many thoughts on it.
+
+1) It demonstrates that the minimax agent is weaker on the 5x5 than it is on the 4x4. You have to look farther into the future to make good decisions here, and a 3-ply lookahead isn't enough. Takai plays competently, building up strong board control and a powerful center, but does nothing creative to break past Takarlo's defenses. Also, Takai brings out a capstone much too early in the game: I will have to modify the heuristic so that it doesn't reward this behavior.
+
+2) Takai goes for the very straightforward kinds of moves -- building islands, making road threats, and so on. Takarlo plays with a much stranger strategy, which occasionally seems wise and thoughtful. Particularly, moves B2 - B5 are fascinating. Black creates a disjointed wall against White's island, while managing to keep its stones "loosely" connected. Then it uses the capstone to solidify the upper corridor, thwarting White's upward movement: arresting it for the remainder of the game.
+
+3) B9 does not look like a useful move: Black moves a flat stone from one square into an unoccupied one. Placing a stone would have probably been stronger. But, these are the kinds of things that show up with Monte Carlo methods, I suppose.
+
+4) B10 is Black's first road threat. I'm impressed that it accomplishes this before White.
+
+5) Rounds 11-15 are also very interesting: Black and White get into a stack fight over A5 that White clearly loses. Although White has control of A5, that stack is almost all Black pieces; White must now carefully guard that stack for the rest of the game. This will lock up the White capstone, and later, a White wall.
+
+6) Black makes additional road threats on B16 and B18. I continue to be impressed at the midgame strength. Move B19 is also good, closing off White's abilities to make a road from A to E. 
+
+7) B21 is a single move action from one square to an unoccupied one, again. Seems to be a mistake. Who knows. Black won.
+
+8) Black's moves at B22-B23 again demonstrate that the flat Monte Carlo engine can see some multi-turn strategies effectively. Not always, but often enough to be intriguing. 
+
+9) Black's endgame is extremely sloppy from moves 37-39. It knows that it has won - and so does Takai - but it makes mistakes because it isn't programmed to take the killshot immediately. This should be corrected.
+
+Fascinating game. And this is just flat Monte Carlo! Not even with a tree search!
+
+Granted: Takarlo takes waaaay too long to make most of its moves for this to be practical. But, here is a path to something stronger than the minimax agent. 
+
+
+
+
