@@ -450,4 +450,172 @@ Granted: Takarlo takes waaaay too long to make most of its moves for this to be 
 
 
 
+(TAKARLO-SMART-PARTIAL-8 DRAFT, 60s min per move {white} vs. AI LEVEL 3 {black})
+
+[Size "5"]
+
+1. Fc4 Fa1 
+2. Fc1 Fa4 
+3. Fd2 Fb4
+4. Fd3 Cd4
+5. Ce4 Fd5
+6. Fe5 Fa3
+7. Fc2 Fe3
+8. 1d3>1 1d5>1
+9. Fd5 Fc5
+10. 1d5>1 Fa2
+11. Fd3
+
+Notes: Holy shit.
+
+Notes, Part 2: Black makes subtle and terrible mistakes in the midgame from which it never recovers. B6 is an utterly uninspired move. B7 was interesting - Black made a cut! - but ultimately only postponed the inevitable. Black should have started hoovering against White, but failed to see the value in it. 
+
+Notes, Part 3: White plays a game without mistakes here, as far as I can tell. Every move is purposeful and brings it closer to victory.
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-8 DRAFT, 60s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc3 
+2. Fb2 Fc1 
+3. Cb1 Fb3 
+4. 1c3<1 Cd1 
+5. Fb4 Fb5 
+6. Fa2 Fa3 
+7. Fa4 Fa5 
+8. Fc2 1a3+1 
+9. Fa3 Sc4 
+10. Fc3 1c4<1 
+11. Fd3 Fe3 
+12. Fe2 1a1+1 
+13. 1c2>1 	
+
+Notes: Alas.
+
+Notes, Part 2: Black makes a few mistakes in the early game, but this isn't all Black's fault. White plays an extremely aggressive game. The capstone throwdown at W3 is brutal. Black responds poorly here: I'm inclined to think that the game is already lost at B3. Black's capstone deployment at B4 is a move that completely misses everything else that is happening in the game: a particularly poor choice. 
+
+The early game mistakes are probably because the Monte Carlo engine is spread too thin: it only has about 8 sims per move, compared to later in the game, when it has about twice that per interesting move. 
+
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-8 DRAFT, 75s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc5 
+2. Fb4 Fa2 
+3. Fa4 Ce2 
+4. Fc4 Fd4 
+5. Fa3 Fd3 
+6. Fa5 Fd5 
+7. Fb3 Fd2 
+8. 1c5>1 Fb2 
+9. Cc2 1d4-1 
+10. Fc5 Se5 
+11. 1b3-1 2d3-11 
+12. Fc3 1a1>1 
+13. Fc1 	
+
+Notes: I am now forced to suspect that the Takarlo draft is not as good as I had hoped it would be. B11 is a poor move that costs it the game. White's capstone deployment at W9 is excellent: it kills Black's strategies. 
+
+Neither White nor Black plays a perfect game, or close. But at least interesting strategies are emerging.
+
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-9 DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fe4 
+2. Fd3 Ca3 
+3. Fc3 Fa4
+4. Fa2 Fb2
+5. 1a2-1 Fd1
+6. Cb3 Fa5
+7. Fc4 Fa2
+8. Fb1 1b2-1
+9. 2a1+2 Fa1
+10. Fd4 1a1+1
+11. Fa1 2a2>2
+
+Notes: More time seems to make all the difference. Black wins decisively. White never makes the moves that could stop it - White should attack the upper left, but never does it. 
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-9 DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc5 
+2. Fb4 Fb1 
+3. Fa4 Fe1 
+4. Fb5 Fc1 
+5. Cd1 Fd2 
+6. Fd5 Se5 
+7. Fc4 Fc2 
+8. 1d1<1 1e1+1 
+9. 2c1+2 Fc1 
+10. Sd1 Ce1 
+11. 1d1<1 Fe4 
+12. Fa3 Fe3 
+13. Fc3 1e1<1 
+14. Fa2 1e5<1 
+15. Fe5 1e4+1 
+16. Fe4 1e3+1 
+17. Fe3 1e2+1 
+18. 3c2>3 Fe2 
+19. 4d2>4 Fd2 
+20. 5e2+14 Sd4 
+21. Fa5 Se1 
+22. Fb2 1d5<1 
+23. Fb3 3e3-3 
+24. 1a2-1 Fa2 
+25. 1a1>1 	
+
+Notes: Sad game. Black plays great until it doesn't. W5 is a hard move to come back from; Black clearly invested too much effort in that bottom row. B9 is a mistake: Black played in the right place with the wrong place. Should have been Cc1, instead of Fc1; allowed White to play the wall at d1 and kill the connections between the two groups of stones. The sequence from B14-B19 is interesting but futile. (Feels like a broken ladder in Go.) B21 is another mistake: wrong piece, wrong place. Maybe 1d1<1 would be better. Either way, there is no real chance of victory at this point. B22 and B23 are dumb. 
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-10 DRAFT, 180s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fb3 
+2. Ca2 Fc1 
+3. Fa3 Cc2 
+4. Fa4 Fd2 
+5. Fa5 Fb1 
+6. 1a2-1 Fa2 
+7. 2a1+2 Fa1 
+8. 3a2-3 Fa2 
+9. 4a1+4 Fa1 
+10. 5a2-5 Fa2 
+11. Fb2 1b1+1 
+12. 1b3-1 1c2<1 
+13. 3a1+3 2a1>11 
+14. 4a2-4 2b2<2 
+15. 5a1>23 Fc2 
+16. Fe2 Fe1 
+17. 1e2<1 Fd1 
+18. Fb3 1d1+1 
+19. 1b3-1 Fe2 
+20. 2b2>11 2b1+11 
+21. 4d2<22 1b1+1 
+22. 4c2<4 1b3-1 
+23. 5c1+5 5b2-5 
+24. Sc1 2b1+11 
+25. 1c2<1 3c2+111 
+26. Fd2 1e1<1 
+27. 1d2<1 Fd2 
+28. 2c2+11 2c3+11 
+29. Fc2 Se3 
+30. Fb5 3c4-12 
+31. 3b2>21 1c5-1 
+32. 5c2+113 1b3-1 
+33. 2d2<11 Fe1 
+34. Fb3 Fa1 
+35. 2b2-2 	
+
+Notes: Sigh. These results are just depressing. The endgame is very, very poor for Black here. I don't even want to go through it. It's just sad. Takarlo needs some serious work.
+
+
 

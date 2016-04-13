@@ -84,3 +84,22 @@ function minimax_vs_async_montecarlo(game,smart,mintime,minimax_first,partial,k)
 		print(game:game_to_ptn())
 	end
 end
+
+function against_MC_AI(node,mintime,debug,smart,partial,k)
+	local mintime = mintime or 75
+	while node.win_type == 'NA' do
+		if debug then
+			print(node:game_to_ptn())
+			print ''
+		end
+		ptn = io.read()
+		if ptn == 'quit' then
+			break
+		end
+		valid = node:accept_user_ptn(ptn)
+		if valid and not(node.game_over) then
+			async_flat_monte_carlo_move(game,mintime,true,smart,partial,k)
+		end
+	end
+	print('Game Over: ' .. node.outstr)
+end

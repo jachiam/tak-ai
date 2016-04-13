@@ -36,7 +36,7 @@ function get_player_score(node,player)
 	-- what if it's over?
 	if node_is_terminal(node) then
 		if node.winner == player then
-			return 1e8 - 5*node.ply
+			return 1e8 - node.ply
 		else
 			return 0
 		end
@@ -51,7 +51,7 @@ function get_player_score(node,player)
 
 	-- if it is your turn and you can win in one move, very good!
 	if your_wins > 0 and node:get_player() == player then
-		return 1e8
+		return 1e8 - node.ply - 1
 	else
 		-- if you can threaten more than one win at once, very strong.
 		strength = strength + your_wins^6

@@ -72,6 +72,10 @@ function tak:__init(size,making_a_copy)
 
 end
 
+function tak:is_terminal()
+	return not(self.win_type == 'NA')
+end
+
 function tak:undo()
 	if self.ply == 0 then
 		return
@@ -313,16 +317,8 @@ function tak:get_legal_moves(player)
 end
 
 function tak:get_player()
-	-- on the first turn of each player, they play a piece belonging to
-	-- the opposite player
-	local player
-	if self.ply < 2 then
-		player = 2 - self.ply
-	else
-		-- self.ply says how many plys have been played, starts at 0
-		player = self.ply % 2 + 1
-	end
-	return player
+	-- self.ply says how many plys have been played, starts at 0
+	return self.ply % 2 + 1
 end
 
 function tak:populate_legal_moves_at_this_ply()
@@ -333,14 +329,20 @@ function tak:populate_legal_moves_at_this_ply()
 	end
 end
 
+-- this is the one we need for the AI move interface
+function tak:make_move(move)
+	return self:make_move_by_ptn(move)
+end
+
 function tak:make_move_by_idx(move_idx)
-	return self:make_move(self.move2ptn[move_idx],move_idx)
+	return self:execute_move(self.move2ptn[move_idx],move_idx)
 end
 
 function tak:make_move_by_ptn(move_ptn)
-	return self:make_move(move_ptn,self.ptn2move[move_ptn])
+	return self:execute_move(move_ptn,self.ptn2move[move_ptn])
 end
 
+-- sanitize user ptn to allow some notational shortcuts
 function tak:accept_user_ptn(move_ptn)
 	move_ptn = string.lower(move_ptn)
 	if move_ptn == string.match(move_ptn,'%a%d') then
@@ -358,14 +360,21 @@ function tak:accept_user_ptn(move_ptn)
 	return self:make_move_by_ptn(move_ptn), move_ptn, idx	-- last two outputs are for debug only
 end
 
-function tak:make_move(ptn,idx,verbose)
+function tak:execute_move(ptn,idx,verbose)
 
 	if self.game_over then
 		if verbose then print 'Game is over.' end
 		return false
 	end
 
-	player = self:get_player()
+	-- on the first turn of each player, they play a piece belonging to
+	-- the opposite player
+	local player
+	if self.ply < 2 then
+		player = 2 - self.ply
+	else
+		player = self:get_player()
+	end
 
 	-- check to see if we have already calculated legal moves at this ply
 	-- if not, do so
@@ -585,6 +594,19 @@ function tak:check_victory_conditions()
 
 end
 
+function tak:get_children()
+	local legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+	-- slightly hacky lua black magic to reduce number of table rehashes, saves some time
+	local children = {nil,nil,nil,nil,nil}
+	for _,ptn in pairs(legal) do
+		local copy = self:clone()
+		copy:make_move_by_ptn(ptn)
+		table.insert(children,copy)
+	end
+
+	return children, legal
+end
+
 function tak:generate_random_game(max_moves)
 	for i=1,max_moves do
 		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
@@ -601,25 +623,40 @@ function tak:simulate_random_game()
 	end
 end
 
-function tak:game_to_ptn()
-	game_ptn = '[Size "' .. self.size .. '"]\n\n'
+function tak:game_to_ptn(as_table)
+	local game_ptn
+
+	if as_table then
+		game_ptn = {size = self.size}
+	else
+		game_ptn = '[Size "' .. self.size .. '"]\n\n'
+	end
 
 	for i=1,#self.move_history_ptn do
-		if (i+1) % 2 == 0 then
-			j = (i + 1)/2
-			game_ptn = game_ptn .. j .. '. '
-		end
+		
 		ptn = self.move_history_ptn[i]
 
 		ptn_tail = string.sub(ptn,2,#ptn)
 		ptn_head = string.upper(string.sub(ptn,1,1))
 
-		game_ptn = game_ptn .. ptn_head .. ptn_tail .. ' '
-		if (i+1) % 2 == 1 then
-			game_ptn = game_ptn .. '\n'
+		if as_table then
+			game_ptn[i] = ptn_head .. ptn_tail
+		else
+			if (i+1) % 2 == 0 then
+				j = (i + 1)/2
+				game_ptn = game_ptn .. j .. '. '
+			end
+			game_ptn = game_ptn .. ptn_head .. ptn_tail .. ' '
+			if (i+1) % 2 == 1 then
+				game_ptn = game_ptn .. '\n'
+			end
 		end
 	end
 	return game_ptn
+end
+
+function tak:game_state_string()
+	return self:game_to_ptn()
 end
 
 function tak:play_game_from_ptn(ptngame,quiet)
