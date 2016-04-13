@@ -53,6 +53,7 @@ love.keyboard.setKeyRepeat(true)
 
 function love.textinput(t)
   input = input .. t
+  print(input)
 end
 
 
@@ -331,8 +332,8 @@ function cli_parse(cmdtable)
   if cmd == 'fs' or cmd == 'fullscreen' then
     if not fs then
       love.graphics.setMode(0,0)
-      winDims = love.graphics.getDimensions()
-      love.graphics.setMode(winDims[1],winDims[2])
+      local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+      love.graphics.setMode(w,h)
       fs = true
     else
       love.graphics.setMode(WindowSize[1],WindowSize[2])
@@ -541,7 +542,7 @@ end
 function setupGraphics()
   -- window dimensions
   love.graphics.setBackgroundColor(11,11,11)
-  WindowSize = {love.graphics.getDimensions()} --WS[1]=width, WS[2]=height
+  WindowSize = {love.graphics.getWidth(), love.graphics.getHeight()} --WS[1]=width, WS[2]=height
   fs = false
 
   -- images representing pieces and flats
@@ -631,6 +632,7 @@ function love.load()
   Gamestate.registerEvents()
   Gamestate.switch(menu)
 end
+
 
 -- just in case:
 math.randomseed( os.time() )
