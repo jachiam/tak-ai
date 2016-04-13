@@ -38,7 +38,7 @@ user = 'HUMAN'
 opponent = 'TAKAI'
 foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
 pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
-    "[esc]: quit\n" ..
+    "[esc]: close menu // [esc] (in game): exit game\n" ..
     "> export [filename]: save game to filename.ptn\n" ..
     "> import [filename]: load game from filename.ptn\n" ..
     "> new: start new game\n" ..
@@ -46,6 +46,9 @@ pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
     "> name [username]: set your name\n" ..
     "> level [1-3]: set AI level\n" ..
     "> fs: toggle fullscreen"
+
+-- window graphics settings
+flags = {msaa = 4}
 
 game_inprogress = false
 -- allow for held-keys to repeat input (mostly for backspaces)
@@ -331,12 +334,12 @@ function cli_parse(cmdtable)
   cmd = cmdtable[1]
   if cmd == 'fs' or cmd == 'fullscreen' then
     if not fs then
-      love.graphics.setMode(0,0)
+      love.graphics.setMode(0,0,flags)
       local w,h = love.graphics.getWidth(), love.graphics.getHeight()
-      love.graphics.setMode(w,h)
+      love.graphics.setMode(w,h,flags)
       fs = true
     else
-      love.graphics.setMode(WindowSize[1],WindowSize[2])
+      love.graphics.setMode(WindowSize[1],WindowSize[2],flags)
       fs = false
     end
   elseif cmd == 'export' then
