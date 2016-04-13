@@ -23,6 +23,7 @@ local TAI = require ('tak_tree_AI')
 local utf8 = require('utf8') -- for text input
 local Gamestate = require('hump.gamestate') -- for switching between menu and board
 
+
 -- initialize gamestates
 local menu = {}
 local board = {}
@@ -56,7 +57,6 @@ love.keyboard.setKeyRepeat(true)
 
 function love.textinput(t)
   input = input .. t
-  print(input)
 end
 
 
@@ -232,17 +232,8 @@ function drawPieces()
               local img = Pieces[team][piece]
               local imgHgt = img:getHeight()
               local imgWid = img:getWidth()
-              if piece == 3 then
-                -- capstone. place in center
-                xpos = xpos + recSize/4
-              elseif piece == 2 then
-                xpos = xpos + recSize/8
-              else
-                -- it's a normal piece.
-                -- center piece on tile:
-                xpos = xpos + recSize/10 -- TODO Gamestate.recWid/Hgt
-                ypos = ypos + recSize/6
-              end
+
+              xpos = centerPieceX(imgWid,recSize)
               -- pad on top, and adjust for height of stack
               ypos = ypos + recSize/3 - (imgHgt/25*h)
 
@@ -419,7 +410,7 @@ end
 
 --[[
 
-  STATE-AGNOSTIC FUNCTIONS
+  STATE-AGNOSTIC FUNCTIONS / HELPERS
     ALT. TITLE 'OMNIFUNCTIONALS'
 
 ]]--
@@ -572,6 +563,12 @@ function backspace(key)
     -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
     input = string.sub(input, 1, byteoffset - 1)
   end
+end
+
+
+function centerPieceX(pieceW, tileW)
+  local diff = math.abs(pieceW-tileW)
+  return diff/2
 end
 
 
