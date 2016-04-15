@@ -137,7 +137,7 @@ end
 
 function tak:deep_clone()
 	local copy = tak.new(self.size)
-	copy:play_game_from_ptn(self:game_to_ptn())
+	copy:play_game_from_ptn(self:game_to_ptn(),true)
 	return copy
 end
 

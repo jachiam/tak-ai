@@ -618,4 +618,51 @@ Notes: Sad game. Black plays great until it doesn't. W5 is a hard move to come b
 Notes: Sigh. These results are just depressing. The endgame is very, very poor for Black here. I don't even want to go through it. It's just sad. Takarlo needs some serious work.
 
 
+(TAKARLO-SMART-PARTIAL-9 DRAFT, 75s min per move {white} vs. AI LEVEL 3 {black})
 
+[Size "6"]
+
+1. Fe2 Fa1 
+2. Sc3 Fd1 
+3. Fa4 Fc1 
+4. Sd4 Cb1 
+5. Fa6 Fb2 
+6. Fa5 Fa2 
+7. Fc2 Fd2 
+8. 1c2<1 1a2-1 
+9. 2b2>11 1c2>1 
+10. Sf2 Fe1 
+11. Sf1 Fa2 
+12. Cb4 Fa3 
+13. Fb6 Fb2 
+14. 1c3-1 Fb3 
+15. Fe4 Fc3 
+16. Fd6 2d2+2 
+17. 1e4-1 1a3+1 
+18. Fd5 Fa3 
+19. 1d4-1 Fc4 
+20. Sf4 Fc5 
+21. Fc6 Fd4 
+22. Fe5 1c5+1 
+23. 1b6>1 Fc5 
+24. Ff5 1c5>1 
+25. 2c6<2 2d5+2 
+26. 3d3+111 1d5>1 
+27. 3d6>12 Fd3 
+28. 1f5<1 Sf5 
+29. 2e5-2 1e2+1 
+30. 1f4-1 2e3+2 
+31. 2d4>2 1f5<1 
+32. Fc5 2e5-2 
+33. Ff5 4e4+13 
+34. Fe3 3e4-3 
+35. 1f3<1 Fe2 
+36. 5e3+14 4e6<13 
+37. 3e5-12 Fb5 
+38. 2d6-11 1b5>1 
+39. 1c2-1 Fc2 
+40. 1a5-1 2c5>2 
+41. 1d4+1 1a1+1 
+42. 3d5<12 	
+
+Notes: Interestingly, the Monte Carlo agent pulls off a huge come-from-behind victory. However, both players play terribly. It looks like the Monte Carlo agent just got lucky, and the Minimax agent got confused. 
