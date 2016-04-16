@@ -11,6 +11,7 @@ local game_node = torch.class('game_node')
 
 function game_node:__init()
 	self.winner = 0
+	self.ply = 0
 end
 
 function game_node:is_terminal()
@@ -18,6 +19,7 @@ function game_node:is_terminal()
 end
 
 function game_node:make_move(a)
+	self.ply = self.ply + 1
 	return true
 end
 
@@ -25,10 +27,27 @@ function game_node:clone()
 	return game_node.new()
 end
 
+function game_node:get_player()
+	return self.ply % 2 + 1
+end
+
 function game_node:get_children()
 	local legal = {1}
 	local children = {game_node.new()}
 	return children, legal
+end
+
+function game_node:get_legal_move_mask(as_boolean)
+	local legal_move_mask = torch.ones(1)
+	if as_boolean then
+		return legal_move_mask:byte()
+	else
+		return legal_move_mask
+	end
+end
+
+function game_node:get_legal_move_table()
+	return {1}
 end
 
 --------------------------------------------------
@@ -79,7 +98,8 @@ function minimax_AI:move(node)
 		return false
 	end
 	local v, a, mc, nl
-	v, a, _, mc, nl = alphabeta(node,self.depth,-1/0,1/0,true,node:get_player(),self.value)
+	--v, a, _, mc, nl = alphabeta(node,self.depth,-1/0,1/0,true,node:get_player(),self.value)
+	v, a, nl = minimax_move2(node,self.depth,self.value)
 	node:make_move(a)
 	if self.debug then
 		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl)
@@ -108,7 +128,7 @@ function flat_mc_AI:__init(time,rollout_policy,partial,depth,value,debug)
 	self.debug = debug
 end
 
-function flat_MC_AI:move(node)
+function flat_mc_AI:move(node)
 	if node:is_terminal() then
 		if self.debug then print 'Game is over.' end
 		return false
@@ -156,10 +176,29 @@ end
 
 local policy = torch.class('policy')
 
-function default_rollout_policy(node)
-	
+function policy:act(node)
+	local legal_move_mask = node:get_legal_move_mask()
+	return torch.multinomial(legal_move_mask,1)[1]
 end
 
+local default_rollout_policy = torch.class('default_rollout_policy','policy')
+
+local epsilon_greedy_policy = torch.class('epsilon_greedy_policy','policy')
+
+function epsilon_greedy_policy:__init(epsilon,value)
+	self.epsilon = epsilon or 0.5
+	self.value = value or default_value
+end
+
+function epsilon_greedy_policy:act(node)
+	if torch.uniform() > self.epsilon then
+		local _, a = minimax_move(node,1,self.value)
+		return a
+	else
+		local legal_move_mask = node:get_legal_move_mask()
+		return torch.multinomial(legal_move_mask,1)[1]
+	end
+end
 
 --------------------------------------------------
 --	ALGORITHMS AND UTILITY FUNCTIONS	--
@@ -231,6 +270,68 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_n
 	return v, legal[best_action], legal, moves_considered, num_leaves
 end
 
+
+function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node)
+	if depth == 0 or node:is_terminal() then
+		return value_of_node(node,maxplayeris), nil, 1
+	end
+
+	local legal = node:get_legal_move_table()
+	local best_action = 0
+	local v = 0
+	local a,b = alpha,beta
+	local num_leaves, nl = 0, 0
+
+	if maximizingPlayer then
+		v = -1/0
+		for i,move in pairs(legal) do
+			node:make_move(move)
+			val, _, nl = alphabeta2(node,depth- 1, a, b, false, maxplayeris,value_of_node)
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val > v then
+				best_action = i
+				v = val
+			end
+			a = math.max(a,v)
+			if b <= a then
+				break
+			end
+		end
+	else
+		v = 1/0
+		for i,move in pairs(legal) do
+			node:make_move(move)
+			val, _, nl = alphabeta2(node,depth- 1, a, b, true, maxplayeris,value_of_node)
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val < v then
+				best_action = i
+				v = val
+			end
+			b = math.min(b,v)
+			if b <= a then
+				break
+			end
+		end
+	end
+
+	return v, legal[best_action], num_leaves
+end
+
+
+-- convenience method
+function minimax_move(node,depth,value)
+	return alphabeta(node,depth,-1/0,1/0,true,node:get_player(),value)
+end
+
+
+-- convenience method
+function minimax_move2(node,depth,value)
+	return alphabeta2(node,depth,-1/0,1/0,true,node:get_player(),value)
+end
+
+
 ---------------------------------------------
 -- UTILITY FUNCTIONS FOR FLAT MONTE CARLO AI:
 --
@@ -287,11 +388,11 @@ function rollout(node,rollout_policy,partial,depth,noclone)
 
 	if not(partial) then
 		while not(sim:is_terminal()) do
-			sim:make_move(rollout_policy(sim))
+			sim:make_move(rollout_policy:act(sim))
 		end
 	else
 		for i=1,depth do
-			sim:make_move(rollout_policy(sim))
+			sim:make_move(rollout_policy:act(sim))
 		end
 	end
 
@@ -312,6 +413,7 @@ function select_and_playout_move(node, rav, nv,
 				depth,
 				value)
 	local rollout_policy = rollout_policy or default_rollout_policy
+	local depth = depth or 10
 	local value = value or default_value
 	local copy = node:clone()
 	local a = UCB_action(rav,nv,legal_moves,check,losing_moves)

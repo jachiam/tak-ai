@@ -316,6 +316,19 @@ function tak:get_legal_moves(player)
 	return legal_moves_ptn, legal_move_mask
 end
 
+function tak:get_legal_move_mask(as_boolean)
+	local legal_move_mask = self.legal_moves_by_ply[#self.legal_moves_by_ply][3]
+	if as_boolean then
+		return legal_move_mask:byte()
+	else
+		return legal_move_mask
+	end
+end
+
+function tak:get_legal_move_table()
+	return self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+end
+
 function tak:get_player()
 	-- self.ply says how many plys have been played, starts at 0
 	return self.ply % 2 + 1
@@ -331,7 +344,11 @@ end
 
 -- this is the one we need for the AI move interface
 function tak:make_move(move)
-	return self:make_move_by_ptn(move)
+	if type(move) == 'number' then
+		return self:make_move_by_idx(move)
+	else
+		return self:accept_user_ptn(move) --self:make_move_by_ptn(move)
+	end
 end
 
 function tak:make_move_by_idx(move_idx)
@@ -528,6 +545,7 @@ function tak:check_victory_conditions()
 
 	local function check_road_wins()
 		rw = {}
+		local isle, a, b, c, d
 		for player=1,2 do
 			rw[player] = false
 			local islands = get_islands(player)
