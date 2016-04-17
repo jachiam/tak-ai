@@ -2,7 +2,6 @@
 
 font = love.graphics.newFont(14) -- the number denotes the font size
 love.graphics.setFont(font)
-print(love.graphics.getFont())
 
 local BASE = (...):match('(.-)[^%.]+$')
 local utf8 = require 'utf8'

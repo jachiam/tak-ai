@@ -30,6 +30,8 @@ local board = {}
 local pause = {}
 
 -- setup keyboard input --
+-- allow for held-keys to repeat input (mostly for backspaces)
+love.keyboard.setKeyRepeat(true)
 -- placeholder text for input field (global)
 instructions = 'ENTER BOARD SIZE:'
 ups = 0
@@ -324,12 +326,12 @@ function cli_parse(cmdtable)
   cmd = cmdtable[1]
   if cmd == 'fs' or cmd == 'fullscreen' then
     if not fs then
-      love.graphics.setMode(0,0,flags)
+      love.window.setMode(0,0,flags)
       local w,h = love.graphics.getWidth(), love.graphics.getHeight()
-      love.graphics.setMode(w,h,flags)
+      love.window.setMode(w,h,flags)
       fs = true
     else
-      love.graphics.setMode(WindowSize[1],WindowSize[2],flags)
+      love.window.setMode(WindowSize[1],WindowSize[2],flags)
       fs = false
     end
   elseif cmd == 'export' then
