@@ -36,7 +36,7 @@ love.keyboard.setKeyRepeat(true)
 instructions = 'ENTER BOARD SIZE:'
 ups = 0
 input = ''
-log = {'','','','','','',''}
+log = {''}
 user = 'HUMAN'
 opponent = 'TAKAI'
 foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
@@ -446,11 +446,11 @@ function drawConsole(bg,text,ph)
   love.graphics.setColor(111,111,111)
   love.graphics.rectangle('line',consoleCorner[1],consoleCorner[2],consoleWidth,consoleHeight)
 
-  -- draw last 5 lines of log
+  -- draw last (visible_lines) lines of log
   love.graphics.setColor(ph)
-  for l=1,7 do
-    log_str = '' .. log[#log+1-l]
-    love.graphics.printf(log_str,consoleCorner[1]+5,WindowSize[2]-15*(l+1),consoleWidth-5,'left',0)
+  for l=math.max(#log-visible_lines,1),math.max(visible_lines,#log) do 
+    if log[l] == nil then break end
+    love.graphics.printf(log[l],consoleCorner[1]+5,WindowSize[2]-15*(l+1),consoleWidth-5,'left',0)
   end
 
   local textToDraw
@@ -538,6 +538,7 @@ function setupGraphics()
   -- window dimensions
   love.graphics.setBackgroundColor(11,11,11)
   WindowSize = {love.graphics.getWidth(), love.graphics.getHeight()} --WS[1]=width, WS[2]=height
+  visible_lines = math.floor(WindowSize[2]/(2*17))
   fs = false
 
   -- images representing pieces and flats

@@ -8,9 +8,10 @@ local suit = require('suit') -- GUI
 local utf8 = require('utf8') -- for text input
 
 -- gamestates
-local menu = {}
-local game = {}
-local pause= {}
+local menu = suit.new()
+local game = suit.new()
+local paus = suit.new()
+local STATE = "menu"
 
 -- text input
 -- -- display string in textbox
@@ -22,6 +23,11 @@ local instructions = 'ENTER BOARD SIZE:'
 -- -- command history
 local log = {''}
 local ups = 0
+-- -- board sizes
+local boardsize = {text = "5"}
+-- -- 
+local teamcb = { text = "Black" }
+local teamcw = { text = "White", checked = true }
 local opponent = 'TAKAI'
 local foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
 local pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
@@ -35,6 +41,8 @@ local pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
     "> level [1-3]: set AI level\n" ..
     "> fs: toggle fullscreen"
 local LOGROWS = math.floor(love.graphics.getHeight()/(2*17))
+local leftop_flags = {align="left", valign="top"}
+
 
 -- window graphics settings
 -- local flags = {msaa = 4}
@@ -66,129 +74,118 @@ end
 
 
 function love.update(dt)
-
-	-- origin x,y , padding z,a
-    suit.layout:reset(30,logo:getHeight()+30, 5,5)
-
- 	-- draw console 
- 	-- -- first, draw the log
- 	logrows = getLogRows(LOGROWS)
- 	shell_shell = suit.Button(logrows, {align="left",valign="top"}, suit.layout:row(WIDTH/4,HEIGHT/2))
- 	-- suit.layout:push(suit.layout:row())
-	console = suit.Input(input, {id = "console"}, suit.layout:row(WIDTH/4,15))
-	-- suit.layout:pop()
- 	-- -- if this text is submitted, add it to the log and interpret the move
- 	if console.submitted then
- 		table.insert(log,input.text)
- 		interpret(input.text)
- 		input.text = ""
- 	end
-
- 	-- draw main menu
- 	suit.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
- 	mm = suit.Label("TESTIN' SHIT, DAWG", suit.layout:row(WIDTH/3,HEIGHT/3))
-    -- -- if the button was entered, play a sound
-    -- if state.entered then love.audio.play(snd) end
-
-    -- -- if the button was pressed, take damage
-    -- if state.hit then print("Butt!") end
-
-    -- -- put an input box below the button
-    -- -- the cell of the input box has the same size as the cell above
-    -- -- if the input cell is submitted, print the text
-    -- if suit.Input(input, suit.layout:row()).submitted then
-    --     print(input.text)
-    -- end
-
-    -- -- put a button below the input box
-    -- -- the width of the cell will be the same as above, the height will be 40 px
-    -- if suit.Button("Hover?", suit.layout:row(nil,40)).hovered then
-    --     -- if the button is hovered, show two other buttons
-    --     -- this will shift all other ui elements down
-
-    --     -- put a button below the previous button
-    --     -- the cell height will be 30 px
-    --     -- the label of the button will be aligned top left
-    --     suit.Button("You can see", {align='left', valign='top'}, suit.layout:row(nil,30))
-
-    --     -- put a button below the previous button
-    --     -- the cell size will be the same as the one above
-    --     -- the label will be aligned bottom right
-    --     suit.Button("...but you can't touch!", {align='right', valign='bottom'},
-    --                                            suit.layout:row())
-    -- end
-
-    -- -- put a checkbox below the button
-    -- -- the size will be the same as above
-    -- -- (NOTE: height depends on whether "Hover?" is hovered)
-    -- -- the label "Check?" will be aligned right
-    -- suit.Checkbox(chk, {align='right'}, suit.layout:row())
-
-    -- -- put a nested layout
-    -- -- the size of the cell will be as big as the cell above or as big as the
-    -- -- nested content, whichever is bigger
-    -- suit.layout:push(suit.layout:row())
-
-    --     -- change cell padding to 3 pixels in either direction
-    --     suit.layout:padding(3)
-
-    --     -- put a slider in the cell
-    --     -- the inner cell will be 160 px wide and 20 px high
-    --     suit.Slider(slider, suit.layout:col(160, 20))
-
-    --     -- put a label that shows the slider value to the right of the slider
-    --     -- the width of the label will be 40 px
-    --     suit.Label(("%.02f"):format(slider.value), suit.layout:col(40))
-
-    -- -- close the nested layout
-    -- suit.layout:pop()
-
-    -- -- put an image button below the nested cell
-    -- -- the size of the cell will be 200 by 100 px,
-    -- --      but the image may be bigger or smaller
-    -- -- the button shows the image `normal' when the mouse is outside the image
-    -- --      or above a transparent pixel
-    -- -- the button shows the image `hovered` if the mouse is above an opaque pixel
-    -- --      of the image `normal'
-    -- -- the button shows the image `active` if the mouse is above an opaque pixel
-    -- --      of the image `normal' and the mouse button is pressed
-    -- suit.ImageButton(normal, {hovered = hovered, active = active}, suit.layout:row(200,100))
-
-    -- -- if the checkbox is checked, display a precomputed layout
-    -- if chk.checked then
-    --     -- the precomputed layout will be 3 rows below each other
-    --     -- the origin of the layout will be at (400,100)
-    --     -- the minimal height of the layout will be 300 px
-    --     rows = suit.layout:rows{pos = {400,100}, min_height = 300,
-    --         {200, 30},    -- the first cell will measure 200 by 30 px
-    --         {30, 'fill'}, -- the second cell will be 30 px wide and fill the
-    --                       -- remaining vertical space between the other cells
-    --         {200, 30},    -- the third cell will be 200 by 30 px
-    --     }
-
-    --     -- the first cell will contain a witty label
-    --     -- the label will be aligned left
-    --     -- the font of the label will be smaller than the usual font
-    --     suit.Label("You uncovered the secret!", {align="left", font = smallerFont},
-    --                                             rows.cell(1))
-
-    --     -- the third cell will contain a label that shows the value of the slider
-    --     suit.Label(slider.value, {align='left'}, rows.cell(3))
-
-    --     -- the second cell will show a slider
-    --     -- the slider will operate on the same data as the first slider
-    --     -- the slider will be vertical instead of horizontal
-    --     -- the id of the slider will be 'slider two'. this is necessary, because
-    --     --     the two sliders should not both react to UI events
-    --     suit.Slider(slider, {vertical = true, id = 'slider two'}, rows.cell(2))
-    -- end
+	if STATE == "menu" then dm()
+	elseif STATE == "game" then dg()
+	elseif STATE == "paus" then dp()
+	end
 end
 
 function love.draw()
 	drawLogo()
     -- draw the gui
-    suit.draw()
+    if STATE == "menu" then menu:draw() 
+    elseif STATE == "game" then game:draw() 
+    elseif STATE == "paus" then paus:draw() 
+	else print("wtf?", STATE) end
 end
+
+
+function dm()
+	-- origin x,y , padding z,a
+ 	-- draw main menu
+ 	menu.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
+ 	-- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
+ 	-- -- draw mm buttons
+ 	sizLab = menu:Label("Board Size:", leftop_flags, menu.layout:row(WIDTH/8,20))
+ 	sizBrd = menu:Input(boardsize, menu.layout:row())
+ 	sizTLb = menu:Label("Team:", leftop_flags, menu.layout:row(WIDTH/8,20))
+ 	sizTmb = menu:Checkbox(teamcb, menu.layout:row())
+ 	sizTmw = menu:Checkbox(teamcw, menu.layout:row())
+
+ 	if teamcb.checked then teamcw.checked = false end
+ 	if teamcw.checked then teamcb.checked = false end
+
+ 	startGameButt = menu:Button("Sttart Gaem!", menu.layout:row())
+
+ 	if startGameButt.hit then
+ 		print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.text)
+ 		t = tak.new(tonumber(boardsize.text) or 5)
+ 		STATE = "game"
+ 	end
+end
+
+
+
+function dg( )
+	drawBoard()
+  print("PIECES")
+  drawConsole()
+end
+
+
+
+function drawBoard()
+  -- ht/wd of each tile
+  local bs = t.size
+  print(bs)
+  recSize = 0.75*HEIGHT/bs
+  origin = {(WIDTH*0.95)-(bs*recSize),HEIGHT/20}
+  print(origin[1],origin[2],bs,recSize)
+
+  -- table of board positions
+  PosTable = {}
+  local cols = {1,2,3,4,5,6,7,8}
+  local rows = {'a','b','c','d','e','f','g','h'}
+  switch = false
+  for i=1,bs do
+    PosTable[i] = {}
+    for j=1,bs do
+      -- color the space
+      local thisSpaceColor = {}
+      if switch then
+        thisSpaceColor = {111,111,111}
+      else
+        thisSpaceColor = {222,222,222}
+      end
+
+      switch = not switch
+
+      love.graphics.setColor(thisSpaceColor)
+
+      local recX = (i-1)*recSize+origin[1]
+      local recY = (j-1)*recSize+origin[2]
+
+      -- save the position of the rectangle for image renders
+      PosTable[i][j] = {recX, recY}
+      love.graphics.rectangle('fill', recX, recY, recSize, recSize)
+      love.graphics.setColor(0,0,0)
+      local sq = rows[i] .. cols[bs+1-j]
+      love.graphics.print(sq, recX, recY)
+    end
+    if bs % 2 == 0 then
+      switch = not switch
+    end
+  end
+end
+
+
+
+function drawConsole()
+  -- first, draw the log
+  game.layout:reset(30,logo:getHeight()+30, 5,5)
+  logrows = getLogRows(LOGROWS)
+  shell_shell = game:Label(logrows, leftop_flags, game.layout:row(WIDTH/4,HEIGHT/2))
+  console = game:Input(input, {id = "console"}, game.layout:row(WIDTH/4,15))
+  -- if this text is submitted, add it to the log and interpret the move
+  if console.submitted then
+    table.insert(log,input.text)
+    interpret(input.text)
+    input.text = ""
+  end
+end
+
+
+
 
 function love.textinput(t)
     -- forward text input to SUIT
@@ -294,7 +291,6 @@ function getLogRows(max)
 	local l = ""
 	for i=math.max(#log-max,1),math.max(max,#log) do
 		if log[i] == nil then 
-			print (#log, #log-max, i, log[i])
 			break 
 		end
 		l = l .. log[i] .. '\n'
