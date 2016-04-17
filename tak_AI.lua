@@ -114,8 +114,11 @@ function value_of_node(node,maxplayeris)
 	return score
 end
 
+value_of_node_time = 0
+
 -- normalized heuristic symmetric value function for tak, values between 0 and 1 (0: always lose, 1: always win)
 function normalized_value_of_node(node,maxplayeris)
+	local start_time = os.clock()
 	local function sign(x)
 		if x == math.abs(x) then
 			return 1
@@ -124,5 +127,8 @@ function normalized_value_of_node(node,maxplayeris)
 		end
 	end
 	local v = value_of_node(node,maxplayeris)
-	return (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
+	--return (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
+	v = (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
+	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	return v
 end

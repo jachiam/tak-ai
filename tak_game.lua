@@ -62,6 +62,9 @@ function tak:__init(size,making_a_copy)
 
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
 
+	-- DEBUG AND CLOCKING
+	self:set_debug_times_to_zero()
+
 	self:populate_legal_moves_at_this_ply()
 
 	self.game_over = false
@@ -69,7 +72,13 @@ function tak:__init(size,making_a_copy)
 	self.win_type = 'NA'
 
 	self.islands = {{},{}}
+end
 
+function tak:set_debug_times_to_zero()
+	self.get_empty_squares_time = 0
+	self.get_legal_moves_time = 0
+	self.execute_move_time = 0
+	self.flood_fill_time = 0
 end
 
 function tak:is_terminal()
@@ -195,8 +204,12 @@ function tak:get_board_top()
 end
 
 function tak:get_empty_squares()
+	local start_time = os.clock()
 	local board_top = self:get_board_top()
-	return torch.eq(board_top:sum(3):sum(4):squeeze(),0), board_top
+	local empty_squares = torch.eq(board_top:sum(3):sum(4):squeeze(),0)
+	--return torch.eq(board_top:sum(3):sum(4):squeeze(),0), board_top
+	self.get_empty_squares_time = self.get_empty_squares_time + (os.clock() - start_time)
+	return empty_squares, board_top
 end
 
 function tak:is_board_valid()
@@ -209,7 +222,12 @@ function tak:get_legal_moves(player)
 	local empty_squares, board_top = self:get_empty_squares()
 	local letters = {'a','b','c','d','e','f','g','h'}
 
+	local start_time = os.clock()
+
 	local top_walls, top_caps, walls_on_path, caps_on_path, walls_in_way, caps_in_way, x, y
+
+	top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
+	top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
 
 	local function check_stack_move(i,j,pos,stack_move_index)
 		-- how do we check whether a stack move is valid?
@@ -240,8 +258,8 @@ function tak:get_legal_moves(player)
 		end
 
 		-- woo ugly array slicing
-		top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
-		top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
+		-- top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
+		-- top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
 		if i > x then
 			xrange = {x,i-1}
 			yrange = {j,j}
@@ -312,6 +330,9 @@ function tak:get_legal_moves(player)
 	for i=1,#legal_moves_ptn do
 		legal_move_mask[self.ptn2move[legal_moves_ptn[i]]] = 1
 	end
+
+
+	self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
 	
 	return legal_moves_ptn, legal_move_mask
 end
@@ -378,6 +399,8 @@ function tak:accept_user_ptn(move_ptn)
 end
 
 function tak:execute_move(ptn,idx,verbose)
+
+	local start_time = os.clock()
 
 	if self.game_over then
 		if verbose then print 'Game is over.' end
@@ -481,6 +504,8 @@ function tak:execute_move(ptn,idx,verbose)
 
 	self.ply = self.ply + 1
 
+	self.execute_move_time = self.execute_move_time + (os.clock() - start_time)
+
 	self:check_victory_conditions()
 
 	self:populate_legal_moves_at_this_ply()
@@ -501,6 +526,8 @@ function tak:check_victory_conditions()
 	if empty:sum() == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
 		end_is_nigh = true
 	end
+
+	local start_time = os.clock()
 
 	-- let's find us some islands
 	local unexplored_nodes, islands
@@ -564,6 +591,9 @@ function tak:check_victory_conditions()
 
 	local p1_rw, p2_rw = check_road_wins()
 	local road_win = p1_rw or p2_rw
+
+
+	self.flood_fill_time = self.flood_fill_time + (os.clock() - start_time)
 
 	if road_win then
 		if p1_rw and not(p2_rw) then
