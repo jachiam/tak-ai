@@ -15,7 +15,7 @@ function game_node:__init()
 end
 
 function game_node:is_terminal()
-	if self.winner = 0 then
+	if self.winner == 0 then
 		return false
 	else
 		return true
@@ -26,6 +26,10 @@ function game_node:make_move(a)
 	self.ply = self.ply + 1
 	if self.ply == 10 then self.winner = 1 end
 	return true
+end
+
+function game_node:undo()
+	self.ply = self.ply - 1
 end
 
 function game_node:clone()

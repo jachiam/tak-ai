@@ -1,0 +1,418 @@
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fb3 
+4. Fc1 Fa3 
+5. Fc3 Fc4 
+6. 1c3>1 Fd4 
+7. 2d3+2 1c4>1 
+8. Sb4 Fc3 
+9. 1b4-1 4d4-112 
+10. 1c1>1 Fa2 
+11. 4d1<112 1a2-1 
+12. 1b1<1 Fd1 
+13. 1c1>1 Fc1 
+14. 2d1<2 Fd1 
+15. 3c1>3 1d2-1 
+16. 1d2-1 Sc1 
+17. Fc2 1c1>1 
+18. 2a1+2 2d1+2 
+19. Sc1 2d2<11 
+20. 1c1>1 Fa4 
+21. Fc1 Sd2 
+22. 1c2+1 1d3<1 
+23. 2b3>2 1b2<1 
+24. Sb2 2a2-2 
+25. 3c3<12 4a1>13 
+26. 3a3>3 Fa3 
+	
+Game 1 Winner: Takarlo
+
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fc3 
+4. Fc1 Fa3 
+5. Sb3 Fa2 
+6. 1b3<1 Fb2 
+7. 1b1+1 Fb3 
+8. Fb1 Fa4 
+9. Fb4 1a4>1 
+10. 2a3>2 Fc4 
+11. Fa4 Fa3 
+12. 3b3<3 2b4<2 
+13. Fb4 1a2>1 
+14. 1b1+1 1c4<1 
+15. 2b2+11 Fc4 
+16. 2b4-2 1c4<1 
+17. Sc4 2b4-2 
+18. 2b2+2 1c3<1 
+19. Fc2 2b3+2 
+20. 1c4<1 Fc3 
+21. 3b4-12 1c3<1 
+22. Fc4 2b3>2 
+23. 4a3>13 3a4>21 
+24. 1b4>1 1a1>1 
+25. 4c3<13 	
+
+Game 2 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fa3 
+4. Fc1 Fb3 
+5. Fc3 Fc4 
+6. 1c3>1 Fd4 
+7. 2d3+2 1c4>1 
+8. Sb4 Fc3 
+9. 1b4-1 3d4<12 
+10. Sa4 Fc2 
+11. Fb2 Fa2 
+12. 1b2>1 Fd3 
+13. 2c2+2 1c4-1 
+14. Sc2 3c3>3 
+15. 1d2+1 1c3>1 
+16. 1c2>1 Fb2 
+17. 1b1<1 Sb1 
+18. 2a1+2 Fc4 
+19. Fc2 Fc3 
+20. 1a2>1 Fa1 
+
+Game 3 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Sd4 
+3. Fc1 Fa4 
+4. Fa2 Fa3 
+5. 1a2-1 Fb1 
+6. Fc2 Fa2 
+7. 2a1+2 Fb2 
+8. 3a2>3 Fa2 
+9. 4b2<4 1a3-1 
+10. Sb2 4a2+4 
+11. 1b2<1 4a3>112 
+12. 1d2+1 1d4-1 
+13. Fc4 Fa3 
+14. 3a2+3 Fb2 
+15. 4a3>4 Fa3 
+16. Fa2 1b2<1 
+17. 1b3<1 3b3-3 
+18. 1c2<1 1b3-1 
+19. Fa1 3b2>12 
+
+Game 4 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fa4 
+3. Fd3 Fd4 
+4. Fc1 Fa2 
+5. Sa3 Fb4 
+6. 1a3+1 Fb3 
+7. 2a4>2 Fa4 
+8. 3b4<3 Fb4 
+9. 4a4>4 Fa4 
+10. Sa3 1d4-1 
+11. Fc2 Fc3 
+12. Fb2 Fc4 
+13. 1c2+1 Sc2 
+14. 2c3>2 1c2>1 
+15. 4d3<13 Sc2 
+16. Fd3 1c4-1 
+17. Fb1 2c3<2 
+18. 1b2+1 1c2-1 
+19. 2b3>2 1a1>1 
+20. Fb2 Fd4 
+21. Fc2 2c1+11 
+22. Fa1 2b1+11 
+23. 1b2+1 3c3<3 
+24. Fc1 1a2>1 
+25. Fa2 
+
+Game 5 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fa3 
+3. Fd3 Sd4 
+4. Fc3 1d4-1 
+5. Fc2 2d3-2 
+6. Fc1 3d2<3 
+7. Fa2 Fb4 
+8. Fd2 Fb3 
+9. Fd3 4c2>4 
+10. Fc2 1a1>1 
+11. Fb2 
+
+Game 6 Winner : Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fa3 
+4. Fc1 Fc3 
+5. Sb3 Fa2 
+6. 1b3<1 Fb2 
+7. 1b1+1 Fb3 
+8. Fb1 Fb4 
+9. 2a3>2 Fa4 
+10. Fa3 Fc4 
+
+Game 7 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fc2 
+2. Fc1 Fc3 
+3. Fb1 Fa2 
+4. Fb2 Fa3 
+5. Fa4 Fb4 
+6. 1a4-1 Fb3 
+7. Fd1 1b3<1 
+8. 1b1<1 3a3-12 
+9. Fd2 1a2+1 
+10. 1b2<1 3a1+3 
+11. Fa4 Fb3 
+
+Game 8 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fc2 
+2. Fc1 Fa4 
+3. Fc3 Fc4 
+4. Fd3 Fd4 
+5. 1c3+1 1d4<1 
+6. Fd2 Fd4 
+7. Sb4 Fa2 
+8. 1b4<1 Fb3 
+9. Fb1 Fb2 
+10. 1c2<1 2c4<2 
+11. 2b2+2 Fa3 
+12. Fc2 Fc3 
+13. 1d3<1 1c4-1 
+14. 1c2+1 1a3>1 
+15. 2c3<2 Fc4 
+16. 3b3+3 1c4<1 
+17. Sb2 2b4-2 
+18. 1b2+1 1a2+1 
+19. Fc2 Sc4 
+20. Fb2 Fa2 
+21. 1b1<1 1a2>1 
+22. Fb1 	
+
+Game 9 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fc2 
+2. Fc1 Fc3 
+3. Fb1 Fb2 
+4. Fd1 Fa2 
+5. Fd2 Fa4 
+6. 1b1<1 Fb1 
+7. 2a1>2 Fa1 
+8. 3b1<3 1a2-1 
+9. Fa2 4a1>112 
+
+Game 10 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fc2 
+2. Fc1 Fa4 
+3. Fc3 Fc4 
+4. Fd3 Fd4 
+5. 1c3+1 1d4<1 
+6. Fd2 Fd4 
+7. Sb4 Fa2 
+8. 1b4<1 Fb3 
+9. Fb1 Fa3 
+10. 2a4-2 Fb4 
+11. 1a3>1 1a3+1 
+
+Game 11 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fd2 
+2. Fd1 Fd3 
+3. Fb1 Fb3 
+4. Fc1 Fc3 
+5. 1d2+1 Fa3 
+6. Fd2 1c3>1 
+7. 1d2+1 Fb4 
+8. Fa2 1a3-1 
+9. 4d3<112 1a1>1 
+10. Fc2 1c3<1 
+11. 2a3>2 2b1+11 
+12. 1b2+1 2a2>2 
+13. 2b3-2 Fa1 
+14. Fa2 	
+
+Game 12 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fa3 
+3. Fd3 Fd4 
+4. Fc3 1d4-1 
+5. Fc2 2d3-2 
+6. 1c2>1 Sd3 
+7. 3d2<12 1d3-1 
+8. Fb1 2d2<11 
+9. Fc1 2b2>2 
+10. 1b1<1 Fb1 
+11. Fd2 Fa4 
+12. 1c1<1 1b2-1 
+13. Fc4 Sd3 
+14. 2a1+11 Fa1 
+15. Fb4 3b1<3 
+16. 2a3-11 2a2-2 
+17. Sa2 3a1>111 
+18. 1b1<1 1d3<1 
+19. 4a1>112 Fd4 
+20. Fb2 1a4>1 
+21. Fd3 2b4>2 
+22. Fa3 1a1>1 
+23. Fa1 	
+
+Game 13 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fa2 
+4. Fc1 Fa3 
+5. 1b1<1 Fb1 
+6. 2a1>2 Fa1 
+7. 3b1<3 1a2-1 
+8. Fa2 4a1>112 
+
+Game 14 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fa3 
+3. Fd3 Fd4 
+4. Fc3 1d4-1 
+5. Fc2 2d3-11 
+6. Fc4 1a1>1 
+7. Fc1 	
+
+Game 15 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd3 
+3. Fb1 Fa2 
+4. Fc1 Fa3 
+5. 1b1<1 Fb1 
+6. 2a1>2 Fa1 
+7. 3b1<3 1a2-1 
+8. Fa2 4a1>112 
+
+Game 16 Winner: Takarlo			(WOAH, FREAKY: ACTUALLY AN EXACT REPEAT OF GAME 14.)
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fd4 
+3. Fc1 Fa3 
+4. Fa2 Fa4 
+5. 1a2-1 Fb1 
+6. 2a1>2 Fa1 
+7. 3b1<3 Fb1 
+8. 4a1>4 Fa1 
+9. Fa2 1a1>1 
+10. 1c1<1 Fb4 
+11. Sc4 Fb3 
+12. 2b1>2 Fa1 
+13. 1a2-1 	
+
+Game 17 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fd2 
+2. Fd1 Sd4 
+3. Fc1 Fa2 
+4. Fa3 Fb3 
+5. 1a3-1 Fb4 
+6. Fc2 Fb2 
+7. 2a2>2 Fa2 
+8. 3b2<3 1a1+1 
+9. Sb2 Fa1 
+10. 1b2<1 Fb2 
+11. 2a2>2 Fa3 
+12. Fc3 Sc4 
+13. 3b2+3 1a3-1 
+14. Fa3 4a2>112 
+	
+Game 18 Winner: Takarlo
+
+
+[Size "4"]
+
+1. Fa1 Fd1 
+2. Fd2 Fa2 
+3. Fd3 Fd4 
+4. Fc3 1d4-1 
+5. Fc2 2d3-2 
+6. 1c2>1 Sd3 
+7. 4d2<112 1a1+1 
+8. 1b2<1 Fa1 
+9. Fc1 1a1>1 
+10. 2a2>2 	
+
+Game 19 Winner: Takai
+
+
+[Size "4"]
+
+1. Fa1 Fc2 
+2. Fc1 Fb2 
+3. Fd1 Fa3 
+4. Fc3 1b2>1 
+5. 1c3-1 Fa2 
+6. 3c2<12 1a3-1 
+7. 1b2<1 Fb1 
+8. Fd2 Fc4 
+9. Fd3 Fd4 
+10. Fc2 1a1+1 
+11. Fa1 2a2-2 
+12. Fa3  4a2>112 
+
+Game 20 Winner: Takarlo
+
