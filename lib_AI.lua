@@ -104,7 +104,6 @@ function minimax_AI:move(node)
 	node:make_move(a)
 	if self.debug then
 		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
-	end
 	return mc
 end
 

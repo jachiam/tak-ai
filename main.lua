@@ -7,7 +7,10 @@ local suit = require('suit') -- GUI
 local utf8 = require('utf8') -- for text input
 local LIB_AI = require('lib_AI')
 mm = minimax_AI.new(3,normalized_value_of_node, true)
-
+local TAK = require('tak_game')
+local TAI = require ('tak_tree_AI')
+local suit = require('suit') -- GUI
+local utf8 = require('utf8') -- for text input
 -- text input
 -- -- display string in textbox
 local input = {text = ""}
@@ -41,7 +44,6 @@ local PLAYERTURN = true
 local AI_LEVEL = 3
 local GPTN_ROWS = {}
 
-
 -- window graphics settings
 -- local flags = {msaa = 4}
 -- allow for held-keys to repeat input (mostly for backspaces)
@@ -57,8 +59,8 @@ BWall  = love.graphics.newImage("img/bwall.png")
 WCaps  = love.graphics.newImage("img/wcaps.png")
 BCaps  = love.graphics.newImage("img/bcaps.png")
 Pieces = {
-	{WTile, WWall, WCaps},
-	{BTile, BWall, BCaps}
+  {WTile, WWall, WCaps},
+  {BTile, BWall, BCaps}
 }
 
 -- generate some assets (below)
@@ -73,80 +75,80 @@ end
 
 function love.update(dt)
   if not t then 
-  	dm() 
+    dm() 
   else
-  	if not PLAYERTURN and t.win_type == 'NA' then 
-  		love.draw()
-  		love.graphics.present()
-  		instructions = opponent .. " is thinking..."
-  		mm:move(t)
-  		PLAYERTURN = true
-  		instructions = "Your move."
-  	elseif t.win_type ~= 'NA' then
-  		local winrar = ''
-  		if t.winner == 1 then 
-  			if teamcb.checked then
-  				winrar = opponent .. " WINS"
-  			else
-  				winrar = "YOU WIN" 
-  			end
-  		elseif t.winner == 2 then
-  			if teamcw.checked then
-  				winrar = "YOU WIN"
-  			else
-  				winrar = opponent .. " WINS"
-  			end
-  		else
-  			winrar = "DRAW"
-  		end
-  		instructions = "GAME OVER: " .. winrar
-  	end
+    if not PLAYERTURN and t.win_type == 'NA' then 
+      love.draw()
+      love.graphics.present()
+      instructions = opponent .. " is thinking..."
+      mm:move(t)
+      PLAYERTURN = true
+      instructions = "Your move."
+    elseif t.win_type ~= 'NA' then
+      local winrar = ''
+      if t.winner == 1 then 
+        if teamcb.checked then
+          winrar = opponent .. " WINS"
+        else
+          winrar = "YOU WIN" 
+        end
+      elseif t.winner == 2 then
+        if teamcw.checked then
+          winrar = "YOU WIN"
+        else
+          winrar = opponent .. " WINS"
+        end
+      else
+        winrar = "DRAW"
+      end
+      instructions = "GAME OVER: " .. winrar
+    end
   end
 end
 
 function love.draw()
   if t then 
-  	drawLogo()
-  	GPTN = t:game_to_ptn()
-  	dg() 
+    drawLogo()
+    GPTN = t:game_to_ptn()
+    dg() 
   else
-  	drawLogo(true)
+    drawLogo(true)
   end
   suit.draw()
 end
 
 
 function dm()
-	instructions = "Welcome. Please start a new game."
- 	-- draw main menu
- 	suit.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
- 	-- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
- 	-- -- draw mm buttons
- 	sizLab = suit.Label("Board Size:", suit.layout:row(WIDTH/3,20))
- 	sizBrd = suit.Slider(boardsize, suit.layout:row())
+  instructions = "Welcome. Please start a new game."
+  -- draw main menu
+  suit.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
+  -- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
+  -- -- draw mm buttons
+  sizLab = suit.Label("Board Size:", suit.layout:row(WIDTH/3,20))
+  sizBrd = suit.Slider(boardsize, suit.layout:row())
   suit.Label(math.floor(boardsize.value), suit.layout:row())
- 	sizTLb = suit.Label("Team:", suit.layout:row(WIDTH/3,20))
- 	sizTmb = suit.Checkbox(teamcb, suit.layout:row())
- 	sizTmw = suit.Checkbox(teamcw, suit.layout:row())
+  sizTLb = suit.Label("Team:", suit.layout:row(WIDTH/3,20))
+  sizTmb = suit.Checkbox(teamcb, suit.layout:row())
+  sizTmw = suit.Checkbox(teamcw, suit.layout:row())
 
- 	if teamcb.checked then teamcw.checked = false end
- 	if teamcw.checked then teamcb.checked = false end
+  if teamcb.checked then teamcw.checked = false end
+  if teamcw.checked then teamcb.checked = false end
 
- 	startGameButt = suit.Button("Sttart Gaem!", suit.layout:row())
+  startGameButt = suit.Button("Sttart Gaem!", suit.layout:row())
 
- 	if startGameButt.hit then
- 		print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.value)
- 		if not teamcb then PLAYERTURN = false end
- 		t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
+  if startGameButt.hit then
+    print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.value)
+    if not teamcb then PLAYERTURN = false end
+    t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
     instructions = "Excellent. Enter your commands in the box below.\n" ..
                    "Make moves with Portable Tak Notation."
- 	end
+  end
 end
 
 
 
 function dg( )
-	drawBoard()
+  drawBoard()
   drawPieces()
   drawConsole()
 end
@@ -248,7 +250,7 @@ end
 
 
 function drawConsole()
-	local conwid = logo:getHeight()
+  local conwid = logo:getHeight()
   -- first, draw the log
   suit.layout:reset(30,conwid+30, 5,5)
   GPTN_ROWS = getGPTNRows(LOGROWS)
@@ -257,9 +259,9 @@ function drawConsole()
   shell_shell = suit.Label(logrows, leftop_flags, suit.layout:row())
   console = suit.Input(input, {id = "console"}, suit.layout:row(WIDTH/4,20))
   suit.layout:push(suit.layout:row())
-  	suit.layout:padding(5)
-  	suit.Button("Back", suit.layout:col(conwid/1.1,HEIGHT/21))
-  	suit.Button("Next", suit.layout:col())
+    suit.layout:padding(5)
+    suit.Button("Back", suit.layout:col(conwid/1.1,HEIGHT/21))
+    suit.Button("Next", suit.layout:col())
   suit.layout:pop()
   -- if this text is submitted, add it to the log and interpret the move
   if console.submitted then
@@ -293,23 +295,23 @@ end
 
 
 function drawLogo(menu)
-	if menu then
-		local max_wid = WIDTH/2
-		local w,h = logo:getWidth(), logo:getHeight()
-		local ratio = max_wid/w
-	  love.graphics.setColor(255,255,255)
-		love.graphics.draw(logo,  WIDTH/4,5,  0,  ratio,ratio)
-		w,h = w*ratio, h*ratio
-		love.graphics.printf(instructions,WIDTH/4,h+15,WIDTH/2,'center',0)
-	else
-		local max_wid = WIDTH/3
-		local w,h = logo:getWidth(), logo:getHeight()
-		local ratio = max_wid/w
-	  love.graphics.setColor(255,255,255)
-		love.graphics.draw(logo,  5,5,  0,  ratio,ratio)
-		w,h = w*ratio, h*ratio
-		love.graphics.printf(instructions,w,15,WIDTH-w,'center',0)
-	end
+  if menu then
+    local max_wid = WIDTH/2
+    local w,h = logo:getWidth(), logo:getHeight()
+    local ratio = max_wid/w
+    love.graphics.setColor(255,255,255)
+    love.graphics.draw(logo,  WIDTH/4,5,  0,  ratio,ratio)
+    w,h = w*ratio, h*ratio
+    love.graphics.printf(instructions,WIDTH/4,h+15,WIDTH/2,'center',0)
+  else
+    local max_wid = WIDTH/3
+    local w,h = logo:getWidth(), logo:getHeight()
+    local ratio = max_wid/w
+    love.graphics.setColor(255,255,255)
+    love.graphics.draw(logo,  5,5,  0,  ratio,ratio)
+    w,h = w*ratio, h*ratio
+    love.graphics.printf(instructions,w,15,WIDTH-w,'center',0)
+  end
 end
 
 
@@ -322,9 +324,9 @@ function interpret(command)
   end
 
   if tinput[1] and t:accept_user_ptn(tinput[1]) then 
-  	PLAYERTURN = false
+    PLAYERTURN = false
   else
-  	cli_parse(tinput) 
+    cli_parse(tinput) 
   end
 end
 
@@ -346,6 +348,12 @@ function cli_parse(cmdtable)
     end
   elseif cmd == 'export' then
     export(cmdtable[2])
+    local dt = (cmdtable[2] or os.date("%H:%M:%S")) .. ".txt"
+    file = io.open(dt,"a+")
+    io.output(file)
+    local game_ptn = t:game_to_ptn()
+    io.write(game_ptn)
+    io.close(file)
     instructions = "Game exported to " .. dt .. ".txt"
   elseif cmd == 'import' then
     -- TODO
@@ -370,11 +378,11 @@ function cli_parse(cmdtable)
     end
   elseif cmd == 'new' or cmd == 'reset' then
     if cmdtable[2] 
-    	and tonumber(cmdtable[2]) 
-    	and (5 - tonumber(cmdtable[2]) < 3) then
+      and tonumber(cmdtable[2]) 
+      and (5 - tonumber(cmdtable[2]) < 3) then
       t = tak.new(cmdtable[2])
     else
-    	t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
+      t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
     end
   elseif cmd == 'undo' or cmd == 'oops' then
     t:undo()
@@ -389,44 +397,46 @@ function cli_parse(cmdtable)
     instructions = 'Nice try.'
   elseif cmd == 'ai' then
     mm:move(t)
+    AI_move(t,AI_LEVEL,true)
   end
 end
 
 
 
 function getLogRows(max)
-	local l = ""
-	for i=math.max(#log-max,1),math.max(max,#log) do
-		if not log[i] then break end
-		l = l .. log[i] .. '\n'
-	end
-	return l
+  local l = ""
+  for i=math.max(#log-max,1),math.max(max,#log) do
+    if not log[i] then break end
+    l = l .. log[i] .. '\n'
+  end
+  return l
 end
 
 
 
+
 function getGPTNRows(max)
-	local o = ''
-	local ln = ''
-	local tp = t:game_to_ptn(true)
-	for i=math.max(#tp-max,1),math.max(max,#tp) do
-		if not tp[i] then break end
-		ln = tp[i]
-		if i%2 ~= 0 then
-			ln = (i+1)/2 .. ". " .. ln
-			o = o .. ln
-		else
-			o = o .. " " .. ln .. "\n"
-		end
-	end
-	return o
+  local o = ''
+  local ln = ''
+  local tp = t:game_to_ptn(true)
+  for i=math.max(#tp-max,1),math.max(max,#tp) do
+    if not tp[i] then break end
+    ln = tp[i]
+    if i%2 ~= 0 then
+      ln = (i+1)/2 .. ". " .. ln
+      o = o .. ln
+    else
+      o = o .. " " .. ln .. "\n"
+    end
+  end
+  return o
 end
 
 
 
 
 function export(filename)
-	local dt = (filename or os.date("%H:%M:%S")) .. ".txt"
+  local dt = (filename or os.date("%H:%M:%S")) .. ".txt"
   file = io.open(dt,"a+")
   io.output(file)
   local game_ptn = t:game_to_ptn()
