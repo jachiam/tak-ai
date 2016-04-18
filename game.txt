@@ -1,11 +1,26 @@
-[Size "4"]
+[Size "5"]
 
-1. Fa2 Fc1 
-2. 1c1>1 1a2-1 
-3. Fb4 Sc1 
-4. Fa3 Fd2 
-5. 1b4<1 1a1>1 
-6. Fa2 Fa1 
-7. Fb3 	1a1+1
-8. Fc3 Fd3
-9. Fc4 
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. 1b2<1 Ca1 
+4. 3a2+12 Fa2 
+5. Fb3 1a1+1 
+6. Fc3 2a2+11 
+7. Fd3 3a4-3 
+8. 1c3>1 5a3>212 
+9. Cb2 Fb4 
+10. 1b2+1 Fc4 
+11. Fb2 Fa3 
+12. Fb1 Sb5 
+13. Fa5 Fd4 
+14. Fa4 1b4<1 
+15. 1a5-1 1a3+1 
+16. Sb4 Fd1 
+17. 1b4<1 Sb4 
+18. Sd2 Fc5 
+19. Fc2 Fd5 
+20. Fe2 Fe3 
+21. Fe1 Fe4 
+22. Fa1 1c3-1 
+23. 1b2>1 Sc3 
+24. Fc1 

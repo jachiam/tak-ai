@@ -7,24 +7,18 @@ local TAI = require ('tak_tree_AI')
 local suit = require('suit') -- GUI
 local utf8 = require('utf8') -- for text input
 
--- gamestates
-local menu = suit.new()
-local game = suit.new()
-local paus = suit.new()
-local STATE = "menu"
-
 -- text input
 -- -- display string in textbox
-local input = {text = " "}
+local input = {text = ""}
 -- -- display username
 local user = 'HUMAN'
 -- -- placeholder in textbox 
-local instructions = 'ENTER BOARD SIZE:'
+local instructions = ''
 -- -- command history
 local log = {''}
 local ups = 0
 -- -- board sizes
-local boardsize = {text = "5"}
+local boardsize = { value=5, min=3, max=8}
 -- -- 
 local teamcb = { text = "Black" }
 local teamcw = { text = "White", checked = true }
@@ -74,43 +68,42 @@ end
 
 
 function love.update(dt)
-	if STATE == "menu" then dm()
-	elseif STATE == "game" then dg()
-	elseif STATE == "paus" then dp()
-	end
+  if not t then dm() end
 end
 
 function love.draw()
-	drawLogo()
-    -- draw the gui
-    if STATE == "menu" then menu:draw() 
-    elseif STATE == "game" then game:draw() 
-    elseif STATE == "paus" then paus:draw() 
-	else print("wtf?", STATE) end
+  drawLogo()
+  if t and t.win_type == 'NA' then 
+  	GPTN = t:game_to_ptn()
+  	dg() 
+  end
+  suit.draw()
 end
 
 
 function dm()
-	-- origin x,y , padding z,a
+	instructions = "Welcome. Please start a new game."
  	-- draw main menu
- 	menu.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
+ 	suit.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
  	-- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
  	-- -- draw mm buttons
- 	sizLab = menu:Label("Board Size:", leftop_flags, menu.layout:row(WIDTH/8,20))
- 	sizBrd = menu:Input(boardsize, menu.layout:row())
- 	sizTLb = menu:Label("Team:", leftop_flags, menu.layout:row(WIDTH/8,20))
- 	sizTmb = menu:Checkbox(teamcb, menu.layout:row())
- 	sizTmw = menu:Checkbox(teamcw, menu.layout:row())
+ 	sizLab = suit.Label("Board Size:", suit.layout:row(WIDTH/3,20))
+ 	sizBrd = suit.Slider(boardsize, suit.layout:row())
+  suit.Label(math.floor(boardsize.value), suit.layout:row())
+ 	sizTLb = suit.Label("Team:", suit.layout:row(WIDTH/3,20))
+ 	sizTmb = suit.Checkbox(teamcb, suit.layout:row())
+ 	sizTmw = suit.Checkbox(teamcw, suit.layout:row())
 
  	if teamcb.checked then teamcw.checked = false end
  	if teamcw.checked then teamcb.checked = false end
 
- 	startGameButt = menu:Button("Sttart Gaem!", menu.layout:row())
+ 	startGameButt = suit.Button("Sttart Gaem!", suit.layout:row())
 
  	if startGameButt.hit then
- 		print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.text)
- 		t = tak.new(tonumber(boardsize.text) or 5)
- 		STATE = "game"
+ 		print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.value)
+ 		t = tak.new(tonumber(boardsize.value) or 5)
+    instructions = "Excellent. Enter your commands in the box below.\n" ..
+                   "Make moves with Portable Tak Notation."
  	end
 end
 
@@ -118,7 +111,7 @@ end
 
 function dg( )
 	drawBoard()
-  print("PIECES")
+  drawPieces()
   drawConsole()
 end
 
@@ -127,10 +120,8 @@ end
 function drawBoard()
   -- ht/wd of each tile
   local bs = t.size
-  print(bs)
-  recSize = 0.75*HEIGHT/bs
-  origin = {(WIDTH*0.95)-(bs*recSize),HEIGHT/20}
-  print(origin[1],origin[2],bs,recSize)
+  recSize = 0.8*HEIGHT/bs
+  origin = {(WIDTH*0.95)-(bs*recSize),logo:getHeight()}
 
   -- table of board positions
   PosTable = {}
@@ -154,7 +145,6 @@ function drawBoard()
 
       local recX = (i-1)*recSize+origin[1]
       local recY = (j-1)*recSize+origin[2]
-
       -- save the position of the rectangle for image renders
       PosTable[i][j] = {recX, recY}
       love.graphics.rectangle('fill', recX, recY, recSize, recSize)
@@ -170,18 +160,85 @@ end
 
 
 
+function drawPieces()
+  local empty_square = torch.zeros(2,3):float()
+  for i=1,t.size do
+    for j=1, t.size do
+      local maxStack = 41 -- TODO
+      for h=1,maxStack do
+        local p = t.board[i][t.size+1-j][h]
+        if p and p:sum() == 0 then -- TODO
+          break
+        end
+        for team=1,2 do
+          for piece=1,3 do
+            local xpos,ypos = PosTable[i][j][1], PosTable[i][j][2]
+            -- check if piece at this position
+            if p[team][piece] ~= 0 then
+              local img = Pieces[team][piece]
+              local imgHgt,imgWid = img:getHeight(), img:getWidth()
+
+              --[[ determine image scaling factor.
+                    we want displayed image height ==
+                    90% of tile height, as a rule.
+                    However, we should err on the
+                    side of smaller. ]]
+              imgHgtScaleFactor = 0.75/(imgHgt/recSize)
+              imgWidScaleFactor = 0.75/(imgWid/recSize)
+
+              imgScaleFactor = math.min(imgHgtScaleFactor,
+                                        imgWidScaleFactor)
+              
+              imgHgt,imgWid = imgHgt*imgHgtScaleFactor, imgWid*imgWidScaleFactor
+              -- pad on top & side, and adjust for height of stack & scaled size
+              xpos = xpos + centerPiece(imgWid,recSize)
+              ypos = ypos + centerPiece(imgHgt,recSize) - (imgHgt/25*h)
+
+              love.graphics.setColor(255,255,255) -- to correctly display color
+              -- params: image, x,y position, radians, x,y scaling factors
+              love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
+            else
+              -- no pieces of that kind here
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+
+
+
+
 function drawConsole()
+	local conwid = logo:getHeight()
   -- first, draw the log
-  game.layout:reset(30,logo:getHeight()+30, 5,5)
-  logrows = getLogRows(LOGROWS)
-  shell_shell = game:Label(logrows, leftop_flags, game.layout:row(WIDTH/4,HEIGHT/2))
-  console = game:Input(input, {id = "console"}, game.layout:row(WIDTH/4,15))
+  suit.layout:reset(30,conwid+30, 5,5)
+  gamerec = suit.Label(GPTN, leftop_flags, suit.layout:row(WIDTH/4,HEIGHT/3.2))
+  local logrows = getLogRows(LOGROWS)
+  shell_shell = suit.Label(logrows, leftop_flags, suit.layout:row())
+  console = suit.Input(input, {id = "console"}, suit.layout:row(WIDTH/4,20))
+  suit.layout:push(suit.layout:row())
+  	suit.layout:padding(5)
+  	suit.Button("Back", suit.layout:col(conwid/1.1,HEIGHT/21))
+  	suit.Button("Next", suit.layout:col())
+  suit.layout:pop()
   -- if this text is submitted, add it to the log and interpret the move
   if console.submitted then
     table.insert(log,input.text)
     interpret(input.text)
     input.text = ""
   end
+
+end
+
+
+
+
+function centerPiece(pieceDimension, tileDimension)
+  local diff = math.abs(pieceDimension-tileDimension)
+  return diff/2
 end
 
 
@@ -202,24 +259,22 @@ function drawLogo()
 	local max_wid = WIDTH/3
 	local w,h = logo:getWidth(), logo:getHeight()
 	local ratio = max_wid/w
-  	love.graphics.setColor(255,255,255)
+  love.graphics.setColor(255,255,255)
 	love.graphics.draw(logo,  5,5,  0,  ratio,ratio)
 	w,h = w*ratio, h*ratio
-	slogan = "PTN to move\n" ..
-	"'help' to list commands\n" ..
-	"'quit' to quit"
-	love.graphics.printf(slogan,5,h+15,250,'center',0)
+	love.graphics.printf(instructions,w,15,WIDTH-w,'left',0)
 end
 
 
 function interpret(command)
   local tinput = {}
-  for word in string.gmatch(command, "%a+") do
+  print("command received:")
+  for word in string.gmatch(command, "%g+") do
     table.insert(tinput,word)
     print(word)
   end
 
-  cli_parse(tinput)
+  if not t:accept_user_ptn(tinput[1]) then cli_parse(tinput) end
 end
 
 
@@ -239,9 +294,16 @@ function cli_parse(cmdtable)
       fs = false
     end
   elseif cmd == 'export' then
-    -- TODO write to file
+    local dt = (cmdtable[2] or os.date("%H:%M:%S")) .. ".txt"
+    file = io.open(dt,"a+")
+    io.output(file)
+    local game_ptn = t:game_to_ptn()
+    io.write(game_ptn)
+    io.close(file)
+    instructions = "Game exported to " .. dt .. ".txt"
   elseif cmd == 'import' then
-    -- TODO import game from file
+    -- TODO
+    -- io.close(file)
   elseif cmd == 'name' or cmd == 'user' then
     -- TODO set username
     user = cmdtable[2]
@@ -258,7 +320,7 @@ function cli_parse(cmdtable)
   elseif cmd == 'level' then
     local lv = cmdtable[2]
     if tonumber(lv) ~= nil then
-      print ('AI has been set to level ' .. cmdtable[2])
+      instructions = 'AI has been set to level ' .. cmdtable[2]
       AI_LEVEL = cmdtable[2]+2
     end
   elseif cmd == 'new' or cmd == 'reset' then
@@ -277,7 +339,7 @@ function cli_parse(cmdtable)
   elseif cmd == 'quit' or cmd == 'exit' or cmd == 'logout' or cmd == 'bye' then
     love.event.quit()
   elseif cmd == 'help' or cmd == '?' or cmd == 'list' then
-    Gamestate.switch(pause,true)
+    -- Gamestate.switch(pause,true)
   elseif cmd == 'win' then
     instructions = 'Nice try.'
   elseif cmd == 'ai' then
