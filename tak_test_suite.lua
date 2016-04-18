@@ -1,7 +1,7 @@
 require 'tak_game'
-require 'tak_tree_AI'
-require 'tak_flatmc_AI'
-require 'tak_flatmc_AI_multithreaded'
+--require 'tak_tree_AI'
+--require 'tak_flatmc_AI'
+--require 'tak_flatmc_AI_multithreaded'
 t = tak.new(4)
 
 --s = t:clone() 
@@ -53,6 +53,7 @@ tp = tak_policy.new(t.size,t.max_height,#t.move2ptn)
 p = tp.network:getParameters()
 print(p:size())]]
 
+--[[
 function minimax_vs_montecarlo(game,UCB,smart,mintime)
 	local mintime = mintime or 75
 	while not(game.game_over) do
@@ -83,7 +84,7 @@ function minimax_vs_async_montecarlo(game,smart,mintime,minimax_first,partial,k)
 		end
 		print(game:game_to_ptn())
 	end
-end
+end 
 
 function against_MC_AI(node,mintime,debug,smart,partial,k)
 	local mintime = mintime or 75
@@ -102,4 +103,4 @@ function against_MC_AI(node,mintime,debug,smart,partial,k)
 		end
 	end
 	print('Game Over: ' .. node.outstr)
-end
+end ]]
