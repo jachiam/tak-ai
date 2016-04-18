@@ -33,6 +33,10 @@ function tak:__init(size,making_a_copy)
 	
 	self.carry_limit = self.size
 	self.max_height = 2*self.piece_count + 1
+
+	-- DEBUG AND CLOCKING
+	self:set_debug_times_to_zero()
+
 	if making_a_copy then return end
 	self.player_pieces = {self.piece_count, self.piece_count}
 	self.player_caps = {self.cap_count, self.cap_count}
@@ -61,9 +65,6 @@ function tak:__init(size,making_a_copy)
 	self.legal_moves_by_ply = {}
 
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
-
-	-- DEBUG AND CLOCKING
-	self:set_debug_times_to_zero()
 
 	self:populate_legal_moves_at_this_ply()
 

@@ -222,24 +222,23 @@ end
 --	maxplayeris: 1 or 2, helps us keep track of which player actually 
 --		     called the alpha-beta recursive minimax function in the first place
 --	value_of_node: a function from nodes and maxplayer id to values
+
+-- this is the slower implementation, but could probably be parallelized safely
 function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node)
 	if depth == 0 or node:is_terminal() then
-		return value_of_node(node,maxplayeris), nil, nil, nil, 1
+		return value_of_node(node,maxplayeris), nil, 1
 	end
 
 	local children, legal = node:get_children()
 	local best_action = 0
 	local v = 0
 	local a,b = alpha,beta
-
-	local moves_considered = {}
 	local num_leaves = 0
 
 	if maximizingPlayer then
 		v = -1/0
 		for i=1,#children do
-			val, _, _, _, nl = alphabeta(children[i],depth- 1, a, b, false, maxplayeris,value_of_node)
-			table.insert(moves_considered,{legal[i],val})
+			val, _, nl = alphabeta(children[i],depth- 1, a, b, false, maxplayeris,value_of_node)
 			num_leaves = num_leaves + nl
 			if val > v then
 				best_action = i
@@ -253,8 +252,7 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_n
 	else
 		v = 1/0
 		for i=1,#children do
-			val, _, _, _, nl = alphabeta(children[i],depth- 1, a, b, true, maxplayeris,value_of_node)
-			table.insert(moves_considered,{legal[i],val})
+			val, _, nl = alphabeta(children[i],depth- 1, a, b, true, maxplayeris,value_of_node)
 			num_leaves = num_leaves + nl
 			if val < v then
 				best_action = i
@@ -267,10 +265,10 @@ function alphabeta(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_n
 		end
 	end
 
-	return v, legal[best_action], legal, moves_considered, num_leaves
+	return v, legal[best_action], num_leaves
 end
 
-
+-- this is the faster implementation, cannot be parallelized
 function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node)
 	if depth == 0 or node:is_terminal() then
 		return value_of_node(node,maxplayeris), nil, 1
@@ -436,7 +434,7 @@ function select_and_playout_move(node, rav, nv,
 				end
 			end
 			if not(guarantee_win or guarantee_lose) then
-				sim = rollout(copy,rollout_policy,partial,depth-1)
+				sim = rollout(copy,rollout_policy,partial,depth-1,true)
 				v = value(sim,player)
 				runflag = true
 			end
@@ -444,5 +442,53 @@ function select_and_playout_move(node, rav, nv,
 	end
 
 	return runflag, a, v, guarantee_win, guarantee_lose
+end
+
+
+
+function action_values(node,time,check,
+			rollout_policy,
+			partial,
+			depth,
+			value)
+	local legal_moves = node:get_legal_move_mask(true)
+	local raw_action_values = torch.zeros(legal_moves:size())
+	local num_visited = torch.zeros(legal_moves:size())
+	local player = node:get_player()
+	local losing_moves = num_visited:clone()
+	local winning_moves = num_visited:clone()
+
+	local a, v, sim
+	local start = os.time()
+	local flag, a, s, gw, gl
+	while os.time() - start <= time do
+		flag, a, v, gw, gl = select_and_playout_move(node,
+						raw_action_values:clone(),
+						num_visited:clone(),
+						legal_moves:clone(),
+						check,
+						winning_moves:clone(),
+						losing_moves:clone(),
+						rollout_policy,
+						partial,
+						depth,
+						value)
+
+		if gw then
+			winning_moves[a] = 1
+			raw_action_values[a] = 1
+			num_visited[a] = 1
+		elseif gl then
+			losing_moves[a] = 1
+			raw_action_values[a] = 0
+			num_visited[a] = 1
+		elseif flag then
+			raw_action_values[a] = raw_action_values[a] + v
+			num_visited[a] = num_visited[a] + 1
+		end
+	end
+
+	action_values = means(raw_action_values,num_visited)
+	return action_values, num_visited, raw_action_values, winning_moves, losing_moves
 end
 
