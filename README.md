@@ -12,7 +12,9 @@ The library supports two main AI variants. One AI uses a minimax search with alp
 The Tak AI library is written in Lua. 
 
 To use it, you need to install...
+
 1. The 'Torch' package (from torch.ch, which will also install Lua)
+
 2. The 'threads' package (run 'luarocks install threads' after you have installed Torch).
 
 That should be everything.
