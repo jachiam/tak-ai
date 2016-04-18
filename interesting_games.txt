@@ -1,0 +1,715 @@
+(AI level 2 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fc2 Fa3 
+2. Fd4 Fd3 
+3. 1d4-1 Fd2 
+4. 2d3-2 1c2>1 
+5. Fb3 Fd1 
+6. Sd4 4d2<112 
+7. 1b3-1 Fd3 
+8. 1d4-1 Fd2 
+9. 2d3-2 Fd4 
+10. Fb3 1c2<1 
+11. 1b3-1 1d4-1 
+12. 2b2<2 Fc2 
+13. Fd4 Fc3 
+14. 2b2>2 1d3+1 
+15. Fb3 1c3-1 
+16. 4a2>13 Fc3 
+17. 4c2+4 Fd3 
+18. 3d2+3 Fd2 
+19. 4d3-4 Fd3
+20. Fb4 2d4-2
+21. Fc1
+
+
+
+(AI level 1 {white} vs. AI level 3 {black},
+random first two plys)
+
+[Size "4"]
+
+1. Fd2 Fd1 
+2. Fc1 Fd4 
+3. Fc2 Fd3 
+4. Fc3 1d3<1 
+5. Fb2 1d2-1 
+6. Fd2 2d1+2 
+7. Fd1 3d2-3 
+8. Fd2 4d1+4 
+9. Fd1 2c3-2 
+10. Fb1 3c2-3 
+11. 1d1<1 Sd1 
+12. 4c1+112 
+
+NOTE: white victory here is a sign that the AI engine is buggy. B11 should clearly have been Sc2 to prevent W12's game winning move. 
+
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fb1 Fd2 
+2. Fc2 Fa1 
+3. Fb2 1b1+1 
+4. Fc1 2b2>2 
+5. Fd1 3c2>3 
+6. Fb1 1a1>1 
+7. Fc2 2b1>2 
+8. Fb2 3c1+3 
+9. Fa2 Fc1 
+10. Fa1 Fc3 
+11. 1b2>1 1c1+1 
+12. Fa3 2c2<11 
+13. 1a1+1 Fb3 
+14. Fa1 1b3<1 
+15. 2a2+2 4c2<13 
+16. 3a3-3 4d2<112 
+17. 1b2<1 Fa4 
+18. 3a2+12 	
+
+NOTE: white victory is another AI engine bug.
+
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fa2 Fa3 
+3. Fb1 1a3-1 
+4. Fb2 2a2>2 
+5. Fa2 3b2<3 
+6. Fb2 4a2>4 
+7. Fa2 Fa3 
+8. Fc1 Fd1 
+9. Fc2 1d1<1 
+10. 1a2>1 2c1<2 
+11. 3b2+12 3b1+3 
+12. Fc3 1a3>1 
+13. Fc4 2b3>2 
+14. Fb3 1a4>1 
+15. 1b3>1 2b4>2 
+16. 3c3<12 1b4-1 
+17. Fa2 2b3<2 
+18. Fb1 4a3-13 
+19. Fc1 	
+
+NOTE: white's last move ties the game: by exhausting its flats, it forces a draw. this is actually a good move, considering black controls everything on the board. black's early game moves are bad, though, because they spend too much time capturing white's pieces in stacks insteady of putting down pieces of their own. this is a failure of the heuristic value function. 
+
+-- new version of AI has been implemented. --
+
+(AI level 1 {white} vs. AI level 2 {black},
+random first two plays)
+
+[Size "4"]
+
+1. Fb4 Fc4 
+2. Fa1 Fa2 
+3. 1a1>1 Fa1 
+4. Fa3 1a1>1 
+5. Fa1 1a2>1 
+6. 1a1>1 1b2-1 
+7. Fa1 Fa2 
+8. 1a1>1 1a2+1 
+9. Fa1 Sc1 
+10. 1a1>1 Fa1 
+11. Fa2 1a1>1 
+12. Fa1 2a3>2 
+13. 1a1>1 1b4>1 
+14. Fa1 Sb2 
+15. 1a1>1 Fa1 
+16. 1a2+1 1b2+1 
+17. Fa2 1a1+1 
+18. Fa1 2a2>2 
+19. 1a1>1 Fa1 
+20. Fa2 1a1+1 
+21. Fa1 2a2>2 
+22. 1a1>1 Fa1 
+23. Fa2 1a1+1 
+24. Fa1 	
+
+NOTE: white forces a draw here. this is the first game where I can't detect any obvious mistakes; looks like both players are making reasonable decisions. white continually tries to build in lower right, but black blocks it too effectively. more creative play by white would be necessary. black played better than white but couldn't manage a win: bad AI or first-player advantage?
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. Fc2 Fa1 
+4. Fa4 Fb1 
+5. Fb3 Fc1 
+6. Fd1 1c1+1 
+7. 1b2+1 Fa3 
+8. 1b3<1 Fc3 
+9. 2a3-2 1a1+1 
+10. Sb2 Fa1 
+11. 1b2<1 Fc1 
+12. 1d1<1 2c2-2 
+13. Sd1 Fb2 
+14. 1d1<1 Fd2 
+15. 2c1<2 1c3>1 
+16. Fc3 Fd4 
+17. Fd1 Fc2 
+18. 1c1+1 Fa3 
+
+NOTE: Not sure what happened here. Black played strong. Somehow a draw? Win condition seems mistaken. [Future note: turns out to have been an error in the victory condition checker. It never set 'end_is_nigh' to false, and 'end is night' was global... very bad. I hate Lua variable scoping sometimes.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. Fc2 Fa1 
+4. Fa4 Fb1 
+5. Fb3 Fc1 
+6. Fd1 1c1+1 
+7. 1b2+1 Fa3 
+8. 1b3<1 Fc3 
+9. 2a3-2 1a1+1 
+10. Sb2 Fa1 
+11. 1b2<1 Fc1 
+12. 1d1<1 2c2-2 
+13. Sd1 Fb2 
+14. 1d1<1 Fd2 
+15. 2c1<2 1c3>1 
+16. Fc3 Fd4 
+17. Fd1 Fc2 
+18. 1c1+1 1b2>1 
+19. 2c1+2 1d2<1 
+20. Sd2 3c2+12 
+21. 1d2<1 Fd2 
+22. 2c2+2 1d2<1 
+23. 3c3-3 Fb4 
+24. 1a4>1 2c4<2 
+25. 1b3+1 1d3<1 
+26. 4c2+4 Sb3 
+
+NOTE: Reprise of earlier match, with move corrected at B18. Plays through to end as well as possible, but I had the advantage the whole time. However, the last move is a mistake; it can force me to a draw by playing flat anywhere. Why didn't it? [Future note: turns out that when the AI engine was generating child nodes in the alpha-beta recursion, the child nodes didn't get information about how many pieces had been played, so it couldn't detect the draw which occurs when pieces run out. Fixed.]
+
+
+(me {white} vs. AI level 3 {black})
+
+[Size "4"]
+
+1. Fb1 Fa1
+2. Fb2 Fa2
+3. Fa3 1a2-1
+4. Fc2 1b1+1
+5. 1c2<1 Fc1
+6. Fc3 Fd1
+7. Sb1 Fd3
+8. Fc4 Fd4
+9. Sd2 Sb3
+10. 3b2>3 1c1+1
+11. 1c3-1 2a1+11 
+12. Fa1 2a3-11
+13. 1a2-1 Fc1 
+14. Sc3 1c1+1
+15. 1c3-1 Fc1
+16. 1d2+1 Fa3
+17. 2c2-2 Fa4
+18. 3c1>3 Fb4
+19. 2d3+2 1b3-1
+20. Sb3 1b2>1
+21. Sb2 4c2+22 
+22. 3a1+12 Fd2 
+23. 1b2>1 Fa1
+23. Fb2 Fc1
+
+Winner: black
+
+NOTE: It beat me with a flat win! Very surprising, because I had total board control for a good long while. It made some particularly insightful moves in the mid game, when it played its wall at b3 (B9), and then much later on when it moved that wall (B19). I had almost total board control and then it came from behind - it got clever in a corner! Perhaps this is a Brooker's Fall?
+
+(Qu4Z {white} vs. AI level 3 / 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 1a3-1 
+5. Fb1 2a2>2 
+6. Fa2 Fb3 
+7. 1b1+1 1b3-1 
+8. 1a2>1 Sb3 
+9. 4b2>22 1b3-1 
+10. Fd3 3b2>12 
+11. Fc3 4d2+13 
+12. Fb2 Fb3 
+13. Fa2 1b3-1 
+14. 1a2>1 Fb3 
+15. Fa2 1b3-1 
+16. 1a2>1 2d3<2 
+17. Fa2 Fa3 
+18. 4b2+22 	
+
+Winner: white
+
+NOTE: AI level 4 took over for moves B8 and B9, while other moves were played by AI level 3. AI did not succeed - possibly due to irrecoverable early game mistakes. 
+
+(me {white} vs. AI level 4 {black})
+
+[Size "4"]
+
+1. Fa4 Fa1 
+2. Fb2 Fb4 
+3. Fd4 Fa3 
+4. Fa2 Fb3 
+5. Fd3 Fc2
+6. Fd2 1c2>1 
+7. Sc3 Fc4
+8. 1d3-1 1a3-1
+9. 1a1+1 Sc2
+10. Fb1 1c2>1
+11. Fa3 4d2<112
+12. 1d4<1 3a2+3
+13. 1c3<1 2b2>2
+14. 2b3+2 Fd2
+15. Fb2 Fd3
+16. Fb3 Fc3
+17. 1b3>1 4a3>13
+18. 1b2<1 Sb2
+19. Sc1 Fd1
+20. Fd4 4c3+4
+21. 1c1>1 Fa3
+22. 3a2+12 Fa1
+23. 1b1<1 Fa2
+
+Outcome: Draw
+
+NOTE: Wanted to examine the last game, starting with letting AI level 4 take over at B4. AI played a strong game and often took initiative. Through what was mostly luck I forced it into a draw. At W22, I thought I had a chancea at winning; the AI could see farther than I could. 
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 	1a1+1
+8. Fc3 Fd3
+9. Fc4 2a2+2
+10. 1b3<1 Sa1
+11. Fb4 1a1>1
+12. 4a3>112
+
+Outcome: white wins, and both sides know that it's inevitable at B10
+
+NOTE: White seems to come from a weak position at the start, but turns the game around. B9 appears to be a crucial mistake which enables white to guarantee victory. Curious to see if a better move is possible there.
+
+
+(AI level 4 {white} vs. AI level 4 {black},
+random first ten moves,
+human intervention at move B9)
+
+[Size "4"]
+
+1. Fa2 Fc1 
+2. 1c1>1 1a2-1 
+3. Fb4 Sc1 
+4. Fa3 Fd2 
+5. 1b4<1 1a1>1 
+6. Fa2 Fa1 
+7. Fb3 1a1+1 
+8. Fc3 Fd3 
+9. Fc4 Fd4 
+10. Fb4 Fc2 
+11. 1d1+1 1c2>1 
+12. 1c4>1 3d2+12 
+13. 1c3>1 3d4-3 
+14. Fc4 4d3-4 
+15. 1c4>1 1d3+1 
+16. Fd1 Fb2 
+17. 1d1+1 3d4-12 
+18. 1b3-1 Fd1 
+19. Sd4 3d2<12 
+20. 1c2<1 1b1+1 
+21. Sc2 2b2+2 
+22. 1d4-1 4b2+13 
+23. 1a3>1 4b4-4 
+24. 1c2>1 Sb2 
+25. Fb4 Fc4 
+26. 1b4-1 1b2+1 
+27. 4d2<112 1b3-1 
+28. Fa1 Fa3 
+29. Fb1 	
+	
+Outcome: white wins, inevitable at B27.
+
+NOTE: This is a variation on the previous game, where the losing move (B9) has been replaced with a (possibly better) move. The game here lasts significantly longer, suggesting that the revision does indeed remove white's immediate win. I personally have a hard time seeing why the game is already over at B27, though. White is ahead in the flat count, but couldn't black play 2b3-2?
+
+(AI level 3 {white} vs. TAKARLO DRAFT, 75s min per move {black})
+
+[Size "4"]
+
+1. Fa1 Fb1 
+2. Fa2 Fc3 
+3. Fb2 Fd2 
+4. Fa3 Fa4 
+5. Fb3 Fb4 
+6. Fc1 Fd1 
+7. Fc4 1a1>1 
+8. 1b3>1 1b4>1 
+9. Fc2 Fd3 
+10. Sd4 2b1>2 
+11. 1c2-1 Fc2 
+12. 4c1+112 1d2<1 
+13. 1c3-1 Fa1 
+14. Fb1 	
+
+Outcome: White wins.
+
+NOTE: Testing out an early TAKARLO draft. Here, Black is a flat UCB Monte Carlo agent that uses a one-step lookahead to check whether moves immediately lead to wins or losses, but otherwises uses uniformly random playouts to evaluate move qualities. Tends to run 1.5-2k simulations per move. It gets 75s per move or 3 times how long White spent thinking.
+
+NOTE: Black's responses are impressive up until B11, which seems to cost it the game. It does an excellent job of encircling White, which I didn't expect it to do, given the very limited amount of computation it gets to perform - and its extremely minimal understanding of the game itself. This Monte Carlo agent might play stronger as white, when it has the initiative.
+
+
+(AI level 3 {white} vs. TAKARLO DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fa2 
+2. 1a2-1 Fa5 
+3. Fa2 Fb3 
+4. Ca3 Fd2 
+5. Fb1 Cc5 
+6. Fc1 Se1 
+7. Fa4 Fd5 
+8. Fb2 Fc4 
+9. Fc2 1d2>1 
+10. Fc3 Fb5 
+11. 1a4+1 Fa4 
+12. 2a5-2 Fa5 
+13. 3a4+3 Fa4 
+14. 4a5-4 Fa5 
+15. 5a4+5 Fa4 
+16. Fd1 Fe5 
+17. 1a3+1 1b5<1 
+18. Sb5 Fb4 
+19. Fa3 Fd3 
+20. Fd2 Se3 
+21. 1c3<1 1d3+1 
+22. 1b5<1 1c5<1 
+23. Fc3 1b5<1 
+24. Sb5 1b4-1 
+25. 1a3>1 Fb4 
+26. 4b3-4 1e3-1 
+27. Fa3 2e2<11 
+28. 4b2+22 1c4<1 
+29. 1b3+1 1b3<1 
+30. Fb3 Fe2 
+31. 2b4>2 1d4<1 
+32. 1c3+1 2c2+11 
+33. 1b5>1 5a5>5 
+34. 2a4-2 5b5-1112 
+35. 1b3+1 5c4<14 
+36. 1d1+1 Fb5 
+37. 1a1+1 1a1+1 
+38. Fa1 3a2>111 
+39. 1a1+1 Fa1 
+
+Outcome: Black wins.
+
+NOTE: I wanted to see how the Takarlo draft would do on a 5x5 board against Takai 3. This was a remarkable game for many reasons, and I have many thoughts on it.
+
+1) It demonstrates that the minimax agent is weaker on the 5x5 than it is on the 4x4. You have to look farther into the future to make good decisions here, and a 3-ply lookahead isn't enough. Takai plays competently, building up strong board control and a powerful center, but does nothing creative to break past Takarlo's defenses. Also, Takai brings out a capstone much too early in the game: I will have to modify the heuristic so that it doesn't reward this behavior.
+
+2) Takai goes for the very straightforward kinds of moves -- building islands, making road threats, and so on. Takarlo plays with a much stranger strategy, which occasionally seems wise and thoughtful. Particularly, moves B2 - B5 are fascinating. Black creates a disjointed wall against White's island, while managing to keep its stones "loosely" connected. Then it uses the capstone to solidify the upper corridor, thwarting White's upward movement: arresting it for the remainder of the game.
+
+3) B9 does not look like a useful move: Black moves a flat stone from one square into an unoccupied one. Placing a stone would have probably been stronger. But, these are the kinds of things that show up with Monte Carlo methods, I suppose.
+
+4) B10 is Black's first road threat. I'm impressed that it accomplishes this before White.
+
+5) Rounds 11-15 are also very interesting: Black and White get into a stack fight over A5 that White clearly loses. Although White has control of A5, that stack is almost all Black pieces; White must now carefully guard that stack for the rest of the game. This will lock up the White capstone, and later, a White wall.
+
+6) Black makes additional road threats on B16 and B18. I continue to be impressed at the midgame strength. Move B19 is also good, closing off White's abilities to make a road from A to E. 
+
+7) B21 is a single move action from one square to an unoccupied one, again. Seems to be a mistake. Who knows. Black won.
+
+8) Black's moves at B22-B23 again demonstrate that the flat Monte Carlo engine can see some multi-turn strategies effectively. Not always, but often enough to be intriguing. 
+
+9) Black's endgame is extremely sloppy from moves 37-39. It knows that it has won - and so does Takai - but it makes mistakes because it isn't programmed to take the killshot immediately. This should be corrected.
+
+Fascinating game. And this is just flat Monte Carlo! Not even with a tree search!
+
+Granted: Takarlo takes waaaay too long to make most of its moves for this to be practical. But, here is a path to something stronger than the minimax agent. 
+
+
+
+(TAKARLO-SMART-PARTIAL-8 DRAFT, 60s min per move {white} vs. AI LEVEL 3 {black})
+
+[Size "5"]
+
+1. Fc4 Fa1 
+2. Fc1 Fa4 
+3. Fd2 Fb4
+4. Fd3 Cd4
+5. Ce4 Fd5
+6. Fe5 Fa3
+7. Fc2 Fe3
+8. 1d3>1 1d5>1
+9. Fd5 Fc5
+10. 1d5>1 Fa2
+11. Fd3
+
+Notes: Holy shit.
+
+Notes, Part 2: Black makes subtle and terrible mistakes in the midgame from which it never recovers. B6 is an utterly uninspired move. B7 was interesting - Black made a cut! - but ultimately only postponed the inevitable. Black should have started hoovering against White, but failed to see the value in it. 
+
+Notes, Part 3: White plays a game without mistakes here, as far as I can tell. Every move is purposeful and brings it closer to victory.
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-8 DRAFT, 60s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc3 
+2. Fb2 Fc1 
+3. Cb1 Fb3 
+4. 1c3<1 Cd1 
+5. Fb4 Fb5 
+6. Fa2 Fa3 
+7. Fa4 Fa5 
+8. Fc2 1a3+1 
+9. Fa3 Sc4 
+10. Fc3 1c4<1 
+11. Fd3 Fe3 
+12. Fe2 1a1+1 
+13. 1c2>1 	
+
+Notes: Alas.
+
+Notes, Part 2: Black makes a few mistakes in the early game, but this isn't all Black's fault. White plays an extremely aggressive game. The capstone throwdown at W3 is brutal. Black responds poorly here: I'm inclined to think that the game is already lost at B3. Black's capstone deployment at B4 is a move that completely misses everything else that is happening in the game: a particularly poor choice. 
+
+The early game mistakes are probably because the Monte Carlo engine is spread too thin: it only has about 8 sims per move, compared to later in the game, when it has about twice that per interesting move. 
+
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-8 DRAFT, 75s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc5 
+2. Fb4 Fa2 
+3. Fa4 Ce2 
+4. Fc4 Fd4 
+5. Fa3 Fd3 
+6. Fa5 Fd5 
+7. Fb3 Fd2 
+8. 1c5>1 Fb2 
+9. Cc2 1d4-1 
+10. Fc5 Se5 
+11. 1b3-1 2d3-11 
+12. Fc3 1a1>1 
+13. Fc1 	
+
+Notes: I am now forced to suspect that the Takarlo draft is not as good as I had hoped it would be. B11 is a poor move that costs it the game. White's capstone deployment at W9 is excellent: it kills Black's strategies. 
+
+Neither White nor Black plays a perfect game, or close. But at least interesting strategies are emerging.
+
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-9 DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fe4 
+2. Fd3 Ca3 
+3. Fc3 Fa4
+4. Fa2 Fb2
+5. 1a2-1 Fd1
+6. Cb3 Fa5
+7. Fc4 Fa2
+8. Fb1 1b2-1
+9. 2a1+2 Fa1
+10. Fd4 1a1+1
+11. Fa1 2a2>2
+
+Notes: More time seems to make all the difference. Black wins decisively. White never makes the moves that could stop it - White should attack the upper left, but never does it. 
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-9 DRAFT, 175s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fc5 
+2. Fb4 Fb1 
+3. Fa4 Fe1 
+4. Fb5 Fc1 
+5. Cd1 Fd2 
+6. Fd5 Se5 
+7. Fc4 Fc2 
+8. 1d1<1 1e1+1 
+9. 2c1+2 Fc1 
+10. Sd1 Ce1 
+11. 1d1<1 Fe4 
+12. Fa3 Fe3 
+13. Fc3 1e1<1 
+14. Fa2 1e5<1 
+15. Fe5 1e4+1 
+16. Fe4 1e3+1 
+17. Fe3 1e2+1 
+18. 3c2>3 Fe2 
+19. 4d2>4 Fd2 
+20. 5e2+14 Sd4 
+21. Fa5 Se1 
+22. Fb2 1d5<1 
+23. Fb3 3e3-3 
+24. 1a2-1 Fa2 
+25. 1a1>1 	
+
+Notes: Sad game. Black plays great until it doesn't. W5 is a hard move to come back from; Black clearly invested too much effort in that bottom row. B9 is a mistake: Black played in the right place with the wrong place. Should have been Cc1, instead of Fc1; allowed White to play the wall at d1 and kill the connections between the two groups of stones. The sequence from B14-B19 is interesting but futile. (Feels like a broken ladder in Go.) B21 is another mistake: wrong piece, wrong place. Maybe 1d1<1 would be better. Either way, there is no real chance of victory at this point. B22 and B23 are dumb. 
+
+
+(AI LEVEL 3 {white} vs. TAKARLO-SMART-PARTIAL-10 DRAFT, 180s min per move {black})
+
+[Size "5"]
+
+1. Fa1 Fb3 
+2. Ca2 Fc1 
+3. Fa3 Cc2 
+4. Fa4 Fd2 
+5. Fa5 Fb1 
+6. 1a2-1 Fa2 
+7. 2a1+2 Fa1 
+8. 3a2-3 Fa2 
+9. 4a1+4 Fa1 
+10. 5a2-5 Fa2 
+11. Fb2 1b1+1 
+12. 1b3-1 1c2<1 
+13. 3a1+3 2a1>11 
+14. 4a2-4 2b2<2 
+15. 5a1>23 Fc2 
+16. Fe2 Fe1 
+17. 1e2<1 Fd1 
+18. Fb3 1d1+1 
+19. 1b3-1 Fe2 
+20. 2b2>11 2b1+11 
+21. 4d2<22 1b1+1 
+22. 4c2<4 1b3-1 
+23. 5c1+5 5b2-5 
+24. Sc1 2b1+11 
+25. 1c2<1 3c2+111 
+26. Fd2 1e1<1 
+27. 1d2<1 Fd2 
+28. 2c2+11 2c3+11 
+29. Fc2 Se3 
+30. Fb5 3c4-12 
+31. 3b2>21 1c5-1 
+32. 5c2+113 1b3-1 
+33. 2d2<11 Fe1 
+34. Fb3 Fa1 
+35. 2b2-2 	
+
+Notes: Sigh. These results are just depressing. The endgame is very, very poor for Black here. I don't even want to go through it. It's just sad. Takarlo needs some serious work.
+
+
+(TAKARLO-SMART-PARTIAL-9 DRAFT, 75s min per move {white} vs. AI LEVEL 3 {black})
+
+[Size "6"]
+
+1. Fe2 Fa1 
+2. Sc3 Fd1 
+3. Fa4 Fc1 
+4. Sd4 Cb1 
+5. Fa6 Fb2 
+6. Fa5 Fa2 
+7. Fc2 Fd2 
+8. 1c2<1 1a2-1 
+9. 2b2>11 1c2>1 
+10. Sf2 Fe1 
+11. Sf1 Fa2 
+12. Cb4 Fa3 
+13. Fb6 Fb2 
+14. 1c3-1 Fb3 
+15. Fe4 Fc3 
+16. Fd6 2d2+2 
+17. 1e4-1 1a3+1 
+18. Fd5 Fa3 
+19. 1d4-1 Fc4 
+20. Sf4 Fc5 
+21. Fc6 Fd4 
+22. Fe5 1c5+1 
+23. 1b6>1 Fc5 
+24. Ff5 1c5>1 
+25. 2c6<2 2d5+2 
+26. 3d3+111 1d5>1 
+27. 3d6>12 Fd3 
+28. 1f5<1 Sf5 
+29. 2e5-2 1e2+1 
+30. 1f4-1 2e3+2 
+31. 2d4>2 1f5<1 
+32. Fc5 2e5-2 
+33. Ff5 4e4+13 
+34. Fe3 3e4-3 
+35. 1f3<1 Fe2 
+36. 5e3+14 4e6<13 
+37. 3e5-12 Fb5 
+38. 2d6-11 1b5>1 
+39. 1c2-1 Fc2 
+40. 1a5-1 2c5>2 
+41. 1d4+1 1a1+1 
+42. 3d5<12 	
+
+Notes: Interestingly, the Monte Carlo agent pulls off a huge come-from-behind victory. However, both players play terribly. It looks like the Monte Carlo agent just got lucky, and the Minimax agent got confused. 
+
+(KAKABURRA {white} vs. AI LEVEL 3 {black})
+
+[Event "Chat Game"]
+[Site "#Tak on freenode"]
+[Player1 "Kakaburra"]
+[Player2 "AlphaTakBot"]
+[Size "5"]
+
+1. Fa1 Fa2 
+2. Fb2 1a1+1 
+3. 1b2<1 Ca1 
+4. 3a2+12 Fa2 
+5. Fb3 1a1+1 
+6. Fc3 2a2+11 
+7. Fd3 3a4-3 
+8. 1c3>1 5a3>212 
+9. Cb2 Fb4 
+10. 1b2+1 Fc4 
+11. Fb2 Fa3 
+12. Fb1 Sb5 
+13. Fa5 Fd4 
+14. Fa4 1b4<1 
+15. 1a5-1 1a3+1 
+16. Sb4 Fd1 
+17. 1b4<1 Sb4 
+18. Sd2 Fc5 
+19. Fc2 Fd5 
+20. Fe2 Fe3 
+21. Fe1 Fe4 
+22. Fa1 1c3-1 
+23. 1b2>1 Sc3 
+24. Fc1 Fe5 
+25. 1b3>1 1d1>1
+26. 1e2-1 Sd1
+27. 3e1+12 2d3>2
+28. 1d2>1 1d4-1
+29. 2c3>2 Fd4
+30. 2c2<2 Fc3
+31. 5a4-14 Fd2
+32. 1a3>1 1b4-1
+33. 5d3<5 1d2<1
+34. Fa4 Fd2
+35. Fa5 Fa3
+	
+Notes: Computer wins. Kakaburra makes a mistake at W35. But even going back and doing it another way: 35. 4c3+13 2b3>2, computer still wins. This was a fierce battle.  
+
