@@ -1,9 +1,5 @@
- _____      _        _     _____ 
-/__   \__ _| | __   /_\    \_   \
-  / /\/ _` | |/ /  //_\\    / /\/
- / / | (_| |   <  /  _  \/\/ /_  
- \/   \__,_|_|\_\ \_/ \_/\____/  
-                                 
+### TAK AI
+
 by Joshua Achiam
 
 Hello! Welcome to my Tak AI library! Currently the library does not support a graphical interface, and the AI can only be played against on the command line. I recommend you use the PTN viewer by Ben Wochinski to view games. 
