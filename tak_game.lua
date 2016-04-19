@@ -258,9 +258,6 @@ function tak:get_legal_moves(player)
 			x = x - dist
 		end
 
-		-- woo ugly array slicing
-		-- top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
-		-- top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
 		if i > x then
 			xrange = {x,i-1}
 			yrange = {j,j}
@@ -283,7 +280,7 @@ function tak:get_legal_moves(player)
 		elseif walls_in_way then
 			-- if there is /only one/ wall and our stack is topped by a cap, and
 			-- the stack flow ends with the cap flatting the wall...
-			joint_condition = walls_on_path:sum() == 1
+			local joint_condition = walls_on_path:sum() == 1
 			joint_condition = joint_condition and self.board[{i,j,self.heights[{i,j}],player,3}] == 1
 			joint_condition = joint_condition and top_walls[{x,y}] == 1
 			last_digit = tonumber(string.sub(stack_move,#stack_move,#stack_move))
