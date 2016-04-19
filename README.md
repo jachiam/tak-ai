@@ -1,4 +1,4 @@
-### TAK AI
+# TAK AI
 
 by Joshua Achiam
 
@@ -51,7 +51,7 @@ Regarding the AI_vs_AI command: the first argument is the game node, the second 
 
 To issue commands to the game when it is your turn, give your move in PTN. PTN admits some ambiguity, so here is what is permitted:
 + a1, fa1, Fa1 are all acceptable. (the first letter may be lowercase for placing walls or caps also.)
-+ a1<, 1a1<1 are acceptable. 1a1< is not acceptable.
++ a1<, 1a1>1 are acceptable. 1a1< is not acceptable.
 
 If you'd like to control the game more directly, I recommend you check out the source code, but the snippets you will be most interested in are:
 
@@ -68,3 +68,21 @@ agent:move(game)
 ```
 
 which tells the AI agent object to make a move in the game. 
+
+
+## Misc.
+
+Some thoughts on Takai: 
+
+You probably should not play at depths greater than 3. The current implementation of the minimax search is quick but not lightning fast. From my experience, it takes somewhere on the order of 30 seconds to make a move on the 5x5 board, on average. But for games with many stacks, this can go up. (I have one test instance where it takes about 90 seconds to move.) On 4x4 boards, it only seems to take around 10 seconds per move, with 30 seconds at the longest. I am actively working on speeding this up.
+
+Once you have played enough games with this AI, you will see that it is somewhat predictable. Hopefully still strong enough to be a worthy opponent. It can give you a run for your money if you aren't careful, though.
+
+Future versions of this are planned, and a wrapper for it to interface to PlayTak.com is imminent. (Although if anyone beats me to the punch, I'll have no objections - just open source your code, please! :) )
+
+
+Some thoughts on Takarlo:
+
+Takarlo will make better moves if you give it longer to think. As a point of reference, I find that Takarlo seems to win about 50% of the time on the 4x4 board against Takai (depth 3) when you give Takarlo 75 seconds per move. For a 5x5 board, you might want to give it a bit longer - maybe 120 seconds? 180 even? 
+
+Takarlo gets creative in ways that Takai doesn't. But it also sometimes misses what seems like the obvious move to make, and even makes clearly poor moves from time to time. I imagine that Takarlo will hold up poorly against human opponents, but I am not sure yet. Time will tell.
