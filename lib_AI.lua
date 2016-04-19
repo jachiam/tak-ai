@@ -15,12 +15,21 @@ function game_node:__init()
 end
 
 function game_node:is_terminal()
-	return false
+	if self.winner == 0 then
+		return false
+	else
+		return true
+	end
 end
 
 function game_node:make_move(a)
 	self.ply = self.ply + 1
+	if self.ply == 10 then self.winner = 1 end
 	return true
+end
+
+function game_node:undo()
+	self.ply = self.ply - 1
 end
 
 function game_node:clone()
@@ -115,16 +124,18 @@ local flat_mc_AI = torch.class('flat_mc_AI','AI')
 
 -- arguments to initialize flat_mc_AI:
 --	time 	:	how long can it spend thinking per turn?		 (default: 60s)
+--	check   :	do a one-move-lookahead for each move to see if it guarantees a loss (default:true)
 --	rollout_policy: a function that takes a game node and returns an action. (default: random)
 --	partial :	should it do full rollouts or partial rollouts?		 (default: false)
 --	depth	:	if partial rollouts, to what depth?			 (default: 10)
---	value   :	a function that takes a game node and returns its value	 (default: value 0 everywhere)
-function flat_mc_AI:__init(time,rollout_policy,partial,depth,value,debug)
-	self.time = time
-	self.rollout_policy = rollout_policy
-	self.partial = partial
-	self.depth = depth
-	self.value = value
+--	value   :	a function that takes a game node and returns its value	 (default: 1 = win, 0.5 draw, else 0)
+function flat_mc_AI:__init(time,check,rollout_policy,partial,depth,value,debug)
+	self.time = time or 60
+	if check == nil then self.check = true else self.check = check end
+	self.rollout_policy = rollout_policy or default_rollout_policy.new()
+	self.partial = partial or false
+	self.depth = depth or 10
+	self.value = value or default_value
 	self.debug = debug
 end
 
@@ -134,9 +145,73 @@ function flat_mc_AI:move(node)
 		return false
 	end
 	
+	local start_time = os.clock()
+	local av, nv, rav, wm, lm = flat_mc_action_values(node,self.time,self.check,
+							self.rollout_policy,
+							self.partial,
+							self.depth,
+							self.value)
+
+	local _, a = torch.max(av,1)
+	local elapsed_time = os.clock() - start_time
+	if self.debug then
+		print('MC move: ' .. a[1] .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', Time taken: ' .. elapsed_time)
+	end
+	node:make_move(a[1])
+	return true
 end
 
 
+-------------------------------------
+-- ASYNC FLAT MONTE CARLO AI CLASS --
+-------------------------------------
+
+local async_flat_mc_AI = torch.class('async_flat_mc_AI','AI')
+
+-- arguments to initialize async_flat_mc_AI:
+--	time 	:	how long can it spend thinking per turn?		 (default: 60s)
+--	check   :	do a one-move-lookahead for each move to see if it guarantees a loss (default:true)
+--	rollout_policy: a function that takes a game node and returns an action. (default: random)
+--	partial :	should it do full rollouts or partial rollouts?		 (default: false)
+--	depth	:	if partial rollouts, to what depth?			 (default: 10)
+--	value   :	a function that takes a game node and returns its value	 (default: 1 = win, 0.5 draw, else 0)
+--	nthreads:	how many threads in threadpool?				 (default: 4)
+--	deps	:	table of dependencies (string for filename or rock name) (default: empty table)
+function async_flat_mc_AI:__init(time,check,rollout_policy,partial,depth,value,nthreads,deps,debug)
+	self.time = time or 60
+	if check == nil then self.check = true else self.check = check end
+	self.rollout_policy = rollout_policy or default_rollout_policy.new()
+	self.partial = partial or false
+	self.depth = depth or 10
+	self.value = value or default_value
+	self.nthreads = nthreads or 4
+	self.deps = deps or {}
+	self.debug = debug
+
+	self.pool = make_threadpool(self.nthreads,self.deps)
+end
+
+function async_flat_mc_AI:move(node)
+	if node:is_terminal() then
+		if self.debug then print 'Game is over.' end
+		return false
+	end
+	
+	local start_time = os.clock()
+	local av, nv, rav, wm, lm = async_flat_mc_action_values(self.pool,node,self.time,self.check,
+							self.rollout_policy,
+							self.partial,
+							self.depth,
+							self.value)
+
+	local _, a = torch.max(av,1)
+	local elapsed_time = os.clock() - start_time
+	if self.debug then
+		print('Async MC move: ' .. a[1] .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', CPU time taken: ' .. elapsed_time)
+	end
+	node:make_move(a[1])
+	return true
+end
 
 --------------------------------------------------
 --		AI vs. AI			--
@@ -182,6 +257,10 @@ function policy:act(node)
 end
 
 local default_rollout_policy = torch.class('default_rollout_policy','policy')
+
+function default_rollout_policy:act(node)
+	return policy.act(self,node)
+end
 
 local epsilon_greedy_policy = torch.class('epsilon_greedy_policy','policy')
 
@@ -390,7 +469,7 @@ function rollout(node,rollout_policy,partial,depth,noclone)
 		end
 	else
 		for i=1,depth do
-			sim:make_move(rollout_policy:act(sim))
+			if not(sim:is_terminal()) then sim:make_move(rollout_policy:act(sim)) end
 		end
 	end
 
@@ -410,7 +489,7 @@ function select_and_playout_move(node, rav, nv,
 				partial,
 				depth,
 				value)
-	local rollout_policy = rollout_policy or default_rollout_policy
+	local rollout_policy = rollout_policy or default_rollout_policy.new()
 	local depth = depth or 10
 	local value = value or default_value
 	local copy = node:clone()
@@ -444,9 +523,8 @@ function select_and_playout_move(node, rav, nv,
 	return runflag, a, v, guarantee_win, guarantee_lose
 end
 
-
-
-function action_values(node,time,check,
+-- serial version of flat monte carlo action value calculation
+function flat_mc_action_values(node,time,check,
 			rollout_policy,
 			partial,
 			depth,
@@ -488,7 +566,127 @@ function action_values(node,time,check,
 		end
 	end
 
-	action_values = means(raw_action_values,num_visited)
+	local action_values = means(raw_action_values,num_visited)
 	return action_values, num_visited, raw_action_values, winning_moves, losing_moves
+end
+
+-- parallel version of flat monte carlo action value calculation
+-- threadpool is first argument now
+function async_flat_mc_action_values(pool,node,time,check,
+			rollout_policy,
+			partial,
+			depth,
+			value)
+
+	local legal_moves = node:get_legal_move_mask(true)
+	local raw_action_values = torch.zeros(legal_moves:size())
+	local num_visited = torch.zeros(legal_moves:size())
+	local player = node:get_player()
+	local losing_moves = num_visited:clone()
+	local winning_moves = num_visited:clone()
+
+	local a, v, sim
+	local start = os.time()
+	local flag, a, s, gw, gl
+
+	local jobcount = 0
+	local jobid = 0
+	local start_time
+
+	local function async_eval()
+	   
+		-- fill up the queue as much as we can
+		-- this will not block
+		while pool:acceptsjob() and os.time() - start_time <= time do
+
+			jobid = jobid + 1
+		
+			pool:addjob(
+				function(jobid)
+					local start = os.clock()
+					local flag, a, val, gw, gl = select_and_playout_move(node,
+									raw_action_values:clone(),
+									num_visited:clone(),
+									legal_moves:clone(),
+									check,
+									winning_moves:clone(),
+									losing_moves:clone(),
+									rollout_policy,
+									partial,
+									depth,
+									value)
+
+					return flag,a, val, gw, gl
+				end,
+
+				function(flag,a,val,gw,gl)
+
+					if gw then
+						winning_moves[a] = 1
+						raw_action_values[a] = 1
+						num_visited[a] = 1
+						return
+					elseif gl then
+						losing_moves[a] = 1
+						raw_action_values[a] = 0
+						num_visited[a] = 1
+						return
+					end
+
+					if flag then
+						raw_action_values[a] = raw_action_values[a] + val
+						num_visited[a] = num_visited[a] + 1
+					end
+				end,
+
+				jobid
+				)
+		end
+
+		   -- is there still something to do?
+		if pool:hasjob() then
+			pool:dojob() -- yes? do it!
+			if pool:haserror() then -- check for errors
+				pool:synchronize() -- finish everything and throw error
+			end
+			jobcount = jobcount + 1
+		end
+	end
+
+	start_time = os.time()
+	start_time_CPU = os.clock()
+	while os.time() - start_time <= time do
+		async_eval()
+		--if winning_moves:sum() > 0 then break end
+	end
+	
+	local real_jobtime = os.clock() - start_time_CPU
+	print('Total CPU time: ' .. real_jobtime .. ', Estimated Speedup Over Realtime: ' .. real_jobtime / time)
+
+	action_values = means(raw_action_values,num_visited)
+	return action_values, num_visited, raw_action_values, winning_moves, losing_moves, jobcount
+end
+
+--------------------------------------------------
+--	THREADPOOL MAKER FOR PARALLEL CODE	--
+--------------------------------------------------
+
+-- deps is a table of strings denoting dependencies
+-- example, deps = {'tak_game','tak_AI'}
+function make_threadpool(nthreads,deps)
+	local threads = require 'threads'
+	local deps = deps or {}
+	local pool = threads.Threads(nthreads, 
+		function()
+			require 'torch'
+			require 'lib_AI'
+			for _, dep in pairs(deps) do
+				require(dep)
+			end
+		end,
+		function(threadid)
+			print('starting ' .. threadid)
+		end)
+	return pool
 end
 

@@ -718,8 +718,15 @@ function tak:play_game_from_ptn(ptngame,quiet)
 	self:__init(size)
 	iterator = string.lower(ptngame):gmatch("%w%a%d[<>%+%-]?%d*")
 	for ptn_move in iterator do
-		self:make_move_by_ptn(ptn_move)
+		self:accept_user_ptn(ptn_move)
 	end		
+end
+
+function tak:play_game_from_file(filename,quiet)
+	local f = torch.DiskFile(filename)
+	local gptn = f:readString('*a')
+	f:close()
+	self:play_game_from_ptn(gptn,quiet)
 end
 
 return tak
