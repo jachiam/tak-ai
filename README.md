@@ -32,6 +32,10 @@ require 'tak_AI'
 game = tak.new(5)	-- creates a new game of Tak on a board of size 5
 
 
+-- let's load a partially played game
+game:play_game_from_file('game.txt')
+
+
 -- create a new minimax AI agent doing a depth 3 search
 -- the second arg is the debug flag, so it'll give some info with each move
 takai = make_takai(3,true)
