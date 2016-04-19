@@ -15,13 +15,12 @@ print 'Game over'
 
 local f = torch.DiskFile('interesting games/takai_playtak.txt','rw')
 f:seekEnd()
-f:writeString('----NEWGAME----\n\n' .. game:game_to_ptn() .. '\n')
+f:writeString('----NEWGAME----\n\n' .. game:game_to_ptn() .. '\n\n')
 if (arg[1]=='True' and game.winner == 1) or (arg[1]=='False' and game.winner==2) then
-	f:writeString('---WIN---')
-elseif game.winner ~= 0
-	f:writeString('---LOSS---')
+	f:writeString('---WIN---\n\n\n')
+elseif game.winner ~= 0 then
+	f:writeString('---LOSS---\n\n\n')
 else
-	f:writeString('---DRAW---')
+	f:writeString('---DRAW---\n\n\n')
 end
-f:writeString('\n\n')
 f:close()
