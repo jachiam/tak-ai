@@ -3,7 +3,7 @@
 require 'tak_AI'
 
 game = tak.new(tonumber(arg[2]))
-takai = make_takai(3,true)
+takai = make_takarlo_01(15,true) --make_takai(3,true)
 
 if arg[1] == 'True' then
 	AI_vs_AI(game,takai,human)

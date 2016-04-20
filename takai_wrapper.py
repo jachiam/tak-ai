@@ -206,10 +206,10 @@ def read_bot_move(p):
   print 'something wrong!'
 
 def bot(no, is_bot_white, size):
-  p = subprocess.Popen('th run_AI.lua ' + str(is_bot_white) + ' ' + str(size),
+  p = subprocess.Popen('exec th run_AI.lua ' + str(is_bot_white) + ' ' + str(size),
               shell=True, bufsize=0, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-  p.stdin.write('interactive\n')
-  p.stdin.flush()
+  #p.stdin.write('interactive\n')
+  #p.stdin.flush()
   print 'color', no, 'iswhite?', is_bot_white
 
   move_no = 0
@@ -236,13 +236,14 @@ def bot(no, is_bot_white, size):
       p.stdin.flush()
 
     move_no = move_no+1
+  p.kill()
 
 
 def run():
-  #for i in range(10)
   send('Client TakaiBot')
   send('Login '+args.user+' '+args.password)
-  if(read_line().startswith("Welcome")==False):
+  line = read_line()
+  if(line.startswith("Welcome")==False and line.startswith("You're already")==False):
     return #sys.exit()
 
   post_seek(args.size, args.time)
@@ -257,6 +258,7 @@ def run():
   gameno = spl[2]
   print 'gameno='+gameno
   bot(gameno, spl[7]=="white", args.size)
+  send('quit')
 
 def args():
   parser = argparse.ArgumentParser(description='This is a demo script by nixCraft.')
