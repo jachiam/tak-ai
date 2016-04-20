@@ -75,6 +75,10 @@ function tak:__init(size,making_a_copy)
 	self.islands = {{},{}}
 end
 
+function tak:get_i2n(i)
+	return self.move2ptn[i]
+end
+
 function tak:set_debug_times_to_zero()
 	self.get_empty_squares_time = 0
 	self.get_legal_moves_time = 0
@@ -713,7 +717,7 @@ function tak:play_game_from_ptn(ptngame,quiet)
 	l,u = string.find(ptngame,"Size")
 	size = tonumber(string.sub(ptngame,u+3,u+3))
 	self:__init(size)
-	iterator = string.lower(ptngame):gmatch("%w%a%d[<>%+%-]?%d*")
+	iterator = string.lower(ptngame):gmatch("%w?%a%d[<>%+%-]?%d*")
 	for ptn_move in iterator do
 		self:accept_user_ptn(ptn_move)
 	end		

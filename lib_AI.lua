@@ -12,6 +12,7 @@ local game_node = torch.class('game_node')
 function game_node:__init()
 	self.winner = 0
 	self.ply = 0
+	self.i2n = {1}	-- index to move notation
 end
 
 function game_node:is_terminal()
@@ -22,7 +23,11 @@ function game_node:is_terminal()
 	end
 end
 
-function game_node:make_move(a)
+function game_node:get_i2n(i)
+	return self.i2n[i]
+end
+
+function game_node:make_move(a)	-- accepts actions in either index or notation form
 	self.ply = self.ply + 1
 	if self.ply == 10 then self.winner = 1 end
 	return true
@@ -153,8 +158,9 @@ function flat_mc_AI:move(node)
 
 	local _, a = torch.max(av,1)
 	local elapsed_time = os.clock() - start_time
+	local n = node:get_i2n(a[1])
 	if self.debug then
-		print('MC move: ' .. a[1] .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', Time taken: ' .. elapsed_time)
+		print('MC move: ' .. n .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', Time taken: ' .. elapsed_time)
 	end
 	node:make_move(a[1])
 	return true
@@ -205,8 +211,9 @@ function async_flat_mc_AI:move(node)
 
 	local _, a = torch.max(av,1)
 	local elapsed_time = os.clock() - start_time
+	local n = node:get_i2n(a[1])
 	if self.debug then
-		print('Async MC move: ' .. a[1] .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', CPU time taken: ' .. elapsed_time)
+		print('Async MC move: ' .. n .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', CPU time taken: ' .. elapsed_time)
 	end
 	node:make_move(a[1])
 	return true
