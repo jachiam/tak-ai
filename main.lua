@@ -18,13 +18,13 @@ local user = 'HUMAN'
 -- -- placeholder in textbox 
 local instructions = ''
 -- -- command history
-local log = {''}
+local log = {'Click in the box', 'below to type.'}
 local ups = 0
 -- -- board sizes
-local boardsize = { value=5, min=3, max=8}
+local boardsize = { value=5, min=3, max=8 }
 -- -- 
-local teamcb = { text = "Dark" }
-local teamcw = { text = "Light", checked = true }
+local teamcb = { text = "Black" }
+local teamcw = { text = "White", checked = true }
 local opponent = 'TAKAI'
 local foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
 local pausemenu = {
@@ -39,7 +39,7 @@ local pausemenu = {
   "'level' [1-3]: set AI level",
   "'fs': toggle fullscreen"
 }
-local LOGROWS = math.floor(love.graphics.getHeight()/(3*15))
+local LOGROWS = math.floor(love.graphics.getHeight()/(4*love.graphics.getFont():getHeight()))
 local leftop_flags = {align="left", valign="top"}
 local PLAYERTURN = true
 local AI_LEVEL = 3
@@ -93,14 +93,16 @@ function love.update(dt)
         end
       elseif t.winner == 2 then
         if teamcw.checked then
-          winrar = "YOU WIN"
-        else
           winrar = opponent .. " WINS"
+        else
+          winrar = "YOU WIN"
         end
       else
         winrar = "DRAW"
       end
-      instructions = "GAME OVER: " .. winrar
+      instructions = "GAME OVER: " .. winrar .. "\n" ..
+                     "Type 'new' to play again!\n" ..
+                     "Hit 'Save' to save this game!"
       if not autosaved then 
         export()
         autosaved = true
@@ -266,17 +268,21 @@ end
 
 
 function drawConsole()
-  local conwid = logo:getHeight()
+  local topPad = logo:getHeight()
+  local conwid = WIDTH/4
   -- first, draw the log
-  suit.layout:reset(30,conwid+30, 5,5)
-  GPTN_ROWS = getGPTNRows(LOGROWS)
-  gamerec = suit.Label(GPTN_ROWS, leftop_flags, suit.layout:row(WIDTH/4,HEIGHT/3.2))
+  suit.layout:reset(30,topPad+30, 5,5)
+  GPTN_ROWS = getGPTNRows(math.floor(1.5*LOGROWS))
+  gamerec = suit.Label(GPTN_ROWS, leftop_flags, suit.layout:row(conwid,HEIGHT/3.2))
   local logrows = getLogRows(LOGROWS)
   shell_shell = suit.Label(logrows, leftop_flags, suit.layout:row())
-  console = suit.Input(input, {id = "console"}, suit.layout:row(WIDTH/4,20))
+  suit.layout:push(suit.layout:row(conwid,25))
+    userLab = suit.Label(user, leftop_flags, suit.layout:col(conwid/2,20))
+    console = suit.Input(input, {id = "console"}, suit.layout:col(conwid/2,20))
+  suit.layout:pop()
   suit.layout:push(suit.layout:row())
     suit.layout:padding(5)
-    saveBut = suit.Button("Save Game", suit.layout:col(conwid/1.1,HEIGHT/21))
+    saveBut = suit.Button("Save Game", suit.layout:col(conwid/2,HEIGHT/21))
     helpBut = suit.Button("Help", suit.layout:col())
     if saveBut.hit then export() end
     if helpBut.hit then drawHelpMenu = true end
@@ -288,7 +294,6 @@ function drawConsole()
     interpret(input.text)
     input.text = ""
   end
-
 end
 
 
@@ -303,17 +308,17 @@ end
 
 
 function love.textinput(t)
-    -- forward text input to SUIT
-    suit.textinput(t)
+  -- forward text input to SUIT
+  suit.textinput(t)
 end
 
 function love.keypressed(key)
-    -- forward keypressed to SUIT
-    suit.keypressed(key)
-    if key == 'escape' and helpMenu then 
-      helpMenu = nil 
-      drawHelpMenu = false
-    end
+  -- forward keypressed to SUIT
+  suit.keypressed(key)
+  if key == 'escape' and helpMenu then 
+    helpMenu = nil 
+    drawHelpMenu = false
+  end
 end
 
 
@@ -328,11 +333,13 @@ function drawHelp()
       suit.Button(pausemenu[l], leftop_flags, suit.layout:row(WIDTH/2,20))
     )
   end
+  suit.layout:row()
   helpCloseBut = suit.Button("Close", suit.layout:row(WIDTH/4,30))
   if helpCloseBut.hit then 
     helpMenu = nil
     drawHelpMenu = false
   end
+  if suit.Button("Quit", suit.layout:col()).hit then love.event.quit() end
 end
 
 
@@ -399,7 +406,7 @@ function cli_parse(cmdtable)
     local game_ptn = t:game_to_ptn()
     io.write(game_ptn)
     io.close(file)
-    instructions = "Game exported to " .. dt .. ".txt"
+    instructions = "Game exported to " .. dt
   elseif cmd == 'import' or cmd == 'load' then
     -- TODO
     instructions = "Importing game is not supported yet. Sorry.\n" ..
@@ -508,47 +515,4 @@ end
 
 function import(filename)
   -- body
-end
-
-
-
-
--- generate assets (see love.load)
-function generateClickySound()
-    local snd = love.sound.newSoundData(512, 44100, 16, 1)
-    for i = 0,snd:getSampleCount()-1 do
-        local t = i / 44100
-        local s = i / snd:getSampleCount()
-        snd:setSample(i, 
-            (.7*(2*love.math.random()-1) 
-                + .3*math.sin(t*9000*math.pi)) 
-                * (1-s)^1.2 * .3)
-    end
-    return love.audio.newSource(snd)
-end
-
-function generateImageButton()
-    local metaballs = function(t, r,g,b)
-        return function(x,y)
-            local px, py = 2*(x/200-.5), 2*(y/100-.5)
-            local d1 = math.exp(-((px-.6)^2 + (py-.1)^2))
-            local d2 = math.exp(-((px+.7)^2 + (py+.1)^2) * 2)
-            local d = (d1 + d2)/2
-            if d > t then
-                return r,g,b, 255 * ((d-t) / (1-t))^.2
-            end
-            return 0,0,0,0
-        end
-    end
-
-    local normal, hovered, active = love.image.newImageData(200,100), 
-        love.image.newImageData(200,100), 
-        love.image.newImageData(200,100)
-    normal:mapPixel(metaballs(.48, 188,188,188))
-    hovered:mapPixel(metaballs(.46, 50,153,187))
-    active:mapPixel(metaballs(.43, 255,153,0))
-
-    return love.graphics.newImage(normal), 
-        love.graphics.newImage(hovered), 
-        love.graphics.newImage(active)
 end
