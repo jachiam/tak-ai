@@ -8,7 +8,6 @@ local utf8 = require('utf8') -- for text input
 local LIB_AI = require('lib_AI')
 mm = minimax_AI.new(3,normalized_value_of_node, true)
 local TAK = require('tak_game')
-local TAI = require ('tak_tree_AI')
 local suit = require('suit') -- GUI
 local utf8 = require('utf8') -- for text input
 -- text input
@@ -24,20 +23,22 @@ local ups = 0
 -- -- board sizes
 local boardsize = { value=5, min=3, max=8}
 -- -- 
-local teamcb = { text = "Black" }
-local teamcw = { text = "White", checked = true }
+local teamcb = { text = "Dark" }
+local teamcw = { text = "Light", checked = true }
 local opponent = 'TAKAI'
 local foes = { TAKAI = 1, TAKEI = 2, TAKARLO = 3 }
-local pausemenu = "TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW \n\n" ..
-    "           [esc]: close this menu\n" ..
-    "> quit: exit game\n" ..
-    "> export [filename]: save game to filename.ptn\n" ..
-    "> import [filename]: load game from filename.ptn\n" ..
-    "> new: start new game\n" ..
-    "> undo: undo last move\n" ..
-    "> name [username]: set your name\n" ..
-    "> level [1-3]: set AI level\n" ..
-    "> fs: toggle fullscreen"
+local pausemenu = {
+  " TAK A.I. - NOT EVEN GOD CAN SAVE YOU NOW.",
+  "         [esc]: close this menu",
+  "'quit': exit game",
+  "'export [filename]': save to filename.ptn",
+  "'import [filename]': load from filename.ptn",
+  "'new': start new game",
+  "'undo': undo your last move",
+  "'name [username]': set your name",
+  "'level' [1-3]: set AI level",
+  "'fs': toggle fullscreen"
+}
 local LOGROWS = math.floor(love.graphics.getHeight()/(3*15))
 local leftop_flags = {align="left", valign="top"}
 local PLAYERTURN = true
@@ -45,7 +46,7 @@ local AI_LEVEL = 3
 local GPTN_ROWS = {}
 
 -- window graphics settings
--- local flags = {msaa = 4}
+local flags = {msaa = 4}
 -- allow for held-keys to repeat input (mostly for backspaces)
 love.keyboard.setKeyRepeat(true)
 
@@ -67,9 +68,12 @@ Pieces = {
 function love.load()
     -- snd = generateClickySound()
     -- normal, hovered, active = generateImageButton()
-    smallerFont = love.graphics.newFont(14)
+    GameFont = love.graphics.newFont("DTM-Mono.otf",15)
+    MMFont = love.graphics.newFont("DTM-Mono.otf",20)
+    love.graphics.setFont(MMFont)
     WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
     print(WIDTH, HEIGHT)
+    love.window.setMode(WIDTH,HEIGHT,flags)
 end
 
 
@@ -78,12 +82,7 @@ function love.update(dt)
     dm() 
   else
     if not PLAYERTURN and t.win_type == 'NA' then 
-      love.draw()
-      love.graphics.present()
-      instructions = opponent .. " is thinking..."
-      mm:move(t)
-      PLAYERTURN = true
-      instructions = "Your move."
+      makeAIMove(mm)
     elseif t.win_type ~= 'NA' then
       local winrar = ''
       if t.winner == 1 then 
@@ -102,8 +101,14 @@ function love.update(dt)
         winrar = "DRAW"
       end
       instructions = "GAME OVER: " .. winrar
+      if not autosaved then 
+        export()
+        autosaved = true
+      end
     end
   end
+
+  suit.grabKeyboardFocus('console')
 end
 
 function love.draw()
@@ -119,35 +124,43 @@ end
 
 
 function dm()
+  if love.graphics.getFont() ~= MMFont then love.graphics.setFont(MMFont) end
+
   instructions = "Welcome. Please start a new game."
   -- draw main menu
-  suit.layout:reset(WIDTH/3,HEIGHT/4, 10,10)
+  suit.layout:reset(WIDTH/3,HEIGHT*3/5, 1,1)
   -- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
   -- -- draw mm buttons
-  sizLab = suit.Label("Board Size:", suit.layout:row(WIDTH/3,20))
-  sizBrd = suit.Slider(boardsize, suit.layout:row())
-  suit.Label(math.floor(boardsize.value), suit.layout:row())
-  sizTLb = suit.Label("Team:", suit.layout:row(WIDTH/3,20))
+  suit.layout:push(suit.layout:row(WIDTH/3,1))
+    sizLab = suit.Label("Size:", suit.layout:col(WIDTH/8,30))
+    sizBrd = suit.Slider(boardsize, suit.layout:col())
+    suit.Label(math.floor(boardsize.value), suit.layout:col())
+  suit.layout:pop()
+  suit.layout:padding(10,10)
+  sizTLb = suit.Label("Team:", suit.layout:row(WIDTH/3,30))
   sizTmb = suit.Checkbox(teamcb, suit.layout:row())
   sizTmw = suit.Checkbox(teamcw, suit.layout:row())
 
   if teamcb.checked then teamcw.checked = false end
   if teamcw.checked then teamcb.checked = false end
 
-  startGameButt = suit.Button("Sttart Gaem!", suit.layout:row())
+  startGameButt = suit.Button("Play Tak!", suit.layout:row())
 
   if startGameButt.hit then
     print("GAEM STERT!",teamcb.checked,teamcw.checked,boardsize.value)
     if not teamcb then PLAYERTURN = false end
     t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
     instructions = "Excellent. Enter your commands in the box below.\n" ..
-                   "Make moves with Portable Tak Notation."
+                   "Make moves with Portable Tak Notation.\n" ..
+                   "Click or type `Help' for more commands."
+    autosaved = nil
   end
 end
 
 
 
 function dg( )
+  if love.graphics.getFont() ~= GameFont then love.graphics.setFont(GameFont) end
   drawBoard()
   drawPieces()
   drawConsole()
@@ -228,9 +241,12 @@ function drawPieces()
                                         imgWidScaleFactor)
               
               imgHgt,imgWid = imgHgt*imgHgtScaleFactor, imgWid*imgWidScaleFactor
-              -- pad on top & side, and adjust for height of stack & scaled size
+              -- pad on x
               xpos = xpos + centerPiece(imgWid,recSize)
-              ypos = ypos + 3*(centerPiece(imgHgt,recSize)) - (imgHgt/10*h)
+              -- if flatstone, pad on y
+              if piece == 1 then ypos = ypos + 3*(centerPiece(imgHgt,recSize)) end
+              -- adjust for height of stack 
+              ypos = ypos - (imgHgt/15*h)
 
               love.graphics.setColor(255,255,255) -- to correctly display color
               -- params: image, x,y position, radians, x,y scaling factors
@@ -260,8 +276,11 @@ function drawConsole()
   console = suit.Input(input, {id = "console"}, suit.layout:row(WIDTH/4,20))
   suit.layout:push(suit.layout:row())
     suit.layout:padding(5)
-    suit.Button("Back", suit.layout:col(conwid/1.1,HEIGHT/21))
-    suit.Button("Next", suit.layout:col())
+    saveBut = suit.Button("Save Game", suit.layout:col(conwid/1.1,HEIGHT/21))
+    helpBut = suit.Button("Help", suit.layout:col())
+    if saveBut.hit then export() end
+    if helpBut.hit then drawHelpMenu = true end
+    if drawHelpMenu then drawHelp() end
   suit.layout:pop()
   -- if this text is submitted, add it to the log and interpret the move
   if console.submitted then
@@ -291,7 +310,32 @@ end
 function love.keypressed(key)
     -- forward keypressed to SUIT
     suit.keypressed(key)
+    if key == 'escape' and helpMenu then 
+      helpMenu = nil 
+      drawHelpMenu = false
+    end
 end
+
+
+
+
+
+function drawHelp()
+  suit.layout:reset(WIDTH/4,HEIGHT/4, 0,0)
+  helpMenu = {}
+  for l=1,#pausemenu do
+    table.insert(helpMenu, 
+      suit.Button(pausemenu[l], leftop_flags, suit.layout:row(WIDTH/2,20))
+    )
+  end
+  helpCloseBut = suit.Button("Close", suit.layout:row(WIDTH/4,30))
+  if helpCloseBut.hit then 
+    helpMenu = nil
+    drawHelpMenu = false
+  end
+end
+
+
 
 
 function drawLogo(menu)
@@ -302,7 +346,7 @@ function drawLogo(menu)
     love.graphics.setColor(255,255,255)
     love.graphics.draw(logo,  WIDTH/4,5,  0,  ratio,ratio)
     w,h = w*ratio, h*ratio
-    love.graphics.printf(instructions,WIDTH/4,h+15,WIDTH/2,'center',0)
+    love.graphics.printf(instructions,WIDTH/4,HEIGHT/2,WIDTH/2,'center',0)
   else
     local max_wid = WIDTH/3
     local w,h = logo:getWidth(), logo:getHeight()
@@ -313,6 +357,7 @@ function drawLogo(menu)
     love.graphics.printf(instructions,w,15,WIDTH-w,'center',0)
   end
 end
+
 
 
 function interpret(command)
@@ -346,7 +391,7 @@ function cli_parse(cmdtable)
       love.window.setMode(800,600,flags)
       fs = false
     end
-  elseif cmd == 'export' then
+  elseif cmd == 'export' or cmd == 'save' then
     export(cmdtable[2])
     local dt = (cmdtable[2] or os.date("%H:%M:%S")) .. ".txt"
     file = io.open(dt,"a+")
@@ -355,8 +400,10 @@ function cli_parse(cmdtable)
     io.write(game_ptn)
     io.close(file)
     instructions = "Game exported to " .. dt .. ".txt"
-  elseif cmd == 'import' then
+  elseif cmd == 'import' or cmd == 'load' then
     -- TODO
+    instructions = "Importing game is not supported yet. Sorry.\n" ..
+                   "You can continue a saved game at playtak.com."
     -- io.close(file)
   elseif cmd == 'name' or cmd == 'user' then
     -- TODO set username
@@ -371,19 +418,16 @@ function cli_parse(cmdtable)
     end
     instructions = s
   elseif cmd == 'level' then
-    local lv = cmdtable[2]
-    if tonumber(lv) ~= nil then
-      instructions = 'AI has been set to level ' .. cmdtable[2]
-      AI_LEVEL = cmdtable[2]+2
+    local lv = tonumber(cmdtable[2]) or 4
+    if lv<=3 and mm then
+      mm.depth = lv
+      instructions = 'AI has been set to level ' .. lv
+    else
+      instructions = 'Error: AI could not be set to level ' .. lv
     end
   elseif cmd == 'new' or cmd == 'reset' then
-    if cmdtable[2] 
-      and tonumber(cmdtable[2]) 
-      and (5 - tonumber(cmdtable[2]) < 3) then
-      t = tak.new(cmdtable[2])
-    else
-      t = tak.new(tonumber(math.floor(boardsize.value)) or 5)
-    end
+    export()
+    t = nil
   elseif cmd == 'undo' or cmd == 'oops' then
     t:undo()
     t:undo()
@@ -396,10 +440,24 @@ function cli_parse(cmdtable)
   elseif cmd == 'win' then
     instructions = 'Nice try.'
   elseif cmd == 'ai' then
-    mm:move(t)
-    AI_move(t,AI_LEVEL,true)
+    makeAIMove(ai)
   end
 end
+
+
+
+function makeAIMove(ai)
+  if ai and t then 
+    instructions = opponent .. " is thinking..."
+    love.graphics.clear()
+    love.draw()
+    love.graphics.present()
+    ai:move(t)
+    PLAYERTURN = not PLAYERTURN
+    instructions = "Your move."
+  end
+end
+
 
 
 
@@ -436,13 +494,20 @@ end
 
 
 function export(filename)
-  local dt = (filename or os.date("%H:%M:%S")) .. ".txt"
+  local dt = (filename or 'Game_at_' .. os.date("%H:%M:%S")) .. ".txt"
   file = io.open(dt,"a+")
   io.output(file)
   local game_ptn = t:game_to_ptn()
   io.write(game_ptn)
   io.close(file)
   print("Game exported to " .. dt .. ".txt")
+end
+
+
+
+
+function import(filename)
+  -- body
 end
 
 
