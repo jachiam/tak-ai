@@ -243,7 +243,7 @@ def run():
   send('Client TakaiBot')
   send('Login '+args.user+' '+args.password)
   if(read_line().startswith("Welcome")==False):
-    sys.exit()
+    return #sys.exit()
 
   post_seek(args.size, args.time)
   msg=read_line()
