@@ -3,10 +3,9 @@
 
 -- deps
 local TAK_AI = require('tak_AI')
-local suit = require('suit') -- GUI
-local utf8 = require('utf8') -- for text input
 local LIB_AI = require('lib_AI')
 mm = minimax_AI.new(3,normalized_value_of_node, true)
+
 local TAK = require('tak_game')
 local suit = require('suit') -- GUI
 local utf8 = require('utf8') -- for text input
@@ -36,7 +35,7 @@ local pausemenu = {
   "'new': start new game",
   "'undo': undo your last move",
   "'name [username]': set your name",
-  "'level' [1-3]: set AI level",
+  "'level [1-3]': set AI level",
   "'fs': toggle fullscreen"
 }
 local LOGROWS = math.floor(love.graphics.getHeight()/(4*love.graphics.getFont():getHeight()))
@@ -52,14 +51,15 @@ love.keyboard.setKeyRepeat(true)
 
 
 -- images --
-logo   = love.graphics.newImage("img/logo.png")
-WTile  = love.graphics.newImage("img/wflat.png")
-BTile  = love.graphics.newImage("img/bflat.png")
-WWall  = love.graphics.newImage("img/wwall.png")
-BWall  = love.graphics.newImage("img/bwall.png")
-WCaps  = love.graphics.newImage("img/wcaps.png")
-BCaps  = love.graphics.newImage("img/bcaps.png")
-Pieces = {
+logo     = love.graphics.newImage("img/logo.png")
+takaicon = love.graphics.newImage("img/takai.png")
+WTile    = love.graphics.newImage("img/wflat.png")
+BTile    = love.graphics.newImage("img/bflat.png")
+WWall    = love.graphics.newImage("img/wwall.png")
+BWall    = love.graphics.newImage("img/bwall.png")
+WCaps    = love.graphics.newImage("img/wcaps.png")
+BCaps    = love.graphics.newImage("img/bcaps.png")
+Pieces   = {
   {WTile, WWall, WCaps},
   {BTile, BWall, BCaps}
 }
@@ -109,8 +109,6 @@ function love.update(dt)
       end
     end
   end
-
-  suit.grabKeyboardFocus('console')
 end
 
 function love.draw()
@@ -129,9 +127,13 @@ function dm()
   if love.graphics.getFont() ~= MMFont then love.graphics.setFont(MMFont) end
 
   instructions = "Welcome. Please start a new game."
+  -- draw cutesy weeabo grafics
+  suit.layout:reset(WIDTH/2,logo:getHeight()*1.5)
+  suit.Label("takai, n.: \n\ttall, high; \n\tthe best.", 
+    leftop_flags, 
+    suit.layout:row(WIDTH/2,HEIGHT/2, 10,10))
   -- draw main menu
   suit.layout:reset(WIDTH/3,HEIGHT*3/5, 1,1)
-  -- MM_W, MM_H = WIDTH*3/5, HEIGHT/2
   -- -- draw mm buttons
   suit.layout:push(suit.layout:row(WIDTH/3,1))
     sizLab = suit.Label("Size:", suit.layout:col(WIDTH/8,30))
@@ -187,9 +189,9 @@ function drawBoard()
       -- color the space
       local thisSpaceColor = {}
       if switch then
-        thisSpaceColor = {111,111,111}
+        thisSpaceColor = {85,65,65}
       else
-        thisSpaceColor = {222,222,222}
+        thisSpaceColor = {175,155,155}
       end
 
       switch = not switch
@@ -236,8 +238,8 @@ function drawPieces()
                     90% of tile height, as a rule.
                     However, we should err on the
                     side of smaller. ]]
-              imgHgtScaleFactor = 0.75/(imgHgt/recSize)
-              imgWidScaleFactor = 0.75/(imgWid/recSize)
+              imgHgtScaleFactor = 0.6/(imgHgt/recSize)
+              imgWidScaleFactor = 0.6/(imgWid/recSize)
 
               imgScaleFactor = math.min(imgHgtScaleFactor,
                                         imgWidScaleFactor)
@@ -245,12 +247,14 @@ function drawPieces()
               imgHgt,imgWid = imgHgt*imgHgtScaleFactor, imgWid*imgWidScaleFactor
               -- pad on x
               xpos = xpos + centerPiece(imgWid,recSize)
+              -- if black stone, pad x to make reading stacks easier
+              if team == 2 then xpos = xpos + imgWid/10 end
               -- if flatstone, pad on y
-              if piece == 1 then ypos = ypos + 3*(centerPiece(imgHgt,recSize)) end
+              if piece == 1 then ypos = ypos + 2*centerPiece(imgHgt,recSize) end
               -- adjust for height of stack 
-              ypos = ypos - (imgHgt/15*h)
+              ypos = ypos - (imgHgt/10*h)
 
-              love.graphics.setColor(255,255,255) -- to correctly display color
+              love.graphics.setColor(220,220,220) -- to correctly display color
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
             else
@@ -291,7 +295,7 @@ function drawConsole()
   -- if this text is submitted, add it to the log and interpret the move
   if console.submitted then
     table.insert(log,input.text)
-    interpret(input.text)
+    interpret(input.text:lower())
     input.text = ""
   end
 end
@@ -330,16 +334,17 @@ function drawHelp()
   helpMenu = {}
   for l=1,#pausemenu do
     table.insert(helpMenu, 
-      suit.Button(pausemenu[l], leftop_flags, suit.layout:row(WIDTH/2,20))
-    )
+      suit.Button(pausemenu[l], 
+      {align='left', valign='center', font=GameFont}, 
+      suit.layout:row(WIDTH/2,20)))
   end
   suit.layout:row()
-  helpCloseBut = suit.Button("Close", suit.layout:row(WIDTH/4,30))
+  helpCloseBut = suit.Button("Close Menu", suit.layout:row(WIDTH/4,30))
   if helpCloseBut.hit then 
     helpMenu = nil
     drawHelpMenu = false
   end
-  if suit.Button("Quit", suit.layout:col()).hit then love.event.quit() end
+  if suit.Button("Quit Game", suit.layout:col()).hit then love.event.quit() end
 end
 
 
@@ -349,11 +354,13 @@ function drawLogo(menu)
   if menu then
     local max_wid = WIDTH/2
     local w,h = logo:getWidth(), logo:getHeight()
-    local ratio = max_wid/w
+    local tw,th = takaicon:getWidth(),takaicon:getHeight()
+    local ratio,ratio_l = max_wid/w, (w/3)/tw
     love.graphics.setColor(255,255,255)
     love.graphics.draw(logo,  WIDTH/4,5,  0,  ratio,ratio)
-    w,h = w*ratio, h*ratio
     love.graphics.printf(instructions,WIDTH/4,HEIGHT/2,WIDTH/2,'center',0)
+    love.graphics.setColor(220,220,220)
+    love.graphics.draw(takaicon, WIDTH/3-tw/3,h+15,   0,    ratio_l,ratio_l)
   else
     local max_wid = WIDTH/3
     local w,h = logo:getWidth(), logo:getHeight()
@@ -439,17 +446,19 @@ function cli_parse(cmdtable)
     t:undo()
     t:undo()
   elseif cmd == 'resign' or cmd == 'dammit' then
-    -- TODO resign
+    instructions = 'TakAI knows no mercy. Sorry.'
   elseif cmd == 'quit' or cmd == 'exit' or cmd == 'logout' or cmd == 'bye' then
     love.event.quit()
   elseif cmd == 'help' or cmd == '?' or cmd == 'list' then
-    -- Gamestate.switch(pause,true)
+    drawHelpMenu = true
+    drawHelp()
   elseif cmd == 'win' then
     instructions = 'Nice try.'
   elseif cmd == 'ai' then
     makeAIMove(ai)
   end
 end
+
 
 
 

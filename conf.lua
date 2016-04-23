@@ -5,7 +5,7 @@ function love.conf(t)
     loveVersion = nil,        -- The project LÖVE version
     version = 0.1,            -- The project version
     author = 'Joshua Achiam & Tobias Merkle',             -- Your name (string)
-    email = nil,              -- Your email (string)
+    email = 'tgamerkle@gmail.com',              -- Your email (string)
     description = nil,        -- The project description (string)
     homepage = nil,           -- The project homepage (string)
     identifier = nil,         -- The project Uniform Type Identifier (string)

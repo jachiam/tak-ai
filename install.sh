@@ -6,3 +6,7 @@ cd ~/torch; bash install-deps;
 source ~/.zshrc
 source ~/.bashrc
 source ~/.profile
+apt-get install love 
+apt-get update
+apt-get upgrade
+luarocks install utf8
