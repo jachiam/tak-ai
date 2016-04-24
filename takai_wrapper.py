@@ -240,7 +240,7 @@ def bot(no, is_bot_white, size):
 
 
 def run():
-  send('Client TakaiBot')
+  send('Client TakaiBot0')
   send('Login '+args.user+' '+args.password)
   line = read_line()
   if(line.startswith("Welcome")==False and line.startswith("You're already")==False):
