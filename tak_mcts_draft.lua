@@ -21,6 +21,12 @@ function mcts_node:__init(game_state,maxplayeris)
 	self.Nr_sum = 0		-- how many rollouts did we explore from this node?
 	self.children = {}	-- children of this node
 	self.value = nil	-- value of this node as a leaf
+
+	if game_state:get_player() == maxplayeris then
+		self.flip = false
+	else
+		self.flip = true
+	end
 end
 
 function mcts_node:update_Vv_Vr()
@@ -45,12 +51,6 @@ function mcts_node:update_Q()
 		self.Q = Qr
 	end
 
-	--[[
-	if #self.children > 0 then
-		self.Q = torch.cdiv(self.Wv,self.Nv)*(1-lambda) + torch.cdiv(self.Wr,self.Nr)*lambda
-	else
-		self.Q = torch.cdiv(self.Wr,self.Nr)
-	end]]
 end
 
 function mcts_node:set_value(val)
@@ -69,6 +69,8 @@ function mcts_node:remove_virtual_loss(a)
 end
 
 function mcts_node:raw_value_update(a,val)
+	local v = val
+	if self.flip then v = 1 - v end
 	self.Wv[a] = self.Wv[a] + val
 	self.Nv[a] = self.Nv[a] + 1
 	self:update_Vv_Vr()
@@ -76,7 +78,9 @@ function mcts_node:raw_value_update(a,val)
 end
 
 function mcts_node:raw_rollout_update(a,val)
-	self.Wr[a] = self.Wr[a] + val
+	local v = val
+	if self.flip then v = 1 - v end
+	self.Wr[a] = self.Wr[a] + v
 	self.Nr[a] = self.Nr[a] + 1
 	self.Nr_sum = self.Nr_sum + 1
 	self:update_Vv_Vr()
@@ -89,13 +93,13 @@ end
 function mcts_node:expand(a)
 	if self.children[a] == nil then
 		local child = self.game_state:clone()
-		child:make_move(a)
-		self.children[a] = child 
+		child:make_move(self.legal_move_table[a])
+		self.children[a] = mcts_node.new(child,self.maxplayeris) 
 	end
 end
 
 function mcts_node:rollout(a,rollout_policy)
-	local sim = rollout(node,rollout_policy,false,1,false)
+	local sim = rollout(self.game_state,rollout_policy,false,1,false)
 	local val = default_value(sim,self.maxplayeris)
 	return sim, val
 end
@@ -111,13 +115,16 @@ function mcts_node:uct_select()
 	--uct_vals[a] = self.Q[a] + 2 * c_uct * sqrt( log(2* self.Nr_sum) / self.Nr[a])
 	uct_vals:mul(math.log(2*self.Nr_sum) + 1e-16):sqrt():mul(2*c_uct):add(self.Q)
 	local _, a = torch.max(uct_vals,1)
-	return a, uct_vals
+	return a[1], uct_vals
 end
 
 function mcts_node:print_statistics()
+	local function round(x) return math.floor(x*1000)/1000 end
+
 	for a, move in pairs(self.legal_move_table) do
-		print('Move: ' .. move .. '\t Wv: ' .. self.Wv[a] .. '\t Nv: ' .. self.Nv[a]
-			.. '\t Wr: ' .. self.Wr[a] .. '\t Nr: ' .. self.Nr[a] .. '\t Q: ' .. self.Q[a])
+		print('Move: ' .. move .. '\t Wv: ' .. round(self.Wv[a]) .. '\t Nv: ' .. self.Nv[a]
+			.. '\t Wr: ' .. round(self.Wr[a]) .. '\t Nr: ' 
+			.. self.Nr[a] .. '\t Q: ' .. round(self.Q[a]))
 	end
 end
 
@@ -125,9 +132,19 @@ end
 function mcts_loop(root,time)
 	local start_time = os.time()
 
+	local rollout_policy = default_rollout_policy.new()
+	local depth
+
+	local av_depth = 0
+	local n = 0
+
 	while os.time() - start_time < time do
-		mcts_search_single_iteration(root,rollout_policy,root.game_state:get_player(),true)
+		depth = mcts_search_single_iteration(root,rollout_policy,root.game_state:get_player(),true)
+		av_depth = av_depth + depth
+		n = n + 1
 	end
+
+	return av_depth, n
 end
 
 function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_losses)
@@ -151,6 +168,7 @@ function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_lo
 			cur = cur.children[a]
 		end
 	end
+
 	if cur.value == nil then
 		cur:set_value(normalized_value_of_node(cur.game_state,maxplayeris))
 	end
@@ -171,4 +189,16 @@ function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_lo
 			cur:remove_virtual_loss(a)
 		end
 	end
+
+	return #pre_leaf_path
+end
+
+local mcts_AI = torch.class('mcts_AI','AI')
+
+function mcts_AI:__init(game,ai_player_is)
+	
+end
+
+function mcts_AI:move(node)
+	
 end
