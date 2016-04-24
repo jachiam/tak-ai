@@ -38,7 +38,7 @@ local pausemenu = {
   "'level [1-3]': set AI level",
   "'fs': toggle fullscreen"
 }
-local LOGROWS = math.floor(love.graphics.getHeight()/(4*love.graphics.getFont():getHeight()))
+local LOGROWS = 0
 local leftop_flags = {align="left", valign="top"}
 local PLAYERTURN = true
 local AI_LEVEL = 3
@@ -74,6 +74,7 @@ function love.load()
     WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
     print(WIDTH, HEIGHT)
     love.window.setMode(WIDTH,HEIGHT,flags)
+    LOGROWS = math.floor(love.graphics.getHeight()/(5*GameFont:getHeight()))
 end
 
 
@@ -257,6 +258,10 @@ function drawPieces()
               love.graphics.setColor(220,220,220) -- to correctly display color
               -- params: image, x,y position, radians, x,y scaling factors
               love.graphics.draw(img,xpos,ypos,0,imgScaleFactor,imgScaleFactor)
+              if piece == 1 then 
+                love.graphics.setColor(0,0,0)
+                love.graphics.rectangle('line',xpos,ypos,imgHgt,imgWid)
+              end
             else
               -- no pieces of that kind here
             end
