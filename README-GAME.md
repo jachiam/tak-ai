@@ -1,4 +1,4 @@
-# TAK A.I.:    Solving the party before it's even started.
+# TAK A.I. G.U.I.:    Solving the party before it's even started.
 
 Chiseled from the bedrock of primordial chaos by Tobias Akira
 

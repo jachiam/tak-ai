@@ -4,7 +4,7 @@ function love.conf(t)
     package = 'takai',            -- The project command and package name (string)
     loveVersion = nil,        -- The project LÖVE version
     version = 0.1,            -- The project version
-    author = 'Joshua Achiam & Tobias Merkle',             -- Your name (string)
+    author = 'AI: Joshua Achiam; GFX: Tobias Merkle',             -- Your name (string)
     email = 'tgamerkle@gmail.com',              -- Your email (string)
     description = nil,        -- The project description (string)
     homepage = nil,           -- The project homepage (string)
