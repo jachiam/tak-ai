@@ -7,6 +7,7 @@ local tak = torch.class('tak')
 -- N.B.: The "making_a_copy" argument is used when making a fast clone of a tak game,
 -- which is helpful in the AI tree search.
 function tak:__init(size,making_a_copy)
+
 	self.size = size or 5
 	if self.size == 3 then
 		self.piece_count = 10
@@ -62,6 +63,9 @@ function tak:__init(size,making_a_copy)
 	self.move_history_idx = {}
 	self.board_history = {self.board:clone()}
 	self.heights_history = {self.heights:clone()}
+	self:compute_empty_squares()
+	self.board_top_history = {self.board_top:clone()}
+	self.empty_squares_history = {self.empty_squares:clone()}
 	self.legal_moves_by_ply = {}
 
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
@@ -73,6 +77,10 @@ function tak:__init(size,making_a_copy)
 	self.win_type = 'NA'
 
 	self.islands = {{},{}}
+end
+
+function tak:get_i2n(i)
+	return self.move2ptn[i]
 end
 
 function tak:set_debug_times_to_zero()
@@ -98,10 +106,17 @@ function tak:undo()
 	self.move_history_ptn[#self.move_history_ptn] = nil
 	self.move_history_idx[#self.move_history_idx] = nil
 	self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
+
 	self.board_history[#self.board_history] = nil
 	self.heights_history[#self.heights_history] = nil
+	self.board_top_history[#self.board_top_history] = nil
+	self.empty_squares_history[#self.empty_squares_history] = nil
+
 	self.board:copy(self.board_history[#self.board_history])
 	self.heights:copy(self.heights_history[#self.heights_history])
+	self.board_top:copy(self.board_top_history[#self.board_top_history])
+	self.empty_squares:copy(self.empty_squares_history[#self.empty_squares_history])
+
 	self.player_pieces = {self.piece_count - self.board[{{},{},{},1,{1,2}}]:sum(), 
 			      self.piece_count - self.board[{{},{},{},2,{1,2}}]:sum()}
 	self.player_caps =   {self.cap_count - self.board[{{},{},{},1,3}]:sum(), 
@@ -142,6 +157,8 @@ function tak:fast_clone()
 	copy.islands = {{},{}}
 	copy.board_history = {}
 	copy.heights_history = {}
+	copy.board_top_history = {}
+	copy.empty_squares_history = {}
 	return copy
 end
 
@@ -192,7 +209,7 @@ function tak:board_to_TPS()
 	return tps
 end
 
-function tak:get_board_top()
+function tak:compute_board_top()
 	local board_top = torch.zeros(self.size,self.size,2,3):float()
 	-- top_heights are 'n' if there is a stack of size 'n' or 1 if empty
 	local top_heights = (self.heights + torch.eq(self.heights,0):long()):long()
@@ -201,21 +218,28 @@ function tak:get_board_top()
 			board_top[{i,j}] = self.board[{i,j,top_heights[{i,j}]}]
 		end
 	end
+	self.board_top = board_top
 	return board_top
 end
 
-function tak:get_empty_squares()
+function tak:compute_empty_squares()
 	local start_time = os.clock()
-	local board_top = self:get_board_top()
+	local board_top = self:compute_board_top()
 	local empty_squares = torch.eq(board_top:sum(3):sum(4):squeeze(),0)
+	self.empty_squares = empty_squares
 	--return torch.eq(board_top:sum(3):sum(4):squeeze(),0), board_top
 	self.get_empty_squares_time = self.get_empty_squares_time + (os.clock() - start_time)
 	return empty_squares, board_top
 end
 
+function tak:get_empty_squares()
+	return self.empty_squares, self.board_top
+end
+
 function tak:is_board_valid()
 	return torch.le(self.board:sum(3):sum(4):sum(5):squeeze(),1):sum()
 end
+
 
 function tak:get_legal_moves(player)
 
@@ -226,23 +250,19 @@ function tak:get_legal_moves(player)
 	local start_time = os.clock()
 
 	local top_walls, top_caps, walls_on_path, caps_on_path, walls_in_way, caps_in_way, x, y
+	local stack_sum, stack_move, stack_move_legal
 
-	top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
-	top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
+	local bt = board_top:sum(3):squeeze()
+	top_walls = bt[{{},{},{2}}]:squeeze()
+	top_caps  = bt[{{},{},{3}}]:squeeze()
 
-	local function check_stack_move(i,j,pos,stack_move_index)
+	local function check_stack_move(i,j,stack_move)
 		-- how do we check whether a stack move is valid?
 		-- well: we already know, from the fact that this one is in stack_moves_by_pos,
 		-- that it is /legal/ in the sense that it does not put pieces off the board.
 		-- but it could run into walls. that is what we are here to check.
 		-- is there a wall or a cap somewhere in its way? 
 		-- and if so, do we flatten the wall with a capstone, or not?
-		stack_move = self.stack_moves[stack_move_index]
-
-		-- also, do we have enough stones to make the move?
-		if (self.stack_sums[stack_move_index] > self.heights[{i,j}]) then
-			return false
-		end
 
 		dir = string.sub(stack_move,1,1)
 		dist = #stack_move - 1	-- -1 for dir
@@ -250,44 +270,34 @@ function tak:get_legal_moves(player)
 		y = j
 		if dir == '+' then
 			y = y + dist
-		elseif dir == '-' then
-			y = y - dist
-		elseif dir == '>' then
-			x = x + dist
-		elseif dir == '<' then
-			x = x - dist
-		end
-
-		-- woo ugly array slicing
-		-- top_walls = board_top:sum(3):squeeze()[{{},{},{2}}]:squeeze()
-		-- top_caps  = board_top:sum(3):squeeze()[{{},{},{3}}]:squeeze()
-		if i > x then
-			xrange = {x,i-1}
-			yrange = {j,j}
-		elseif x > i then
-			xrange = {i+1,x}
-			yrange = {j,j}
-		elseif j > y then
-			yrange = {y,j-1}
-			xrange = {i,i}
-		elseif y > j then
 			yrange = {j+1,y}
 			xrange = {i,i}
+		elseif dir == '-' then
+			y = y - dist
+			yrange = {y,j-1}
+			xrange = {i,i}
+		elseif dir == '>' then
+			x = x + dist
+			xrange = {i+1,x}
+			yrange = {j,j}
+		elseif dir == '<' then
+			x = x - dist
+			xrange = {x,i-1}
+			yrange = {j,j}
 		end
-		walls_on_path = top_walls[{ xrange, yrange }]
-		caps_on_path  = top_caps[{ xrange, yrange }]
-		walls_in_way = walls_on_path:sum() > 0
-		caps_in_way = caps_on_path:sum() > 0
-		if caps_in_way then
+
+		num_walls_on_path = top_walls[{ xrange, yrange }]:sum()
+		num_caps_on_path  = top_caps[{ xrange, yrange }]:sum()
+		if num_caps_on_path > 0 then
 			return false
-		elseif walls_in_way then
+		elseif num_walls_on_path > 0 then 
 			-- if there is /only one/ wall and our stack is topped by a cap, and
 			-- the stack flow ends with the cap flatting the wall...
-			joint_condition = walls_on_path:sum() == 1
-			joint_condition = joint_condition and self.board[{i,j,self.heights[{i,j}],player,3}] == 1
+			local joint_condition = num_walls_on_path == 1 
+			joint_condition = joint_condition and board_top[{i,j,player,3}] == 1 
 			joint_condition = joint_condition and top_walls[{x,y}] == 1
-			last_digit = tonumber(string.sub(stack_move,#stack_move,#stack_move))
-			joint_condition = joint_condition and last_digit == 1
+			local last_digit = string.sub(stack_move,#stack_move,#stack_move) 
+			joint_condition = joint_condition and last_digit == '1'
 			return joint_condition
 		else
 			return true
@@ -295,15 +305,21 @@ function tak:get_legal_moves(player)
 	end
 
 	local function check_stack_moves(i,j,pos)
-		for k=1,#self.stack_moves_by_pos[pos] do
-			stack_move_index = self.stack_moves_by_pos[pos][k]
-			stack_move_legal = check_stack_move(i,j,pos,stack_move_index)
-			if stack_move_legal then
-				stack_move_ptn = self.stack_sums[stack_move_index] .. pos .. self.stack_moves[stack_move_index]
-				table.insert(legal_moves_ptn, stack_move_ptn)
+		for _, stack_move_index in pairs(self.stack_moves_by_pos[pos]) do
+			-- do we have enough stones to make the move?
+			stack_sum = self.stack_sums[stack_move_index]
+			if not(stack_sum > self.heights[{i,j}]) then
+				stack_move = self.stack_moves[stack_move_index]
+				stack_move_legal = check_stack_move(i,j,stack_move)
+				if stack_move_legal then
+					stack_move_ptn = stack_sum .. pos .. stack_move
+					table.insert(legal_moves_ptn, stack_move_ptn)
+				end
 			end
 		end
 	end
+
+	local pos, control
 
 	for i=1,self.size do
 		for j=1,self.size do
@@ -316,8 +332,8 @@ function tak:get_legal_moves(player)
 				if self.player_caps[player] > 0 then
 					table.insert(legal_moves_ptn, 'c' .. pos)
 				end
-			elseif (self.ply > 1) then
-				control = self.board[{i,j,self.heights[{i,j}],player}]:sum()
+			elseif self.ply > 1 then
+				control = board_top[{i,j,player}]:sum()
 				if control > 0 then
 					check_stack_moves(i,j,pos)
 				end
@@ -507,12 +523,17 @@ function tak:execute_move(ptn,idx,verbose)
 
 	self.execute_move_time = self.execute_move_time + (os.clock() - start_time)
 
-	self:check_victory_conditions()
+	self:compute_empty_squares()
 
 	self:populate_legal_moves_at_this_ply()
 
+	self:check_victory_conditions()
+
 	table.insert(self.board_history,self.board:clone())
 	table.insert(self.heights_history,self.heights:clone())
+	table.insert(self.board_top_history,self.board_top:clone())
+	table.insert(self.empty_squares_history,self.empty_squares:clone())
+
 
 	return true
 end
@@ -531,9 +552,11 @@ function tak:check_victory_conditions()
 	local start_time = os.clock()
 
 	-- let's find us some islands
-	local unexplored_nodes, islands
 
 	local function get_islands(player)
+
+		local unexplored_nodes, islands, top, top_flats_and_caps, top_walls
+
 		top = board_top
 		top_flats_and_caps = top[{{},{},player,1}] + top[{{},{},player,3}]
 		top_walls = top[{{},{},player,2}]
@@ -558,11 +581,13 @@ function tak:check_victory_conditions()
 		end
 
 		islands = {}
-		unexplored_nodes = top_flats_and_caps:clone():fill(1)
+		--unexplored_nodes = top_flats_and_caps:clone():fill(1)
+		unexplored_nodes = torch.ones(self.size,self.size)
 		for i=1,self.size do
 			for j=1,self.size do
 				if unexplored_nodes[{i,j}] == 1 and top_flats_and_caps[{i,j}] == 1 then
-					table.insert(islands,top_flats_and_caps:clone():zero())
+					--table.insert(islands,top_flats_and_caps:clone():zero())
+					table.insert(islands,torch.zeros(self.size,self.size))
 					flood_fill(unexplored_nodes,islands[#islands],i,j)
 				end
 			end
@@ -716,7 +741,7 @@ function tak:play_game_from_ptn(ptngame,quiet)
 	l,u = string.find(ptngame,"Size")
 	size = tonumber(string.sub(ptngame,u+3,u+3))
 	self:__init(size)
-	iterator = string.lower(ptngame):gmatch("%w%a%d[<>%+%-]?%d*")
+	iterator = string.lower(ptngame):gmatch("%w?%a%d[<>%+%-]?%d*")
 	for ptn_move in iterator do
 		self:accept_user_ptn(ptn_move)
 	end		

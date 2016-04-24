@@ -71,33 +71,10 @@ function get_player_score(node,player)
 		strength = strength + island_strengths[i]
 	end
 
-	local stacks = {}
-	local stack_strengths = {}
-	local stack_strength_contrib = 0
-	for i=1,node.size do
-		for j=1,node.size do
-			h = node.heights[{i,j}]
-			if h > 0 then
-				if node.board[{i,j,h,player}]:sum() > 1 then
-					stack = node.board[{i,j}]
-					table.insert(stacks,stack)
-					reserves = stack[{{},player,1}]:sum()
-					--captives = stack[{{},opponent,1}]:sum()
-					stack_strength = reserves^2.2 --+ captives^1.2
-					one_below = (stack[{node.heights[{i,j}]-1,player,{}}]:sum() == 1)
-					cap = (stack[{node.heights[{i,j}],player,3}] == 1)
-					if one_below and cap then
-						-- hard-capped stacks are strong
-						stack_strength = stack_strength*1.2
-					end
-					table.insert(stack_strengths,stack_strength)
-					stack_strength_contrib = stack_strength_contrib + stack_strength
-				end
-			end
-		end
-	end
+	-- wall penalty
+	local _, top = node:get_empty_squares()
+	local top_walls = top[{{},{},player,2}]
 
-	strength = strength + stack_strength_contrib
 	strength = strength - (top_walls:sum())^3
 
 	return strength
