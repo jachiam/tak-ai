@@ -8,6 +8,7 @@ local tak = torch.class('tak')
 -- which is helpful in the AI tree search.
 function tak:__init(size,making_a_copy)
 
+	self.verbose = false
 	self.size = size or 5
 	if self.size == 3 then
 		self.piece_count = 10
@@ -77,6 +78,10 @@ function tak:__init(size,making_a_copy)
 	self.win_type = 'NA'
 
 	self.islands = {{},{}}
+end
+
+function tak:get_history()
+	return self.move_history_ptn
 end
 
 function tak:get_i2n(i)
@@ -381,24 +386,25 @@ function tak:populate_legal_moves_at_this_ply()
 end
 
 -- this is the one we need for the AI move interface
-function tak:make_move(move)
+-- flag is special and tells us not to compute legal moves
+function tak:make_move(move,flag)
 	if type(move) == 'number' then
-		return self:make_move_by_idx(move)
+		return self:make_move_by_idx(move,flag)
 	else
-		return self:accept_user_ptn(move) --self:make_move_by_ptn(move)
+		return self:accept_user_ptn(move,flag) --self:make_move_by_ptn(move)
 	end
 end
 
-function tak:make_move_by_idx(move_idx)
-	return self:execute_move(self.move2ptn[move_idx],move_idx)
+function tak:make_move_by_idx(move_idx,flag)
+	return self:execute_move(self.move2ptn[move_idx],move_idx,flag)
 end
 
-function tak:make_move_by_ptn(move_ptn)
-	return self:execute_move(move_ptn,self.ptn2move[move_ptn])
+function tak:make_move_by_ptn(move_ptn,flag)
+	return self:execute_move(move_ptn,self.ptn2move[move_ptn],flag)
 end
 
 -- sanitize user ptn to allow some notational shortcuts
-function tak:accept_user_ptn(move_ptn)
+function tak:accept_user_ptn(move_ptn,flag)
 	move_ptn = string.lower(move_ptn)
 	if move_ptn == string.match(move_ptn,'%a%d') then
 		move_ptn = 'f' .. move_ptn
@@ -412,15 +418,15 @@ function tak:accept_user_ptn(move_ptn)
 		return false
 	end
 
-	return self:make_move_by_ptn(move_ptn), move_ptn, idx	-- last two outputs are for debug only
+	return self:make_move_by_ptn(move_ptn,flag), move_ptn, idx	-- last two outputs are for debug only
 end
 
-function tak:execute_move(ptn,idx,verbose)
+function tak:execute_move(ptn,idx,flag)
 
 	local start_time = os.clock()
 
 	if self.game_over then
-		if verbose then print 'Game is over.' end
+		if self.verbose then print 'Game is over.' end
 		return false
 	end
 
@@ -441,7 +447,7 @@ function tak:execute_move(ptn,idx,verbose)
 	-- note: legal moves for a ply are generated before the ply is played (hence ply+1)
 
 	if not(self.legal_moves_by_ply[self.ply+1][3][idx] > 0) then
-		if verbose then
+		if self.verbose then
 			print('Tried move ' .. ptn ..' with idx ' .. idx)
 			print 'Move was not legal.'
 		end
@@ -525,7 +531,13 @@ function tak:execute_move(ptn,idx,verbose)
 
 	self:compute_empty_squares()
 
-	self:populate_legal_moves_at_this_ply()
+	if not(flag) then
+		self:populate_legal_moves_at_this_ply()
+	else
+		if #self.legal_moves_by_ply < self.ply+1 then
+			table.insert(self.legal_moves_by_ply,{})
+		end
+	end
 
 	self:check_victory_conditions()
 

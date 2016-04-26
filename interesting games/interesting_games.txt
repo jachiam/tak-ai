@@ -713,3 +713,65 @@ Notes: Interestingly, the Monte Carlo agent pulls off a huge come-from-behind vi
 	
 Notes: Computer wins. Kakaburra makes a mistake at W35. But even going back and doing it another way: 35. 4c3+13 2b3>2, computer still wins. This was a fierce battle.  
 
+
+(TAK-MCTS {white} vs. AI LEVEL 2 {black})
+
+[Size "4"]
+
+1. Fd2 Fa1 
+2. Fa3 Fa2 
+3. Fc1 Fc2 
+4. 1a3-1 Fb1 
+5. Fa3 1b1<1 
+6. Fd1 2a1+2 
+7. 1c1+1 4a2>13 
+8. Fa2 Fc1 
+9. 1d1<1 4c2-4 
+10. Fb4 Fc3 
+11. Fc4 Fb1 
+12. Fb3 Fa1 
+
+Winner: Black
+
+Notes: TAK-MCTS has 15 seconds thinking time per move here. It loses, but not horribly. This is unsurprising: when a defeat is guaranteed, it doesn't see it immediately. It fares poorly in sudden death games as expected. Additional work is needed to help avoid these.
+
+
+(TAK-MCTS {white} vs. AI LEVEL 2 {black})
+
+[Size "4"]
+
+1. Fd1 Fa1 
+2. Fc4 Fc1 
+3. Fd4 Fb1 
+4. Fb4 Fa4 
+5. Fb3 1a4>1 
+6. Fc3 2b4>11 
+7. Fb4 2d4<2 
+8. Fa3 Fa2 
+9. Fd3 	
+
+Winner: White
+
+Notes: TAK-MCTS has 15 seconds thinking time per move again. It wins, surprisingly. A small improvement which was implemented for this game was simply this: it now has an awareness of sudden death situations. 
+
+
+(TAK-MCTS {white} vs. AI LEVEL 3 {black})
+
+[Size "4"]
+
+1. Fc2 Fa1 
+2. Fa4 Fa2 
+3. Fa3 1a2+1 
+4. Fb2 Fc3 
+5. Fb4 Fc4 
+6. 1b2>1 Fb3 
+7. 2c2+2 1c4-1 
+8. 1b4-1 3c3<3 
+9. 1a4-1 2b3<2
+10. Fd3 3a3+3
+11. Fb1 1c3<1 
+12. Fc1 3b3>21 
+
+Winner: Black
+
+Notes: TAK-MCTS has 15 seconds per move. Found a bug in TAK-MCTS as a result of this game: it did not process guaranteed losses correctly, and pointedly ignored them. Should be fixed now though.

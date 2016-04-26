@@ -13,6 +13,7 @@ function game_node:__init()
 	self.winner = 0
 	self.ply = 0
 	self.i2n = {1}	-- index to move notation
+	self.history = {}
 end
 
 function game_node:is_terminal()
@@ -27,13 +28,22 @@ function game_node:get_i2n(i)
 	return self.i2n[i]
 end
 
-function game_node:make_move(a)	-- accepts actions in either index or notation form
+function game_node:get_history()
+	return history
+end
+
+-- accepts actions in either index or notation form
+-- flag argument lets you do special things: for example, ignore certain calculations 
+-- at the last step of minimax
+function game_node:make_move(a, flag)	
+	self.history[#self.history] = a
 	self.ply = self.ply + 1
 	if self.ply == 10 then self.winner = 1 end
 	return true
 end
 
 function game_node:undo()
+	self.history[#self.history] = nil
 	self.ply = self.ply - 1
 end
 
@@ -90,6 +100,20 @@ function human:move(node)
 		a = io.read()
 		valid = node:make_move(a)
 	end
+end
+
+
+---------------------------
+-- RANDOM AGENT AI CLASS --
+---------------------------
+
+local random_AI = torch.class('random_AI','AI')
+
+function random_AI:move(node)
+	local legal_move_mask = node:get_legal_move_mask()
+	local a = torch.multinomial(legal_move_mask,1)[1]
+	node:make_move(a)
+	return true
 end
 
 
@@ -368,7 +392,7 @@ function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	if maximizingPlayer then
 		v = -1/0
 		for i,move in pairs(legal) do
-			node:make_move(move)
+			node:make_move(move, depth==1)
 			val, _, nl = alphabeta2(node,depth- 1, a, b, false, maxplayeris,value_of_node)
 			num_leaves = num_leaves + nl
 			node:undo()
@@ -384,7 +408,7 @@ function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	else
 		v = 1/0
 		for i,move in pairs(legal) do
-			node:make_move(move)
+			node:make_move(move, depth==1)
 			val, _, nl = alphabeta2(node,depth- 1, a, b, true, maxplayeris,value_of_node)
 			num_leaves = num_leaves + nl
 			node:undo()
@@ -679,9 +703,14 @@ end
 
 -- deps is a table of strings denoting dependencies
 -- example, deps = {'tak_game','tak_AI'}
-function make_threadpool(nthreads,deps)
+function make_threadpool(nthreads,deps,shared)
 	local threads = require 'threads'
 	local deps = deps or {}
+
+	if shared then
+		threads.Threads.serialization('threads.sharedserialize')
+	end
+
 	local pool = threads.Threads(nthreads, 
 		function()
 			require 'torch'
