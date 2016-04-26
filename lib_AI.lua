@@ -136,12 +136,14 @@ function minimax_AI:move(node)
 		return false
 	end
 	local start_time = os.clock()
-	local v, a, nl = minimax_move2(node,self.depth,self.value)	-- minimax_move2 is 3x faster
+	local v, a, mc, nl
+	--v, a, _, mc, nl = alphabeta(node,self.depth,-1/0,1/0,true,node:get_player(),self.value)
+	v, a, nl = minimax_move2(node,self.depth,self.value)
+	node:make_move(a)
 	if self.debug then
 		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
 	end
-	node:make_move(a)
-	return true
+	return mc
 end
 
 -------------------------------
