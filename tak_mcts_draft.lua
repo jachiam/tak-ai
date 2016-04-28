@@ -1,9 +1,9 @@
 require 'tak_AI'
 require 'lib_AI'
 
-n_thr = 3	-- visitation threshold for expansion
-lambda = 0.4	-- mixing parameter for value function evaluation and monte carlo rollout evaluation
-c_uct = 0.25	-- exploration/exploitation trade-off for UCT
+n_thr = 1	-- visitation threshold for expansion
+lambda = 0.5	-- mixing parameter for value function evaluation and monte carlo rollout evaluation
+c_uct = 1	-- exploration/exploitation trade-off for UCT
 n_vl = 3	-- number of virtual losses
 
 local mcts_node = torch.class('mcts_node')
@@ -11,6 +11,15 @@ local mcts_node = torch.class('mcts_node')
 function mcts_node:__init(game_state,maxplayeris)
 	self.game_state = game_state
 	self.maxplayeris = maxplayeris
+	self.children = {}	-- children of this node
+
+	if self.game_state:is_terminal() then
+		self.is_terminal = true
+		self.value = default_value(self.game_state,maxplayeris)
+		return
+	end
+
+	self.is_terminal = false
 	self.legal_move_table = self.game_state:get_legal_move_table() -- index to move
 	self.move2index = {}
 	for j, move in pairs(self.legal_move_table) do self.move2index[move] = j end
@@ -18,12 +27,9 @@ function mcts_node:__init(game_state,maxplayeris)
 	self.Nr = torch.zeros(#self.legal_move_table)
 	self.Wv = torch.zeros(#self.legal_move_table)
 	self.Wr = torch.zeros(#self.legal_move_table)
-	--[[self.Vv = torch.zeros(#self.legal_move_table)
-	self.Vr = torch.zeros(#self.legal_move_table)]]
 	self:update_Vv_Vr()
 	self.Q  = torch.zeros(#self.legal_move_table)
 	self.Nr_sum = 0		-- how many rollouts did we explore from this node?
-	self.children = {}	-- children of this node
 	self.value = nil	-- value of this node as a leaf
 
 	self.guaranteed_losses = torch.zeros(#self.legal_move_table)
@@ -37,13 +43,14 @@ function mcts_node:__init(game_state,maxplayeris)
 end
 
 function mcts_node:update_Vv_Vr()
+	if self.is_terminal then return end
+
 	self.Vv = torch.gt(self.Nv,0)	-- Visited value
 	self.Vr = torch.gt(self.Nr,0)	-- Visited rollout
-	--[[self.Vv:copy(torch.gt(self.Nv,0))
-	self.Vr:copy(torch.gt(self.Nr,0))]]
 end
 
 function mcts_node:update_Q()	
+	if self.is_terminal then return end
 
 	if #self.children > 0 then
 		local Qv = torch.zeros(self.Nv:numel())
@@ -69,17 +76,20 @@ function mcts_node:set_value(val)
 end
 
 function mcts_node:apply_virtual_loss(a)
+	if self.is_terminal then return end
 	self.Nr[a] = self.Nr[a] + n_vl
 	self.Wr[a] = self.Wr[a] + 0	-- here, we assume 0 = loss and 1 = win
 	self:update_Vv_Vr()
 end
 
 function mcts_node:remove_virtual_loss(a)
+	if self.is_terminal then return end
 	self.Nr[a] = self.Nr[a] - n_vl
 	self:update_Vv_Vr()
 end
 
 function mcts_node:raw_value_update(a,val)
+	if self.is_terminal then return end
 	local v = val
 	if not(self.maxnode) then v = 1 - v end
 	self.Wv[a] = self.Wv[a] + val
@@ -89,6 +99,7 @@ function mcts_node:raw_value_update(a,val)
 end
 
 function mcts_node:raw_rollout_update(a,val)
+	if self.is_terminal then return end
 	local v = val
 	if not(self.maxnode) then v = 1 - v end
 	self.Wr[a] = self.Wr[a] + v
@@ -102,6 +113,7 @@ function mcts_node:raw_rollout_update(a,val)
 end
 
 function mcts_node:expand(a)
+	if self.is_terminal then return end
 	if self.children[a] == nil then
 		local child = self.game_state:clone()
 		child:make_move(self.legal_move_table[a])
@@ -117,12 +129,15 @@ function mcts_node:expand(a)
 end
 
 function mcts_node:rollout(a,rollout_policy)
+	if self.is_terminal then return self.game_state, self.value end
 	local sim = rollout(self.game_state,rollout_policy,false,1,false)
 	local val = default_value(sim,self.maxplayeris)
 	return sim, val
 end
 
 function mcts_node:uct_select()
+	if self.is_terminal then return nil end
+
 	local uct_vals = torch.cinv(self.Nr)
 	if self.Nr_sum == 0 then
 		-- if we haven't visited anything, every action has value infinity.
@@ -142,6 +157,11 @@ function mcts_node:uct_select()
 end
 
 function mcts_node:print_statistics()
+	if self.is_terminal then 
+		print('Node is terminal, value: ' .. self.value)
+		return
+	end
+
 	local function round(x) return math.floor(x*1000)/1000 end
 
 	for a, move in pairs(self.legal_move_table) do
@@ -162,9 +182,10 @@ function mcts_loop(root,time)
 	local n = 0
 
 	while os.time() - start_time < time do
-		depth = mcts_search_single_iteration(root,rollout_policy,root.game_state:get_player(),true)
+		depth, path, acts = mcts_search_single_iteration(root,rollout_policy,root.game_state:get_player(),false)
 		av_depth = av_depth + depth
 		n = n + 1
+		if n % 300 == 0 then print('depth: ' .. #acts) end
 	end
 
 	return av_depth, n
@@ -269,7 +290,10 @@ end
 
 
 
-
+-- all that follows is experimental and spooky
+-- spoooooooOOOOOOOooooooOOOOOOOooooky
+-- it doesn't work
+-- and i don't know why
 
 
 local async_mcts_node = torch.class('async_mcts_node','mcts_node')
@@ -347,7 +371,12 @@ function async_mcts_loop(pool,root,time)
 				end,
 
 				function(depth, path, acts)
-					local cur,a = path[#path], acts[#acts]
+					--print(acts)
+					local cur = root
+					for i=1,#acts - 1 do
+						cur = cur.children[acts[i]]
+					end
+					local a = acts[#acts]
 					if cur.Nr[a] > n_thr and cur.children[a] == nil then 
 						cur:expand(a) 
 					end

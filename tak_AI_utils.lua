@@ -32,7 +32,7 @@ end
 
 -- heuristic score function for a player in tak
 -- made by trial and error, with a spoonful of magic
-function get_player_score(node,player)
+function score_function_AT1(node,player)
 
 	-- what if it's over?
 	if node:is_terminal() then
@@ -44,7 +44,6 @@ function get_player_score(node,player)
 	end
 
 	local strength = 0
-	local opponent = 3 - player
 
 	-- check if you have the ability to win in one move,
 	-- by the most obvious methods (road across col or row, flat win)
@@ -81,7 +80,7 @@ function get_player_score(node,player)
 end
 
 -- heuristic symmetric value function for tak, values between -1e8 and 1e8
-function value_of_node(node,maxplayeris)
+function value_of_node(node,maxplayeris,get_player_score)
 	local p1_score = get_player_score(node,1)
 	local p2_score = get_player_score(node,2)
 	local score = p1_score - p2_score
@@ -103,8 +102,116 @@ function normalized_value_of_node(node,maxplayeris)
 			return -1
 		end
 	end
-	local v = value_of_node(node,maxplayeris)
+	local v = value_of_node(node,maxplayeris,score_function_AT1)
 	--return (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
+	v = (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
+	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	return v
+end
+
+
+
+
+
+
+
+
+-- heuristic score function for a player in tak
+-- made by trial and error, with a spoonful of magic
+function score_function_AT2(node,player)
+
+	-- what if it's over?
+	if node:is_terminal() then
+		if node.winner == player then
+			return 1e8 - node.ply
+		else
+			return 0
+		end
+	end
+
+	local strength = 0
+
+	-- check if you have the ability to win in one move,
+	-- by the most obvious methods (road across col or row, flat win)
+	your_wins = check_wins_in_one(node,player)
+
+	-- if it is your turn and you can win in one move, very good!
+	if your_wins > 0 and node:get_player() == player then
+		return 1e8 - node.ply - 1
+	else
+		-- if you can threaten more than one win at once, very strong.
+		strength = strength + your_wins^6
+	end
+
+	-- heuristic strength evaluation:
+	-- bulky islands (contiguous regions of pieces you control) are powerful,
+	-- stacks are good too (but not quite as good). 
+	-- encapsulates adage, 'place if you can, move if you must.'
+	-- also, walls are somewhat weak; they should only be deployed as necessary.
+	islands = node.islands[player]
+
+	island_strengths = torch.zeros(#islands)
+	for i=1,#islands do
+		island_strengths[i] = (islands[i]:sum())^4.2
+		strength = strength + island_strengths[i]
+	end
+
+	-- wall penalty
+	local _, top = node:get_empty_squares()
+	local top_walls = top[{{},{},player,2}]
+
+	strength = strength - (top_walls:sum())^3
+
+
+	-- stack strength bonus
+	local max_stack_sums = node.board[{{},{},{},player}]:sum(3):sum(4):squeeze()
+	local em, bt = node:get_empty_squares()
+	local max_control = bt[{{},{},player}]:sum(3):squeeze()
+	strength = strength + max_stack_sums:cmul(max_control):pow(3.3):sum()
+
+	--[[
+	-- killing field bonus
+
+	local max_stack_sums = node.board[{{},{},{},player}]:sum(3):sum(4):squeeze()
+	local min_stack_sums = node.board[{{},{},{},3 - player}]:sum(3):sum(4):squeeze()
+	local em, bt = node:get_empty_squares()
+	local max_control = bt[{{},{},player}]:sum(3):squeeze()
+	local min_control = bt[{{},{},3 - player}]:sum(3):squeeze()
+	local max_influence = torch.cmul(max_stack_sums,max_control)
+	local min_influence = torch.cmul(min_stack_sums,min_control)
+
+	local board_control = torch.zeros(node.size,node.size):float()
+	board_control[{{2,node.size},{}}] = board_control[{{2,node.size},{}}] + max_influence[{{1,node.size-1},{}}] - min_influence[{{1,node.size-1},{}}]
+	board_control[{{1,node.size-1},{}}] = board_control[{{1,node.size-1},{}}] + max_influence[{{2,node.size},{}}] - min_influence[{{2,node.size},{}}]
+	board_control[{{},{2,node.size}}] = board_control[{{},{2,node.size}}] + max_influence[{{},{1,node.size-1}}] - min_influence[{{},{1,node.size-1}}]
+	board_control[{{},{1,node.size-1}}] = board_control[{{},{1,node.size-1}}] + max_influence[{{},{2,node.size}}] - min_influence[{{},{2,node.size}}]
+
+	max_influence:add(0.25):cmul(torch.gt(board_control,0):float())
+	min_influence:add(0.25):cmul(torch.lt(board_control,0):float())
+
+
+	local influence = (max_influence - min_influence):sum()
+	influence = (influence / math.abs(influence)) * (math.abs(influence))^4
+
+	strength = strength + influence ]]
+
+
+
+	return strength --, board_control
+end
+
+
+
+function normalized_value_of_node2(node,maxplayeris)
+	local start_time = os.clock()
+	local function sign(x)
+		if x == math.abs(x) then
+			return 1
+		else
+			return -1
+		end
+	end
+	local v = value_of_node(node,maxplayeris,score_function_AT2)
 	v = (sign(v)*(math.log(1+math.abs(v))/math.log(1e8)) + 1)/2
 	value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
