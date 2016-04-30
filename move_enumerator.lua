@@ -22,10 +22,33 @@ function ptn_moves(carry_limit)
 	end
 
 	seqs = {}
+	seq_sums = {}
 	for i=1,carry_limit do
 		tab = additive_combos(i,carry_limit)
 		for j=1,#tab do
-			table.insert(seqs,seq2str(tab[j]))
+			seqstring = seq2str(tab[j])
+			table.insert(seqs,seqstring)
+			table.insert(seq_sums,i)
+		end
+	end
+
+	seqs_by_sum_and_distance = {}
+	seqs_by_sum_and_distance1 = {}
+	for i=1,carry_limit do
+		seqs_by_sum_and_distance[i] = {}
+		seqs_by_sum_and_distance1[i] = {}
+		for j=1,i do
+			seqs_by_sum_and_distance[i][j] = {}
+			seqs_by_sum_and_distance1[i][j] = {}
+			for k=1,#seqs do
+				local l = #seqs[k]
+				if l <= j and seq_sums[k] <= i then
+					table.insert(seqs_by_sum_and_distance[i][j],{seq_sums[k],seqs[k]})
+					if string.sub(seqs[k],l,l) == '1' then
+						table.insert(seqs_by_sum_and_distance1[i][j],{seq_sums[k],seqs[k]})
+					end
+				end
+			end
 		end
 	end
 
@@ -90,7 +113,7 @@ function ptn_moves(carry_limit)
 		ptn2moves[moves2ptn[i]] = i
 	end
 
-	return moves2ptn, ptn2moves, stack_moves_by_pos, stack_sums, stack_moves, posits, seqs
+	return moves2ptn, ptn2moves, stack_moves_by_pos, stack_sums, stack_moves, posits, seqs, seqs_by_sum_and_distance, seqs_by_sum_and_distance1
 end
 
 

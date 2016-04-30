@@ -8,6 +8,9 @@ local tak = torch.class('tak')
 -- which is helpful in the AI tree search.
 function tak:__init(size,making_a_copy)
 
+	self.bt_test = false
+	self.legal_move_switch = true
+
 	self.verbose = false
 	self.size = size or 5
 	if self.size == 3 then
@@ -69,7 +72,9 @@ function tak:__init(size,making_a_copy)
 	self.empty_squares_history = {self.empty_squares:clone()}
 	self.legal_moves_by_ply = {}
 
-	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves = ptn_moves(self.carry_limit)
+	--sbsd: stacks_by_sum_and_distance
+	--sbsd1: when the last stone is a cap crushing a wall
+	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves, _, _, self.sbsd, self.sbsd1 = ptn_moves(self.carry_limit)
 
 	self:populate_legal_moves_at_this_ply()
 
@@ -93,6 +98,14 @@ function tak:set_debug_times_to_zero()
 	self.get_legal_moves_time = 0
 	self.execute_move_time = 0
 	self.flood_fill_time = 0
+end
+
+function tak:print_debug_times()
+	print('empty squares time: \t' .. self.get_empty_squares_time)
+	print('get legal moves time: \t' .. self.get_legal_moves_time)
+	print('execute move time: \t' .. self.execute_move_time)
+	print('flood fill time: \t' .. self.flood_fill_time)
+
 end
 
 function tak:is_terminal()
@@ -159,6 +172,8 @@ function tak:fast_clone()
 	copy.stack_moves_by_pos = self.stack_moves_by_pos
 	copy.stack_sums = self.stack_sums
 	copy.stack_moves = self.stack_moves
+	copy.sbsd = self.sbsd
+	copy.sbsd1 = self.sbsd1
 	copy.islands = {{},{}}
 	copy.board_history = {}
 	copy.heights_history = {}
@@ -221,6 +236,20 @@ function tak:compute_board_top()
 	for i=1,self.size do
 		for j=1,self.size do
 			board_top[{i,j}] = self.board[{i,j,top_heights[{i,j}]}]
+		end
+	end
+	self.board_top = board_top
+	return board_top
+end
+
+function tak:compute_board_top2()
+	local board_top = torch.zeros(self.size,self.size,2,3):float()
+	-- top_heights are 'n' if there is a stack of size 'n' or 1 if empty
+	for i=1,self.size do
+		for j=1,self.size do
+			if self.heights[{i,j}] >= 1 then
+				board_top[{i,j}] = self.board[{i,j,self.heights[{i,j}]}]
+			end
 		end
 	end
 	self.board_top = board_top
@@ -359,6 +388,129 @@ function tak:get_legal_moves(player)
 	return legal_moves_ptn, legal_move_mask
 end
 
+-- experimental legal moves constructor
+function tak:get_legal_moves2(player)
+
+	local legal_moves_ptn = {}
+	local empty_squares, board_top = self:get_empty_squares()
+	local letters = {'a','b','c','d','e','f','g','h'}
+
+	local start_time = os.clock()
+
+	local top_walls, top_caps, l_space, r_space, u_space, d_space
+
+	local bt = board_top:sum(3):squeeze()
+	top_walls = bt[{{},{},2}]
+	top_caps  = bt[{{},{},3}]
+	top_walls_and_caps = top_walls + top_caps
+
+	if self.magic_ld == nil and self.magic_ur == nil then
+		self.magic_ld = torch.zeros(self.size,self.size):float()
+		self.magic_ur = torch.zeros(self.size,self.size):float()
+		i = 0; self.magic_ld:apply(function() i = i + 1; return i end)
+		i = i + 1; self.magic_ur:apply(function() i = i - 1; return i end)
+	end
+
+	local twc_ld = torch.cmul(top_walls_and_caps,self.magic_ld)
+	local twc_ur = torch.cmul(top_walls_and_caps,self.magic_ur)
+
+	local function add_stack_moves(hand,pos,dir,seqs)
+		if not(seqs == nil) then
+			for m=1,#seqs do
+				table.insert(legal_moves_ptn, seqs[m][1] .. pos .. dir .. seqs[m][2])
+			end
+		end
+	end
+
+	local function check_stack_moves(i,j,pos)
+		-- hand size, or, how many stones we can take from this stack
+		local hand = self.heights[{i,j}]
+		if hand > self.size then hand = self.size end
+
+		local l_space, d_space, r_space, u_space
+
+		if i-1 >= 1 then l_space = twc_ld[{{1,i-1},j}] else l_space = torch.Tensor() end
+		if j-1 >= 1 then d_space = twc_ld[{i,{1,j-1}}] else d_space = torch.Tensor() end
+		if i+1 <= self.size then r_space = twc_ur[{{i+1,self.size},j}] else r_space = torch.Tensor() end
+		if j+1 <= self.size then u_space = twc_ur[{i,{j+1,self.size}}] else u_space = torch.Tensor() end
+
+		local spaces = { l_space, d_space, r_space, u_space }
+		local sums = { l_space:sum(), d_space:sum(), r_space:sum(), u_space:sum() }
+		local dirs = {'<', '-', '>', '+'}
+		local dist = {i-1, j-1, self.size - i, self.size - j}
+		local delta = {{-1,0},{0,-1},{1,0},{0,1}}
+
+		local top_is_cap = board_top[{i,j,player,3}] == 1
+
+		local seqs
+
+		for k=1,4 do
+			if not(sums[k] == 0) then
+				local _, ind = torch.max(spaces[k],1)
+				if k==1 then
+					dist[k] = i - ind[1] - 1
+				elseif k==2 then
+					dist[k] = j - ind[1] - 1
+				else
+					dist[k] = ind[1] - 1
+				end
+				if not(top_is_cap) then
+					seqs = self.sbsd[hand][math.min(hand,dist[k])]
+				else
+					local dest = {i + delta[k][1]*(dist[k]+1), j + delta[k][2]*(dist[k]+1)}
+					if top_walls[dest] == 1 then
+						dist[k] = dist[k] + 1
+						seqs = self.sbsd1[hand][math.min(hand,dist[k])]
+					else
+						seqs = self.sbsd[hand][math.min(hand,dist[k])]
+					end
+				end
+			else
+				seqs = self.sbsd[hand][math.min(hand,dist[k])]
+			end
+			if dist[k] > 0 then
+				add_stack_moves(hand,pos,dirs[k],seqs)
+			end
+		end		
+	end
+
+	local pos, control
+
+	for i=1,self.size do
+		for j=1,self.size do
+			pos = letters[i] .. j
+			if empty_squares[{i,j}]==1 and self.ply > 1 then
+				if self.player_pieces[player] > 0 then
+					table.insert(legal_moves_ptn, 'f' .. pos)
+					table.insert(legal_moves_ptn, 's' .. pos)
+				end
+				if self.player_caps[player] > 0 then
+					table.insert(legal_moves_ptn, 'c' .. pos)
+				end
+			elseif self.ply > 1 then
+				control = board_top[{i,j,player}]:sum()
+				if control > 0 then
+					check_stack_moves(i,j,pos)
+				end
+			elseif empty_squares[{i,j}]==1 then
+				table.insert(legal_moves_ptn,'f' .. pos)
+			end
+		end
+	end
+
+	local legal_move_mask = torch.zeros(#self.move2ptn)
+	for i=1,#legal_moves_ptn do
+		legal_move_mask[self.ptn2move[legal_moves_ptn[i]]] = 1
+	end
+
+
+	self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
+	
+	return legal_moves_ptn, legal_move_mask, twc_ld, twc_ur
+end
+
+
+
 function tak:get_legal_move_mask(as_boolean)
 	local legal_move_mask = self.legal_moves_by_ply[#self.legal_moves_by_ply][3]
 	if as_boolean then
@@ -380,7 +532,12 @@ end
 function tak:populate_legal_moves_at_this_ply()
 	local player = self:get_player()
 	if #self.legal_moves_by_ply < self.ply+1 then
-		local legal_moves_ptn, legal_moves_mask = self:get_legal_moves(player)
+		local legal_moves_ptn, legal_moves_mask
+		if self.legal_move_switch then		
+			legal_moves_ptn, legal_moves_mask = self:get_legal_moves(player)
+		else
+			legal_moves_ptn, legal_moves_mask = self:get_legal_moves2(player)
+		end
 		table.insert(self.legal_moves_by_ply,{player,legal_moves_ptn,legal_moves_mask})
 	end
 end
@@ -466,14 +623,29 @@ function tak:execute_move(ptn,idx,flag)
 		self.heights[{i,j}] = 1
 		self.board[{i,j,1,player,1}] = 1
 		self.player_pieces[player] = self.player_pieces[player] - 1
+
+		-- experimental
+		if self.bt_test then
+			self.board_top[{i,j,player,1}] = 1
+		end
 	elseif move_type == 's' then
 		self.heights[{i,j}] = 1
 		self.board[{i,j,1,player,2}] = 1		
-		self.player_pieces[player] = self.player_pieces[player] - 1		
+		self.player_pieces[player] = self.player_pieces[player] - 1
+
+		-- experimental
+		if self.bt_test then
+			self.board_top[{i,j,player,2}] = 1	
+		end
 	elseif move_type == 'c' then
 		self.heights[{i,j}] = 1
 		self.board[{i,j,1,player,3}] = 1
-		self.player_caps[player] = self.player_caps[player] - 1		
+		self.player_caps[player] = self.player_caps[player] - 1	
+
+		-- experimental
+		if self.bt_test then
+			self.board_top[{i,j,player,3}] = 1	
+		end
 	else
 		-- oooh this is gonna be hard
 		-- welcome to index magic and duct tape... but you're reading this code, so you already knew that
@@ -486,8 +658,18 @@ function tak:execute_move(ptn,idx,flag)
 		local hand = self.board[{i,j,{h-stacksum+1,h},{},{}}]:clone()
 		-- clear off the original stack
 		self.board[{i,j,{h-stacksum+1,h},{},{}}]:zero()
-		self.heights[{i,j}] = h - stacksum
+		local h_new = h - stacksum
+		self.heights[{i,j}] = h_new -- h - stacksum
 	
+		-- experimental
+		if self.bt_test then
+			if h_new > 0 then
+				self.board_top[{i,j}] = self.board[{i,j,h_new}]	
+			else
+				self.board_top[{i,j}] = 0
+			end
+		end
+
 		pos_in_hand = 1
 
 		x = i
@@ -509,6 +691,12 @@ function tak:execute_move(ptn,idx,flag)
 			-- this bit actually drops things from the hand onto the board
 			self.board[{x,y,{h,h+dropno-1},{},{}}]:copy(hand[{{pos_in_hand,pos_in_hand+dropno-1},{},{}}])
 			self.heights[{x,y}] = h + dropno - 1
+
+			-- experimental
+			if self.bt_test then
+				self.board_top[{x,y}] = self.board[{x,y,self.heights[{x,y}]}]	
+			end
+
 			-- flattening logic
 			if h > 1 then
 				condition = dropno == 1 and pos_in_hand == stacksum -- dropping one piece as last
@@ -529,7 +717,11 @@ function tak:execute_move(ptn,idx,flag)
 
 	self.execute_move_time = self.execute_move_time + (os.clock() - start_time)
 
-	self:compute_empty_squares()
+	if self.bt_test then
+		self.empty_squares = torch.eq(self.board_top:sum(3):sum(4):squeeze(),0)
+	else
+		self:compute_empty_squares()
+	end
 
 	if not(flag) then
 		self:populate_legal_moves_at_this_ply()
@@ -567,11 +759,10 @@ function tak:check_victory_conditions()
 
 	local function get_islands(player)
 
-		local unexplored_nodes, islands, top, top_flats_and_caps, top_walls
+		local unexplored_nodes, islands, top, top_flats_and_caps
 
 		top = board_top
 		top_flats_and_caps = top[{{},{},player,1}] + top[{{},{},player,3}]
-		top_walls = top[{{},{},player,2}]
 
 		local function flood_fill(unexplored,island,i,j)
 			if top_flats_and_caps[{i,j}] == 1 and unexplored[{i,j}] == 1 then
@@ -593,12 +784,10 @@ function tak:check_victory_conditions()
 		end
 
 		islands = {}
-		--unexplored_nodes = top_flats_and_caps:clone():fill(1)
 		unexplored_nodes = torch.ones(self.size,self.size)
 		for i=1,self.size do
 			for j=1,self.size do
 				if unexplored_nodes[{i,j}] == 1 and top_flats_and_caps[{i,j}] == 1 then
-					--table.insert(islands,top_flats_and_caps:clone():zero())
 					table.insert(islands,torch.zeros(self.size,self.size))
 					flood_fill(unexplored_nodes,islands[#islands],i,j)
 				end
