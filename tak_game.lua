@@ -74,6 +74,9 @@ function tak:__init(size,making_a_copy)
 	--sbsd1: when the last stone is a cap crushing a wall
 	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves, _, _, self.sbsd, self.sbsd1 = ptn_moves(self.carry_limit)
 
+	self.magic_ld = nil
+	self.magic_ur = nil
+
 	self:populate_legal_moves_at_this_ply()
 
 	self.game_over = false

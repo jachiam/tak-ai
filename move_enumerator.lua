@@ -44,7 +44,7 @@ function ptn_moves(carry_limit)
 				local l = #seqs[k]
 				if l <= j and seq_sums[k] <= i then
 					table.insert(seqs_by_sum_and_distance[i][j],{seq_sums[k],seqs[k]})
-					if string.sub(seqs[k],l,l) == '1' then
+					if string.sub(seqs[k],l,l) == '1' or l < j then
 						table.insert(seqs_by_sum_and_distance1[i][j],{seq_sums[k],seqs[k]})
 					end
 				end
