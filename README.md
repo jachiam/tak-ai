@@ -119,7 +119,7 @@ which tells the AI agent object to make a move in the game.
 
 ###Some thoughts on Takai: 
 
-You probably should not play at depths greater than 3. The current implementation of the minimax search is fast enough to compete well on depth 3: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. On 4x4 boards, it only seems to take around 3 to 10 seconds per move. 
+You probably should not play at depths greater than 3. The current implementation of the minimax search is fast enough to compete well on depth 3: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. On 4x4 boards, it only seems to take less than 3 seconds per move.
 
 Once you have played enough games with this AI, you will see that it is somewhat predictable. Hopefully still strong enough to be a worthy opponent. It can give you a run for your money if you aren't careful, though.
 
