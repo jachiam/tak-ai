@@ -46,7 +46,7 @@ Once the game begins, you will see a hideous technicolor board and some kitschy 
 |[A move in [Portable Tak Notation](https://www.reddit.com/r/Tak/wiki/portable_tak_notation)]|Make that move in the current game, if legal.|
 |help|list commands in a popup|
 |[escape key]|close help menu|
-|quit||exit game|
+|quit|...|
 |export [filename]|save game to filename.ptn|
 |import [filename]|load from filename.ptn *not implemented yet; please use [PTN Viewer](https://jsfiddle.net/bwochinski/043hpzwu/embedded/result/)|
 |new|start new game|
