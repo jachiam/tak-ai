@@ -7,11 +7,10 @@ AI engine made by [Joshua Achiam](github.com/jachiam/tak-ai): If you lose, it's 
 Special thanks to the [LOVE game engine team](love2d.org), without whom you would probably still be playing an actually-entertaining game                        
 
 ### Installation
----
-Linux: works
-Mac: totally
-Windows: oops
----
+|Linux|Mac|Windows|
+|-----|---|-------|
+|works|totally|oops|
+
 
 **Linux/Mac Install:** ```curl https://asgardiator.github.io/tak-ai-ghpage/ | sh```
 
