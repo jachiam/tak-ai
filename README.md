@@ -13,7 +13,10 @@ Special thanks to the [LOVE game engine team](love2d.org), without whom you woul
 |works|totally|oops|
 
 
-**Linux/Mac Install:** ```curl https://asgardiator.github.io/tak-ai-ghpage/ | sh```
+**Linux/Mac Install:** 
+```
+curl https://asgardiator.github.io/tak-ai-ghpage/ | sh
+```
 
 **Windows Users:** Sorry, but until [torch](torch.ch) makes their library available for Windows,
 you're going to have to sit tight. Alternatively, you can fight the AI using a
@@ -32,7 +35,9 @@ you can show your appreciaton with a bitcoin donation:
 
 ![Enable a Dude to Continue Being Radical](https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=141XmwzWyXu7VEahTjKpHTFVq4CKT9BLZ2)
 
-```bitcoin://141XmwzWyXu7VEahTjKpHTFVq4CKT9BLZ2```
+```
+bitcoin://141XmwzWyXu7VEahTjKpHTFVq4CKT9BLZ2
+```
 
 If it helps, try to imagine a puppy begging for kibbles. But instead of kibbles,
 it's magic internet money that fights the system, then goes and starts its own
