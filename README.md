@@ -34,20 +34,13 @@ Finally, if you're a nerd who enjoys freedom, & you also make too much money, yo
 bitcoin://141XmwzWyXu7VEahTjKpHTFVq4CKT9BLZ2
 ```
 
-If it helps, try to imagine a puppy begging for kibbles. But instead of kibbles,it's magic internet money that fights the system, then goes and starts its own system, with blackjack and hookers.  "         [esc]: close this menu",
-  "'quit': exit game",
-  "'export [filename]': save to filename.ptn",
-  "'import [filename]': load from filename.ptn",
-  "'new': start new game",
-  "'undo': undo your last move",
-  "'name [username]': set your name",
-  "'level [1-3]': set AI level",
-  "'fs': toggle fullscreen"
+If it helps, try to imagine a puppy begging for kibbles. But instead of kibbles,it's magic internet money that fights the system, then goes and starts its own system, with blackjack and hookers.  
 
 ## How to play
 If you manage to start the game, congratulations, you've qualified for a CS degree. But don't build the next Facebook yet; we've got games to lose to weak heuristics.
 
 Once the game begins, you will see a hideous technicolor board and some kitschy 8bit typography. This is good; it means it's working. Now we have to interface with the only controller in the game: the textbox. Physically click it in the lower-left corner to get started. Yes, I tried to autofocus. The GUI library was not forgiving.
+
 |Command|Action|
 |-------|------|
 |[A move in [Portable Tak Notation](https://www.reddit.com/r/Tak/wiki/portable_tak_notation)]|Make that move in the current game, if legal.|
