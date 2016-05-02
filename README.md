@@ -8,9 +8,9 @@ Special thanks to the [LOVE game engine team](love2d.org), without whom you woul
 
 ### Installation
 ---
-Linux: WORKS
-Mac: TOTALLY
-Windows: OOPS
+Linux: works
+Mac: totally
+Windows: oops
 ---
 
 **Linux/Mac Install:** ```curl https://asgardiator.github.io/tak-ai-ghpage/ | sh```
