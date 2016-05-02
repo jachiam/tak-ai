@@ -43,7 +43,7 @@ Once the game begins, you will see a hideous technicolor board and some kitschy 
 
 |Command|Action|
 |-------|------|
-|[A move in [Portable Tak Notation](https://www.reddit.com/r/Tak/wiki/portable_tak_notation)]|Make that move in the current game, if legal.|
+|[A move in [Portable Tak Notation](https://www.reddit.com/r/Tak/wiki/portable_tak_notation)]|Make that move in the current game, if legal. (examples: a1, 5e3>23, c2+, cd4)|
 |help|list commands in a popup|
 |[escape key]|close help menu|
 |quit|...|
