@@ -1,12 +1,15 @@
 require 'torch'
 require 'math'
 require 'move_enumerator'
+require 'flood_fill'
 
 local tak = torch.class('tak')
 
 -- N.B.: The "making_a_copy" argument is used when making a fast clone of a tak game,
 -- which is helpful in the AI tree search.
 function tak:__init(size,making_a_copy)
+
+	self.isle_method = 1
 
 	self.verbose = false
 	self.size = size or 5
@@ -159,6 +162,8 @@ function tak:fast_clone()
 	local copy = tak.new(self.size,true)
 	copy.board = self.board:clone()
 	copy.heights = self.heights:clone()
+	copy.board_top = self.board_top:clone()
+	copy.empty_squares = self.empty_squares:clone()
 	copy.ply = self.ply
 	copy.player_pieces = deepcopy(self.player_pieces)
 	copy.player_caps = deepcopy(self.player_caps)
@@ -271,6 +276,7 @@ function tak:get_legal_moves(player)
 		end
 	end
 
+	-- <magic>
 	local function check_stack_moves(i,j,pos)
 		-- hand size, or, how many stones we can take from this stack
 		local hand = self.heights[{i,j}]
@@ -322,6 +328,7 @@ function tak:get_legal_moves(player)
 			end
 		end		
 	end
+	-- </magic>
 
 	local pos, control
 
@@ -406,11 +413,18 @@ end
 
 -- sanitize user ptn to allow some notational shortcuts
 function tak:accept_user_ptn(move_ptn,flag)
+	if move_ptn == 'undo' then
+		self:undo()
+		self:undo()
+		return true
+	end
 	move_ptn = string.lower(move_ptn)
 	if move_ptn == string.match(move_ptn,'%a%d') then
 		move_ptn = 'f' .. move_ptn
 	elseif move_ptn == string.match(move_ptn,'%a%d[<>%+%-]') then
 		move_ptn = '1' .. move_ptn .. '1'
+	elseif move_ptn == string.match(move_ptn,'%d%a%d[<>%+%-]') then
+		move_ptn = move_ptn .. string.sub(move_ptn,1,1)
 	end
 	idx = self.ptn2move[move_ptn]
 	
@@ -623,7 +637,13 @@ function tak:check_victory_conditions()
 		local isle, a, b, c, d
 		for player=1,2 do
 			rw[player] = false
-			local islands = get_islands(player)
+			local islands
+			if self.isle_method == 1 then
+				islands = get_islands(player)
+			else
+				local top_flats_and_caps = board_top[{{},{},player,1}] + board_top[{{},{},player,3}]
+				islands = calculate_islands(top_flats_and_caps,1,2)
+			end
 			self.islands[player] = islands
 			for j=1,#islands do
 				isle = torch.eq(islands[j],1)

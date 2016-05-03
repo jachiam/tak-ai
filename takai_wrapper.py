@@ -132,6 +132,8 @@ def wait_for_response(resp):
   return k
 
 def server_to_bot(move):
+  if 'RequestUndo' in move:
+    return 'undo'
   spl = move.split(' ')
   #Game#1 P A4 (C|W)
   if spl[1] == 'P':
@@ -190,7 +192,7 @@ def read_game_move(game_no):
   gm = 'Game#'+game_no
   while(True):
     msg = read_line()
-    for move in ['M', 'P', 'Abandoned', 'Over', 'Show']:
+    for move in ['M', 'P', 'Abandoned', 'Over', 'Show']:#, 'RequestUndo']:
       if(msg.startswith(gm+' '+move)):
         return msg
 
@@ -226,6 +228,8 @@ def bot(no, is_bot_white, size):
       msg = read_game_move(no)
       if 'Abandoned' in msg or 'Over' in msg:
         break;
+      #if 'RequestUndo' in msg:
+      #  send('Game#'+no+' RequestUndo')
       #if 'R-0' in msg or '0-R' in msg or 'F-0' in msg or '0-F' in msg or '1/2-1/2' in msg:
       #  break; 
       msg = server_to_bot(msg)
@@ -254,10 +258,16 @@ def run():
   #Game Start no. size player_white vs player_black yourcolor
   print 'game started!'+msg
   spl = msg.split(' ')
+  if spl[4] == 'dove_queen' or spl[6] == 'dove_queen':
+    send('Shout hi patsy :D')
+    send('Shout hey everyone, this is my best friend patsy!')
+
+  send('Shout lets do our best to play a beautiful game!')
   global gameno
   gameno = spl[2]
   print 'gameno='+gameno
   bot(gameno, spl[7]=="white", args.size)
+  send('Shout gg')
   send('quit')
 
 def args():

@@ -775,3 +775,63 @@ Notes: TAK-MCTS has 15 seconds thinking time per move again. It wins, surprising
 Winner: Black
 
 Notes: TAK-MCTS has 15 seconds per move. Found a bug in TAK-MCTS as a result of this game: it did not process guaranteed losses correctly, and pointedly ignored them. Should be fixed now though.
+
+
+(me {white} vs. AI LEVEL 3 {black} [TAKAI-01])
+
+[Size "5"] 
+
+1.	c2	a1
+2.	a3	Ca2
+3.	b2	c2<
+4.	b1	b3
+5.	b4	c2
+6.	c3	c1
+7.	d3	d2
+8.	e2	d1
+9.	Se1	b3>
+10.	e3	c4
+11.	c5	d4
+12.	c5-	d4<
+13.	Cc5	2c4<
+14.	c5-	b3
+15.	2c4<	c5
+16.	c4	d4
+17.	c4-	b3>
+18.	d3<	d3
+19.	5b4>23	c5-
+20.	2c3+	d1+
+21.	e1+	b3
+22.	2c3<	2b2+
+23.	c3<	a2+
+24.	3b3>12	1d2+
+25.	c3>	d2+
+26.	e3<	2a3>
+27.	Sc3	4b3-13
+28.	4c4<13	b3+
+29.	c4<	b3
+30.	c4	b3+
+31.	c4<	Sb3
+32.	4d3-22	c2>
+33.	2e2<11	c1>
+34.	2d2-	4b1>13
+35.	4b4>	b3+
+36.	b5	2b4>
+37.	b4	e1
+38.	c5	3c4+
+39.	4d4<	a2
+40.	c2-	5d1+14
+41.	Sc2	e2
+42.	5c4>	4c5-
+43.	b5-	1d3-
+44.	2b4-11	3d2+
+45.	b5	e3
+46.	b1	a2>
+47.	b3-	1d3<
+48.	5d4-	e4
+49.	2c1>11	1c3<
+50.	c1	
+
+Winner: White
+
+Notes: oh jeez rick that's a long game

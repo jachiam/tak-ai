@@ -62,7 +62,13 @@ function score_function_AT1(node,player)
 	-- stacks are good too (but not quite as good). 
 	-- encapsulates adage, 'place if you can, move if you must.'
 	-- also, walls are somewhat weak; they should only be deployed as necessary.
-	islands = node.islands[player]
+
+	if node.isle_method == 1 then
+		islands = node.islands[player]
+	else
+		local top = node.board_top[{{},{},player,1}] + node.board_top[{{},{},player,3}]
+		islands = calculate_islands(top,1,1)
+	end
 
 	island_strengths = torch.zeros(#islands)
 	for i=1,#islands do
@@ -167,7 +173,7 @@ function score_function_AT2(node,player)
 	local max_stack_sums = node.board[{{},{},{},player}]:sum(3):sum(4):squeeze()
 	local em, bt = node:get_empty_squares()
 	local max_control = bt[{{},{},player}]:sum(3):squeeze()
-	strength = strength + max_stack_sums:cmul(max_control):pow(3.3):sum()
+	strength = strength + max_stack_sums:cmul(max_control):pow(4.05):sum()
 
 	--[[
 	-- killing field bonus
