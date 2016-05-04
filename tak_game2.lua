@@ -9,7 +9,7 @@ local tak2 = torch.class('tak2')
 -- which is helpful in the AI tree search.
 function tak2:__init(size,making_a_copy)
 
-	self.isle_method = 1
+	self.get_all_islands = true
 
 	self.verbose = false
 	self.size = size or 5
@@ -80,8 +80,6 @@ function tak2:__init(size,making_a_copy)
 	self.ply = 0	-- how many plys have elapsed since the start of the game?
 	self.move_history_ptn = {}
 	self.move_history_idx = {}
-	self.board_history = {deepcopy(self.board)}
-	self.heights_history = {deepcopy(self.heights)}
 	self.board_top = {} 
 	for i=1,self.size do
 		self.board_top[i] = {}
@@ -97,17 +95,14 @@ function tak2:__init(size,making_a_copy)
 			self.empty_squares[i][j] = 1
 		end
 	end
+	self.num_empty_squares = self.size*self.size
 
-	self.board_top_history = {deepcopy(self.board_top)}
-	self.empty_squares_history = {deepcopy(self.empty_squares)}
-	self.player_pieces_history = {deepcopy(self.player_pieces)}
-	self.player_caps_history = {deepcopy(self.player_caps)}
 	self.flattening_history = {}
 	self.legal_moves_by_ply = {}
 
 	--sbsd: stacks_by_sum_and_distance
 	--sbsd1: when the last stone is a cap crushing a wall
-	self.move2ptn, self.ptn2move, self.stack_moves_by_pos, self.stack_sums, self.stack_moves, _, _, self.sbsd, self.sbsd1 = ptn_moves(self.carry_limit)
+	self.move2ptn, self.ptn2move, _, _, _, _, _, self.sbsd, self.sbsd1 = ptn_moves(self.carry_limit)
 
 	self:populate_legal_moves_at_this_ply()
 
@@ -117,8 +112,8 @@ function tak2:__init(size,making_a_copy)
 
 	self.islands = {{},{}}
 	self.island_sums = {{},{}}
-
-	self.undo_type = 2
+	self.islands_minmax = {{},{}}
+	self.player_flats = {0,0}
 
 end
 
@@ -138,6 +133,7 @@ function tak2:set_debug_times_to_zero()
 	self.flood_fill_time = 0
 	self.undo_time = 0
 	self.road_check_time = 0
+	value_of_node_time = 0
 end
 
 function tak2:print_debug_times()
@@ -146,6 +142,7 @@ function tak2:print_debug_times()
 	print('execute move time: \t' .. self.execute_move_time)
 	print('flood fill time: \t' .. self.flood_fill_time)
 	print('road check time: \t' .. self.road_check_time)
+	print('value of node time: \t' .. value_of_node_time)
 
 end
 
@@ -172,9 +169,6 @@ function tak2:undo()
 	self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
 
 	self:make_move(most_recent_move,true,true)
-
-	self.player_pieces_history[#self.player_pieces_history] = nil
-	self.player_caps_history[#self.player_caps_history] = nil
 
 	self.undo_time = self.undo_time + os.clock() - start_time
 
@@ -209,18 +203,9 @@ function tak2:fast_clone()
 	copy.win_type = self.win_type
 	copy.move2ptn = self.move2ptn
 	copy.ptn2move = self.ptn2move
-	copy.stack_moves_by_pos = self.stack_moves_by_pos
-	copy.stack_sums = self.stack_sums
-	copy.stack_moves = self.stack_moves
 	copy.sbsd = self.sbsd
 	copy.sbsd1 = self.sbsd1
 	copy.islands = {{},{}}
-	copy.board_history = {}
-	copy.heights_history = {}
-	copy.board_top_history = {}
-	copy.empty_squares_history = {}
-	copy.player_pieces_history = {}
-	copy.player_caps_history = {}
 	return copy
 end
 
@@ -342,7 +327,7 @@ function tak2:get_legal_moves(player)
 					local dest = {i + del[k][1]*(dist[k]+1), j + del[k][2]*(dist[k]+1)}
 					if top_walls[dest[1]][dest[2]] then
 						dist[k] = dist[k] + 1
-						seqs = self.sbsd1[hand][dist[k]]
+						seqs = self.sbsd1[hand][math.min(hand,dist[k])]
 					else
 						seqs = self.sbsd[hand][dist[k]]
 					end
@@ -609,9 +594,8 @@ function tak2:make_move(move_ptn,flag,undo)
 
 	if not(undo) then
 		self.ply = self.ply + 1
+		self.execute_move_time = self.execute_move_time + (os.clock() - start_time)
 	end
-
-	self.execute_move_time = self.execute_move_time + (os.clock() - start_time)
 
 	if not(flag) then
 		self:populate_legal_moves_at_this_ply()
@@ -654,32 +638,51 @@ function tak2:check_victory_conditions()
 	local empty, board_top = self:get_empty_squares()
 	local end_is_nigh = false
 
-	local num_empty_squares = 0
+	self.num_empty_squares = 0
+	self.player_flats = {0,0}
 	for i=1,self.size do
 		for j=1,self.size do
-			num_empty_squares = num_empty_squares + empty[i][j]
+			self.num_empty_squares = self.num_empty_squares + empty[i][j]
+			if board_top[i][j][1][1] == 1 then 
+				self.player_flats[1] = self.player_flats[1] + 1
+			elseif board_top[i][j][2][1] == 1 then
+				self.player_flats[2] = self.player_flats[2] + 1
+			end
 		end
 	end
 
-	if num_empty_squares == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
+	if self.num_empty_squares == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
 		end_is_nigh = true
 	end
 
 	local unexplored = self:make_filled_table(1)
 
-	-- let's find us some islands
+	-- let's find us some island information
 
 	local function get_islands(player)
 
 		local start_time = os.clock()
-		local islands, island_sums
+		local island_sums, islands_minmax
 
 		local function flood_fill(i,j)
 			if ((board_top[i][j][player][1] == 1 or board_top[i][j][player][3] == 1) 
 				and unexplored[i][j] == 1) then
 				unexplored[i][j] = 0
-				islands[#islands][i][j] = 1
 				island_sums[#island_sums] = island_sums[#island_sums] + 1
+
+				if i < islands_minmax[#islands_minmax][1] then
+					islands_minmax[#islands_minmax][1] = i
+				end
+				if j < islands_minmax[#islands_minmax][2] then
+					islands_minmax[#islands_minmax][2] = j
+				end
+				if i > islands_minmax[#islands_minmax][3] then
+					islands_minmax[#islands_minmax][3] = i
+				end
+				if j > islands_minmax[#islands_minmax][4] then
+					islands_minmax[#islands_minmax][4] = j
+				end
+
 				if i > 1 then
 					flood_fill(i-1,j)
 				end
@@ -695,21 +698,40 @@ function tak2:check_victory_conditions()
 			end
 		end
 
-		islands = {}
 		island_sums = {}
-		for i=1,self.size do
-			for j=1,self.size do
-				if (unexplored[i][j] == 1 and 
-					(board_top[i][j][player][1] == 1 or board_top[i][j][player][3] == 1)) then
-					table.insert(islands,self:make_zero_table())
+		islands_minmax = {}
+		if self.get_all_islands then
+			for i=1,self.size do
+				for j=1,self.size do
+					if (unexplored[i][j] == 1 and 
+						(board_top[i][j][player][1] == 1 or board_top[i][j][player][3] == 1)) then
+						table.insert(island_sums,0)
+						table.insert(islands_minmax,{i,j,i,j})
+						flood_fill(i,j)
+					end
+				end
+			end
+		else
+			for i=1,self.size do
+				if (unexplored[i][1] == 1 and 
+					(board_top[i][1][player][1] == 1 or board_top[i][1][player][3] == 1)) then
 					table.insert(island_sums,0)
-					flood_fill(i,j)
+					table.insert(islands_minmax,{i,j,i,j})
+					flood_fill(i,1)
+				end
+			end
+			for j=1,self.size do
+				if (unexplored[1][j] == 1 and 
+					(board_top[1][j][player][1] == 1 or board_top[1][j][player][3] == 1)) then
+					table.insert(island_sums,0)
+					table.insert(islands_minmax,{i,j,i,j})
+					flood_fill(1,j)
 				end
 			end
 		end
 
 		self.flood_fill_time = self.flood_fill_time + (os.clock() - start_time)
-		return islands, island_sums
+		return island_sums, islands_minmax
 	end
 
 
@@ -718,34 +740,18 @@ function tak2:check_victory_conditions()
 		local isle, a, b, c, d
 		for player=1,2 do
 			rw[player] = false
-			local islands, island_sums = get_islands(player)
-			self.islands[player] = islands
+			local island_sums, islands_minmax = get_islands(player)
+			self.islands_minmax[player] = islands_minmax
 
 			local start_time = os.clock()
-			--[[local tensor_islands = {}
-			for j=1,#islands do
-				table.insert(tensor_islands,torch.ByteTensor(islands[j]))
-				if not(rw[player]) then
-					isle = tensor_islands[#tensor_islands]
-					a = torch.any(isle[{{},1}])
-					b = torch.any(isle[{{},self.size}])
-					c = torch.any(isle[{1,{}}])
-					d = torch.any(isle[{self.size,{}}])
-					rw[player] = rw[player] or (a and b) or (c and d)
-				end
-			end
-			self.islands[player] = tensor_islands]]
-
 			j = 1
-			while not(rw[player]) and j <= #islands do
+			while not(rw[player]) and j <= #island_sums do
 				-- can't be a road if it doesn't have at least N stones in it
 				if island_sums[j] >= self.size then
-					isle = torch.ByteTensor(islands[j])
-					a = torch.any(isle[{{},1}])
-					b = torch.any(isle[{{},self.size}])
-					c = torch.any(isle[{1,{}}])
-					d = torch.any(isle[{self.size,{}}])
-					rw[player] = (a and b) or (c and d)
+					rw[player] = (islands_minmax[j][1] == 1
+							and islands_minmax[j][3] == self.size) or
+							(islands_minmax[j][2] == 1 
+							and islands_minmax[j][4] == self.size)
 				end
 				j = j + 1
 			end

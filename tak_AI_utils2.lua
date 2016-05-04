@@ -114,3 +114,50 @@ function normalized_value_of_node(node,maxplayeris)
 	value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
 end
+
+
+
+
+function score_function_AT2(node,top,player)
+	-- what if it's over?
+	if node:is_terminal() then
+		if node.winner == player then
+			return 400 - node.ply
+		else
+			return 0
+		end
+	end
+	local strength = 0
+	for j=1,#node.island_sums[player] do
+		strength = strength + (node.island_sums[player][j])^1.8
+	end
+
+	return 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
+end
+
+
+function value_of_node2(node,maxplayeris)
+	local p1_score = score_function_AT2(node,top,1)
+	local p2_score = score_function_AT2(node,top,2)
+	local score = p1_score - p2_score
+	if maxplayeris == 2 then
+		score = -score
+	end
+	return score 
+end
+
+
+function normalized_value_of_node2(node,maxplayeris)
+	local start_time = os.clock()
+	local function sign(x)
+		if x == math.abs(x) then
+			return 1
+		else
+			return -1
+		end
+	end
+	local v = value_of_node2(node,maxplayeris)
+	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
+	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	return v
+end

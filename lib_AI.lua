@@ -274,6 +274,15 @@ function default_value(node,player)
 	end
 end
 
+function discounted_default_value(node,player)
+	if node.winner == player then
+		return 1 - 1e-16*node.ply	-- win
+	elseif node.winner == 0 then
+		return 0.5	-- draw
+	else
+		return 0	-- loss
+	end
+end
 
 --------------------------------------------------
 --	ROLLOUT POLICY OBJECTS			--
@@ -426,8 +435,16 @@ function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	return v, legal[best_action], num_leaves
 end
 
--- alphabeta2, but with killer heuristic
-function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node)
+-- alphabeta2, but with iterative deepening
+function iterative_deepening_search(node,maxdepth,value_of_node)
+	local a, _ = nil, nil
+	for i=1,maxdepth-1 do
+		_, a = alphabeta3(node,i,-1/0,1/0,true,node:get_player(),value_of_node,a,true)
+	end
+	return alphabeta3(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,a,true)
+end
+
+function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,firstmove,top)
 	if depth == 0 or node:is_terminal() then
 		return value_of_node(node,maxplayeris), nil, 1
 	end
@@ -438,11 +455,20 @@ function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	local a,b = alpha,beta
 	local num_leaves, nl = 0, 0
 
+	if not(firstmove==nil) and top then
+		for i=1,#legal do
+			if legal[i] == firstmove then
+				legal[1], legal[i] = legal[i], legal[1]
+				break
+			end
+		end
+	end
+
 	if maximizingPlayer then
 		v = -1/0
 		for i,move in pairs(legal) do
 			node:make_move(move, depth==1)
-			val, _, nl = alphabeta2(node,depth- 1, a, b, false, maxplayeris,value_of_node)
+			val, _, nl = alphabeta3(node,depth- 1, a, b, false, maxplayeris,value_of_node,nil,false)
 			num_leaves = num_leaves + nl
 			node:undo()
 			if val > v then
@@ -458,7 +484,7 @@ function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 		v = 1/0
 		for i,move in pairs(legal) do
 			node:make_move(move, depth==1)
-			val, _, nl = alphabeta2(node,depth- 1, a, b, true, maxplayeris,value_of_node)
+			val, _, nl = alphabeta3(node,depth- 1, a, b, true, maxplayeris,value_of_node,nil,false)
 			num_leaves = num_leaves + nl
 			node:undo()
 			if val < v then

@@ -10,7 +10,7 @@ require 'lib_AI'
 require 'tak_AI_utils2'
 
 game = tak2.new(tonumber(arg[2]))
-takai = minimax_AI.new(3,normalized_value_of_node,true)
+takai = minimax_AI.new(4,normalized_value_of_node2,true)
 
 if arg[1] == 'True' then
 	AI_vs_AI(game,takai,human)
