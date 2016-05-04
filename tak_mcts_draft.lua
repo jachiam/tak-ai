@@ -215,7 +215,7 @@ function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_lo
 	end
 
 	if cur.value == nil then
-		cur:set_value(normalized_value_of_node(cur.game_state,maxplayeris))
+		cur:set_value(normalized_value_of_node2(cur.game_state,maxplayeris))
 	end
 
 	local value_eval = cur.value

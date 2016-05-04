@@ -119,18 +119,13 @@ which tells the AI agent object to make a move in the game.
 
 ###Some thoughts on Takai: 
 
-You probably should not play at depths greater than 3. The current implementation of the minimax search is fast enough to compete well on depth 3: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. On 4x4 boards, it only seems to take less than 3 seconds per move.
+You probably should not play at depths greater than 4. The current implementation of the minimax search is fast enough to compete well on depth 4: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. Not sure how it does on 4x4, but probably just fine.
 
-Once you have played enough games with this AI, you will see that it is somewhat predictable. Hopefully still strong enough to be a worthy opponent. It can give you a run for your money if you aren't careful, though.
-
-Future versions of Takai with different value functions are imminent, and some of them are under active development in the code here.
 
 ###Some thoughts on Takarlo:
 
-Takarlo will make better moves if you give it longer to think. As a point of reference, I find that Takarlo seems to win about 50% of the time on the 4x4 board against Takai (depth 3) when you give Takarlo 75 seconds per move. For a 5x5 board, you might want to give it a bit longer - maybe 120 seconds? 180 even? 
-
-Takarlo gets creative in ways that Takai doesn't. But it also sometimes misses what seems like the obvious move to make, and even makes clearly poor moves from time to time. I imagine that Takarlo will hold up poorly against human opponents, but I am not sure yet. Time will tell.
+Takarlo will make better moves if you give it longer to think. Takarlo gets creative in ways that Takai doesn't. But it also sometimes misses what seems like the obvious move to make, and even makes clearly poor moves from time to time. I imagine that Takarlo will hold up poorly against human opponents, but I am not sure yet. Time will tell.
 
 ## Last Thoughts
 
-This is very much under active development! It's also extremely messy right now, and the README is only accurate as of 4/28/16. Cleaner code and a more useful readme will be made available in the future.
+This is very much under active development! It's also extremely messy right now, and the README is only accurate as of 5/3/16. Cleaner code and a more useful readme will be made available in the future.

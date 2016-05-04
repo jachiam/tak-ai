@@ -272,8 +272,8 @@ def run():
 
 def args():
   parser = argparse.ArgumentParser(description='This is a demo script by nixCraft.')
-  parser.add_argument('-u','--user', help='User',required=True, default='alphatak_bot')
-  parser.add_argument('-p','--password', help='Password',required=True, default='978uf4vfpb55k8t1ceftqn67kg')
+  parser.add_argument('-u','--user', help='User',required=True)
+  parser.add_argument('-p','--password', help='Password',required=True)
   parser.add_argument('-s','--size', help='Board Size',required=True)
   parser.add_argument('-t','--time', help='Time in seconds per player',required=True)
   global args
