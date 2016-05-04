@@ -29,13 +29,15 @@ end
 -- FIGHT IT ON THE COMMAND LINE! --
 -----------------------------------
 
-function fight_takai(node,AI1,AI2)
+function fight_takai(node,AI1,AI2,print_ptn)
 	while not(node:is_terminal()) do
 		AI1:move(node)
 		print(node:print_tak_board(true))
+		if print_ptn then print(node:game_state_string()) end
 		if node:is_terminal() then break end
 		AI2:move(node)
 		print(node:print_tak_board(true))
+		if print_ptn then print(node:game_state_string()) end
 	end
 end
 

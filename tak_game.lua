@@ -109,7 +109,6 @@ function tak:__init(size,making_a_copy)
 	self.winner = 0
 	self.win_type = 'NA'
 
-	self.islands = {{},{}}
 	self.island_sums = {{},{}}
 	self.islands_minmax = {{},{}}
 	self.player_flats = {0,0}
@@ -204,7 +203,10 @@ function tak:fast_clone()
 	copy.ptn2move = self.ptn2move
 	copy.sbsd = self.sbsd
 	copy.sbsd1 = self.sbsd1
-	copy.islands = {{},{}}
+	copy.island_sums = {{},{}}
+	copy.islands_minmax = {{},{}}
+	copy.player_flats = {0,0}
+	copy.flattening_history = {}
 	return copy
 end
 
@@ -382,6 +384,13 @@ function tak:get_legal_move_table()
 	return self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
 end
 
+function tak:get_legal_move_mask()
+	local mask = torch.zeros(#self.move2ptn)
+	local legal = self:get_legal_move_table()
+	for i=1,#legal do mask[self.ptn2move[legal[i]]] = 1 end
+	return mask
+end
+
 
 function tak:get_player()
 	-- self.ply says how many plys have been played, starts at 0
@@ -398,6 +407,7 @@ end
 
 
 function tak:make_move(move_ptn,flag,undo)
+	if type(move_ptn) == 'number' then move_ptn = self.move2ptn[move_ptn] end
 	local move_ptn = string.lower(move_ptn)
 	if move_ptn == string.match(move_ptn,'%a%d') then
 		move_ptn = 'f' .. move_ptn

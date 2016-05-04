@@ -5,5 +5,5 @@ mctsai = mcts_AI.new(tak.new(5),30,1,true)
 
 function test()
 	game = tak.new(5)
-	AI_vs_AI(game,mctsai,human,true)
+	fight_takai(game,mctsai,human,true)
 end
