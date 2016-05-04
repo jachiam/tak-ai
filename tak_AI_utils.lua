@@ -143,10 +143,10 @@ function score_function_AT2(node,top,player)
 	end
 	local strength = 0
 	for j=1,#node.island_sums[player] do
-		strength = strength + (node.island_sums[player][j])^1.8
+		strength = strength + (node.island_sums[player][j])^1.1
 	end
 
-	return 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
+	return strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
 end
 
 
