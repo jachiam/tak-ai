@@ -384,10 +384,11 @@ function tak:get_legal_move_table()
 	return self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
 end
 
-function tak:get_legal_move_mask()
+function tak:get_legal_move_mask(as_bool)
 	local mask = torch.zeros(#self.move2ptn)
 	local legal = self:get_legal_move_table()
 	for i=1,#legal do mask[self.ptn2move[legal[i]]] = 1 end
+	if as_bool then mask = mask:byte() end
 	return mask
 end
 
