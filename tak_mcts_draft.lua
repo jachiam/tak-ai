@@ -1,16 +1,19 @@
 require 'tak_AI'
 require 'lib_AI'
 
-n_thr = 1	-- visitation threshold for expansion
+n_thr = 5	-- visitation threshold for expansion
 lambda = 0.5	-- mixing parameter for value function evaluation and monte carlo rollout evaluation
-c_uct = 1	-- exploration/exploitation trade-off for UCT
+c_uct = 0.25	-- exploration/exploitation trade-off for UCT
 n_vl = 3	-- number of virtual losses
 
 local mcts_node = torch.class('mcts_node')
 
-function mcts_node:__init(game_state,maxplayeris)
+function mcts_node:__init(game_state,maxplayeris,no_rollouts)
+	if no_rollouts then lambda = 0 end
 	self.game_state = game_state
+	self.player = self.game_state:get_player()
 	self.maxplayeris = maxplayeris
+	self.no_rollouts = no_rollouts
 	self.children = {}	-- children of this node
 
 	if self.game_state:is_terminal() then
@@ -124,12 +127,18 @@ function mcts_node:expand(a)
 				self.guaranteed_losses[a] = 1
 			end
 		end
-		self.children[a] = mcts_node.new(child,self.maxplayeris) 
+		self.children[a] = mcts_node.new(child,self.maxplayeris,self.no_rollouts) 
+		-- release resources if no longer necessary
+		if #self.children == #self.legal_move_table then
+			self.game_state = nil
+			collectgarbage()
+		end
 	end
 end
 
 function mcts_node:rollout(a,rollout_policy)
 	if self.is_terminal then return self.game_state, self.value end
+	if self.no_rollouts then return 0, 0 end
 	local sim = rollout(self.game_state,rollout_policy,false,1,false)
 	local val = default_value(sim,self.maxplayeris)
 	return sim, val
@@ -164,9 +173,10 @@ function mcts_node:print_statistics()
 
 	local function round(x) return math.floor(x*1000)/1000 end
 
+	print('Visited ' .. self.Nv:sum() .. ' nodes.')
 	for a, move in pairs(self.legal_move_table) do
-		print('Move: ' .. move .. '\t Wv: ' .. round(self.Wv[a]) .. '\t Nv: ' .. self.Nv[a]
-			.. '\t Wr: ' .. round(self.Wr[a]) .. '\t Nr: ' 
+		print('Move: ' .. move .. '\t Wv: ' .. round(self.Wv[a]) .. '\t Nv:  ' .. self.Nv[a]
+			.. '\t Wr: ' .. round(self.Wr[a]) .. '\t Nr:  ' 
 			.. self.Nr[a] .. '\t Q: ' .. round(self.Q[a]))
 	end
 end
@@ -174,28 +184,45 @@ end
 
 function mcts_loop(root,time)
 	local start_time = os.time()
+	local start_clock = os.clock()
 
 	local rollout_policy = default_rollout_policy.new()
 	local depth
 
 	local av_depth = 0
 	local n = 0
+	local k = 0
+	local st, vt, rt, bt
+	local st_t, vt_t, rt_t, bt_t = 0,0,0,0
 
 	while os.time() - start_time < time do
-		depth, path, acts = mcts_search_single_iteration(root,rollout_policy,root.game_state:get_player(),false)
-		av_depth = av_depth + depth
+		depth, path, acts, st, vt, rt, bt = mcts_search_single_iteration(root,rollout_policy,root.player,false)
+		av_depth = 0.75*av_depth + 0.25*depth
 		n = n + 1
-		if n % 300 == 0 then print('depth: ' .. #acts) end
+		st_t = st_t + st
+		vt_t = vt_t + vt
+		rt_t = rt_t + rt
+		bt_t = bt_t + bt
+		if (os.clock() - start_clock) > time*k/10 then 
+			print('depth: ' .. av_depth .. ', n: ' .. n .. ', t: ' .. (os.clock() - start_clock) .. ', gc: ' .. collectgarbage("count")) 
+			collectgarbage()
+			print(collectgarbage("count"))
+			k = k + 1
+		end
 	end
 
-	return av_depth, n
+	return av_depth, n, st_t, vt_t, rt_t, bt_t
 end
 
 
 function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_losses)
+	local start_time, selection_time, rollout_time, value_time, backup_time
+
 	local pre_leaf_path = {}
 	local pre_leaf_acts = {}
+
 	-- selection phase
+	start_time = os.clock()
 	local leaf_reached = false
 	local cur = root
 	while not(leaf_reached) do
@@ -212,19 +239,29 @@ function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_lo
 		else
 			cur = cur.children[a]
 		end
+		if #pre_leaf_acts > 10 then print 'woah' end
+		if os.clock() - start_time > 5 then print 'uhhhh' end
 	end
+	selection_time = os.clock() - start_time
 
+
+	-- evaluate
+	start_time = os.clock()
 	if cur.value == nil then
 		cur:set_value(normalized_value_of_node2(cur.game_state,maxplayeris))
 	end
 
 	local value_eval = cur.value
+	value_time = os.clock() - start_time
+
 
 	-- rollout phase
+	start_time = os.clock()
 	local _, rollout_eval = cur:rollout(a,rollout_policy)
-
+	rollout_time = os.clock() - start_time
 
 	-- backup phase
+	start_time = os.clock()
 	for i=#pre_leaf_path,1,-1 do
 		cur = pre_leaf_path[i]
 		a = pre_leaf_acts[i]
@@ -233,9 +270,11 @@ function mcts_search_single_iteration(root,rollout_policy,maxplayeris,virtual_lo
 		if virtual_losses then
 			cur:remove_virtual_loss(a)
 		end
+		if os.clock() - start_time > 5 then print 'uhhhh2' end
 	end
+	backup_time = os.clock() - start_time
 
-	return #pre_leaf_path, pre_leaf_path, pre_leaf_acts
+	return #pre_leaf_path, pre_leaf_path, pre_leaf_acts, selection_time, value_time, rollout_time, backup_time
 end
 
 function advance_to_child(root,last_move)
@@ -251,8 +290,8 @@ end
 
 local mcts_AI = torch.class('mcts_AI','AI')
 
-function mcts_AI:__init(game,time,ai_player_is,debug)
-	self.root = mcts_node.new(game,ai_player_is)
+function mcts_AI:__init(game,time,ai_player_is,no_rollouts,debug)
+	self.root = mcts_node.new(game,ai_player_is,no_rollouts)
 	self.time = time
 	self.debug = debug
 end
@@ -267,17 +306,23 @@ function mcts_AI:move(node)
 	if #hist > 0 then
 		local last_move = hist[#hist]
 		self.root = advance_to_child(self.root,last_move)
+		collectgarbage()
 	end
-	mcts_loop(self.root,self.time)
+	local _,_,st_t, vt_t, rt_t, bt_t = mcts_loop(self.root,self.time)
 	local nv ,a_ind = torch.max(self.root.Nr,1)
 	a = self.root.legal_move_table[a_ind[1]]
 	local v = self.root.Q[a_ind[1]]
 	if self.debug then
 		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Visits: ' .. nv[1] .. ', Time taken: ' .. (os.clock() - start_time))
+		print('Selection time:\t' .. st_t 
+			.. '\nValue time:\t' .. vt_t
+			.. '\nRollout time:\t' .. rt_t
+			.. '\nBackup time:\t' .. bt_t)
 		self.root:print_statistics()
 	end
 	node:make_move(a)
 	self.root = advance_to_child(self.root,a)
+	collectgarbage()
 end
 
 

@@ -25,6 +25,18 @@ function make_takarlo_01(time,debug)
 end
 
 
+function make_takarlo_02(time,debug)
+	return async_flat_mc_AI.new(time,true,
+				epsilon_greedy_policy.new(0.5,normalized_value_of_node2), 
+				true,6,normalized_value_of_node2,4,{'tak_game','tak_AI_utils'},debug)
+end
+
+function make_takarlo_03(time,debug)
+	return async_flat_mc_AI.new(time,true,
+				epsilon_greedy_policy.new(0,normalized_value_of_node2,2), 
+				true,16,normalized_value_of_node2,4,{'tak_game','tak_AI_utils'},debug)
+end
+
 -----------------------------------
 -- FIGHT IT ON THE COMMAND LINE! --
 -----------------------------------

@@ -238,6 +238,11 @@ function async_flat_mc_AI:move(node)
 	local n = node:get_i2n(a[1])
 	if self.debug then
 		print('Async MC move: ' .. n .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', CPU time taken: ' .. elapsed_time)
+		for j=1,nv:numel() do
+			if nv[j] > 0 then
+				print(node:get_i2n(j) .. '\t av:\t' .. av[j] .. ', nv:\t' .. nv[j] .. ', wm: ' .. wm[j] .. ', lm: ' .. lm[j])
+			end
+		end
 	end
 	node:make_move(a[1])
 	return true
@@ -291,8 +296,11 @@ end
 local policy = torch.class('policy')
 
 function policy:act(node)
-	local legal_move_mask = node:get_legal_move_mask()
-	return torch.multinomial(legal_move_mask,1)[1]
+	local legal_move_table = node:get_legal_move_table()
+	local action = torch.random(#legal_move_table) 
+	return legal_move_table[action] 
+	--local legal_move_mask = node:get_legal_move_mask()
+	--return torch.multinomial(legal_move_mask,1)[1]
 end
 
 local default_rollout_policy = torch.class('default_rollout_policy','policy')
@@ -303,18 +311,18 @@ end
 
 local epsilon_greedy_policy = torch.class('epsilon_greedy_policy','policy')
 
-function epsilon_greedy_policy:__init(epsilon,value)
+function epsilon_greedy_policy:__init(epsilon,value,depth)
+	self.depth = depth or 1
 	self.epsilon = epsilon or 0.5
 	self.value = value or default_value
 end
 
 function epsilon_greedy_policy:act(node)
 	if torch.uniform() > self.epsilon then
-		local _, a = minimax_move(node,1,self.value)
+		local _, a = minimax_move2(node,self.depth,self.value)
 		return a
 	else
-		local legal_move_mask = node:get_legal_move_mask()
-		return torch.multinomial(legal_move_mask,1)[1]
+		return policy.act(self,node)
 	end
 end
 
@@ -593,11 +601,17 @@ function select_and_playout_move(node, rav, nv,
 				rollout_policy,
 				partial,
 				depth,
-				value)
+				value,
+				noclone)
 	local rollout_policy = rollout_policy or default_rollout_policy.new()
 	local depth = depth or 10
 	local value = value or default_value
-	local copy = node:clone()
+	local copy 
+	if not(noclone) then
+		copy = node:clone()
+	else
+		copy = node
+	end
 	local a = UCB_action(rav,nv,legal_moves,check,losing_moves)
 	local player = copy:get_player()
 	
@@ -610,7 +624,7 @@ function select_and_playout_move(node, rav, nv,
 	if not(guarantee) then
 		if copy:make_move(a) then
 			if nv[a] == 0 and check then
-				v = alphabeta(copy,1,-1/0,1/0,false,player,default_value)
+				v = alphabeta2(copy,1,-1/0,1/0,false,player,default_value)
 				if v == 1 then
 					guarantee_win = true
 				elseif v == 0 then
@@ -708,7 +722,6 @@ function async_flat_mc_action_values(pool,node,time,check,
 		
 			pool:addjob(
 				function(jobid)
-					local start = os.clock()
 					local flag, a, val, gw, gl = select_and_playout_move(node,
 									raw_action_values:clone(),
 									num_visited:clone(),
@@ -719,7 +732,8 @@ function async_flat_mc_action_values(pool,node,time,check,
 									rollout_policy,
 									partial,
 									depth,
-									value)
+									value,
+									true)
 
 					return flag,a, val, gw, gl
 				end,

@@ -1,6 +1,8 @@
 *.*~
 old/
 interesting games/takai_playtak.txt
+game*.txt
+*.t7
 run_online.sh
 solve_tak_3x3.lua
-game*.txt
+tak_training.lua

@@ -2,8 +2,13 @@
 
 require 'tak_AI'
 
-game = tak.new(tonumber(arg[2]))
-takai = make_takai_01(4,true)
+print(arg[3])
+
+board_size = tonumber(arg[2])
+game = tak.new(board_size)
+depth = 4
+if board_size > 6 then depth = 3 end
+takai = make_takai_01(depth,true)
 
 if arg[1] == 'True' then
 	AI_vs_AI(game,takai,human)
@@ -11,11 +16,16 @@ else
 	AI_vs_AI(game,human,takai)
 end
 
-print 'Game over'
-
 local f = torch.DiskFile('interesting games/takai_playtak.txt','rw')
 f:seekEnd()
-f:writeString('----NEWGAME----\n\n' .. game:game_to_ptn() .. '\n\n')
+f:writeString('----NEWGAME----\n')
+if arg[1]=='True' then
+	f:writeString('bot is white\n')
+else
+	f:writeString('bot is black\n')
+end
+f:writeString('opponent is ' .. arg[3] .. '\n\n')
+f:writeString(game:game_to_ptn() .. '\n\n')
 if (arg[1]=='True' and game.winner == 1) or (arg[1]=='False' and game.winner==2) then
 	f:writeString('---WIN---\n\n\n')
 elseif game.winner ~= 0 then
@@ -24,3 +34,5 @@ else
 	f:writeString('---DRAW---\n\n\n')
 end
 f:close()
+
+print 'Game over!'

@@ -132,8 +132,8 @@ def wait_for_response(resp):
   return k
 
 def server_to_bot(move):
-  if 'RequestUndo' in move:
-    return 'undo'
+  #if 'RequestUndo' in move:
+  #  return 'undo'
   spl = move.split(' ')
   #Game#1 P A4 (C|W)
   if spl[1] == 'P':
@@ -178,12 +178,8 @@ def server_to_bot(move):
     #Game#1 Show Sq [f]
     origsq = len(msg.split(' ')[3])-2
     prefix=liftsize
-    #if origsq==0 and liftsize==1:
-    #  prefix=''
-    #if lst=='1':#this is a bug in bot
-    #  lst=''
-
     return str(prefix)+spl[2].lower()+dir+lst
+  return ''
 
 def is_white_turn(move_no):
   return (move_no%2)==0
@@ -207,13 +203,24 @@ def read_bot_move(p):
 
   print 'something wrong!'
 
-def bot(no, is_bot_white, size):
-  p = subprocess.Popen('exec th run_AI.lua ' + str(is_bot_white) + ' ' + str(size),
+"""def check_for_undo_request(game_no):
+  gm = 'Game#'+game_no
+  flag = True
+  while(flag):
+    msg = read_line()
+    print 'i live here now'
+    if msg.startswith(gm+' RequestUndo'):
+       return msg
+    if msg == '':
+       return ''
+"""
+
+def bot(no, is_bot_white, size, opponent):
+  p = subprocess.Popen('exec th run_AI.lua ' + str(is_bot_white) + ' ' + str(size) + ' ' + opponent,
               shell=True, bufsize=0, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-  #p.stdin.write('interactive\n')
-  #p.stdin.flush()
   print 'color', no, 'iswhite?', is_bot_white
 
+  breakflag = False
   move_no = 0
   while(True):
     #read from bot, write to server
@@ -221,19 +228,24 @@ def bot(no, is_bot_white, size):
       move=read_bot_move(p)
       if move=='':
         break;
+      """msgs = check_for_undo_request(no)
+      if 'RequestUndo' in msgs:
+        send('Game#'+no+' RequestUndo')
+        p.stdin.write('undo2\n')
+        p.stdin.flush()
+        move_no = move_no - 2
+      else:"""
       send('Game#'+no+' '+bot_to_server(move))
     #read from server, write to bot
     else:
       print 'reading game move'
       msg = read_game_move(no)
+      """if 'RequestUndo' in msg:
+        send('Game#'+no+' RequestUndo')"""
       if 'Abandoned' in msg or 'Over' in msg:
         break;
-      #if 'RequestUndo' in msg:
-      #  send('Game#'+no+' RequestUndo')
-      #if 'R-0' in msg or '0-R' in msg or 'F-0' in msg or '0-F' in msg or '1/2-1/2' in msg:
-      #  break; 
       msg = server_to_bot(msg)
-      if msg == 'Over':
+      if 'Over' in msg:
         break;
       print '> '+msg
       p.stdin.write(msg+'\n')
@@ -250,24 +262,32 @@ def run():
   if(line.startswith("Welcome")==False and line.startswith("You're already")==False):
     return #sys.exit()
 
-  post_seek(args.size, args.time)
-  msg=read_line()
-  while(msg.startswith("Game Start")!=True):
+  while(True):
+    post_seek(args.size, args.time)
     msg=read_line()
+    while(msg.startswith("Game Start")!=True):
+      msg=read_line()
+      if msg.startswith("Login or Register"):
+        sys.exit()
 
-  #Game Start no. size player_white vs player_black yourcolor
-  print 'game started!'+msg
-  spl = msg.split(' ')
-  if spl[4] == 'dove_queen' or spl[6] == 'dove_queen':
-    send('Shout hi patsy :D')
-    send('Shout hey everyone, this is my best friend patsy!')
+    #Game Start no. size player_white vs player_black yourcolor
+    print 'game started!'+msg
+    spl = msg.split(' ')
+    if spl[4] == 'dove_queen' or spl[6] == 'dove_queen':
+      send('Shout hi patsy :D')
+      send('Shout hey everyone, this is my best friend patsy!')
+    opponent = ''
+    if spl[7]=="white":
+      opponent = spl[6]
+    else:
+      opponent = spl[4]
 
-  send('Shout lets do our best to play a beautiful game!')
-  global gameno
-  gameno = spl[2]
-  print 'gameno='+gameno
-  bot(gameno, spl[7]=="white", args.size)
-  send('Shout gg')
+    send('Shout lets do our best to play a beautiful game!')
+    global gameno
+    gameno = spl[2]
+    print 'gameno='+gameno
+    bot(gameno, spl[7]=="white", args.size, opponent)
+    send('Shout gg')
   send('quit')
 
 def args():
@@ -313,6 +333,8 @@ if __name__ == "__main__":
         run()
       finally:
         sock.close()
+        print 'Sleep it off.'
+        time.sleep(5)
         pass
 
     except socket_error:

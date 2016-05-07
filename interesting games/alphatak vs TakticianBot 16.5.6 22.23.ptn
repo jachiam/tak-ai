@@ -1,0 +1,40 @@
+[Site "PlayTak.com"]
+[Date "2016.5.6"]
+[Player1 "alphatak"]
+[Player2 "TakticianBot"]
+[Size "5"]
+[Result "F-0"]
+
+1. a1 e1
+2. e2 c3
+3. e3 e4
+4. d3 d4
+5. c4 b3
+6. d5 d4-
+7. Cd4 2d3>
+8. d4- 3e3+
+9. d2 4e4<13
+10. e4 d4+
+11. e5 2d5>
+12. d5 Sd4
+13. d5> Ce3
+14. d3+ d3
+15. Sa3 b2
+16. a3> c2
+17. 2b3> Sd5
+18. 3c3+ Sc3
+19. 5c4<14 d5>
+20. b3 2e5-
+21. d5 c3+
+22. c3 d3-
+23. a2 3c4-
+24. c4 b1
+25. e2< c2>
+26. 2d4-11 Sc2
+27. 4d2+22 e3<
+28. a3 3c3+
+29. e3 e2
+30. d1 c1
+31. d2> c5
+32. b5 a1+
+33. a5 F-0

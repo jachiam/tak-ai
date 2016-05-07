@@ -25,10 +25,10 @@ function tak_policy:make_network()
 						3,3,3,
 						1,1,1))
 	self.network:add(nn.ReLU())
-	self.network:add(nn.VolumetricConvolution(nfilters,nfilters,
+--[[	self.network:add(nn.VolumetricConvolution(nfilters,nfilters,
 						3,3,3,
 						1,1,1))
-	self.network:add(nn.ReLU())
+	self.network:add(nn.ReLU())]]
 
 	test_x = torch.rand(1,1,self.num_planes,self.size,self.size)
 	out = self.network:forward(test_x)

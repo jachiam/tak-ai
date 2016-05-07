@@ -408,6 +408,15 @@ end
 
 
 function tak:make_move(move_ptn,flag,undo)
+	if move_ptn=='undo' then 
+		self:undo()
+		return true
+	elseif move_ptn=='undo2' then
+		self:undo()
+		self:undo()
+		return true
+	end
+
 	if type(move_ptn) == 'number' then move_ptn = self.move2ptn[move_ptn] end
 	local move_ptn = string.lower(move_ptn)
 	if move_ptn == string.match(move_ptn,'%a%d') then
@@ -922,11 +931,27 @@ function tak:play_game_from_file(filename,quiet)
 end
 
 function tak:print_tak_board(mark_squares,just_top)
-	local board = self.board
-	if just_top then board = self.board_top end
+	if just_top then
+		return self.print_any_tak_board(self.board_top,mark_squares,just_top)
+	else
+		return self.print_any_tak_board(self.board,mark_squares,just_top)
+	end
+end
 
-	local size = self.size
-	local max_height = self.max_height
+function tak.print_any_tak_board(board,mark_squares,just_top)
+	--local board = self.board
+	--if just_top then board = self.board_top end
+
+	--local size = self.size
+	--local max_height = self.max_height
+	local size, max_height
+	if type(board) == 'table' then
+		size = #board
+		max_height = #board[1][1]
+	else
+		size = board:size(1)
+		max_height = board:size(3)
+	end
 	local stacks = {}
 	local widest_in_col = torch.zeros(size)
 
@@ -961,9 +986,10 @@ function tak:print_tak_board(mark_squares,just_top)
 	for i=1,size do
 		stacks[i] = {}
 		for j=1, size do
-			if self.heights[i][j] > 0 then
-				stacks[i][j] = notation_from_stack(board[i][j])
-			else
+			--if self.heights[i][j] > 0 then
+			stacks[i][j] = notation_from_stack(board[i][j])
+			--else
+			if stacks[i][j] == '' then
 				stacks[i][j] = ' '
 			end
 			if #stacks[i][j] > widest_in_col[i] then
