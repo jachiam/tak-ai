@@ -408,14 +408,14 @@ end
 
 
 function tak:make_move(move_ptn,flag,undo)
-	if move_ptn=='undo' then 
+	--[[if move_ptn=='undo' then 
 		self:undo()
 		return true
 	elseif move_ptn=='undo2' then
 		self:undo()
 		self:undo()
 		return true
-	end
+	end]]
 
 	if type(move_ptn) == 'number' then move_ptn = self.move2ptn[move_ptn] end
 	local move_ptn = string.lower(move_ptn)
@@ -574,9 +574,6 @@ function tak:make_move(move_ptn,flag,undo)
 				m = m + 1
 			else
 				self.board[i][j][h+n+m] = self.board[x][y][self.heights[x][y]]
-				--print('aight... ' .. x .. ', ' .. y .. ', ' .. self.heights[x][y])
-				--print(h+n+m)
-				--print(self.board[x][y][self.heights[x][y]])
 				self.board[x][y][self.heights[x][y]] = {{0,0,0},{0,0,0}}
 				self.heights[x][y] = self.heights[x][y] - 1
 				-- unflattening logic
@@ -674,7 +671,7 @@ function tak:check_victory_conditions()
 		end_is_nigh = true
 	end
 
-	local unexplored = self:make_filled_table(1)
+	local unexplored = self:make_filled_table(true)
 
 	-- let's find us some island information
 
@@ -685,8 +682,8 @@ function tak:check_victory_conditions()
 
 		local function flood_fill(i,j)
 			if ((board_top[i][j][player][1] == 1 or board_top[i][j][player][3] == 1) 
-				and unexplored[i][j] == 1) then
-				unexplored[i][j] = 0
+				and unexplored[i][j] ) then
+				unexplored[i][j] = false
 				island_sums[#island_sums] = island_sums[#island_sums] + 1
 
 				if i < islands_minmax[#islands_minmax][1] then
@@ -722,7 +719,7 @@ function tak:check_victory_conditions()
 		if self.get_all_islands then
 			for i=1,self.size do
 				for j=1,self.size do
-					if (unexplored[i][j] == 1 and 
+					if (unexplored[i][j] and 
 						(board_top[i][j][player][1] == 1 or board_top[i][j][player][3] == 1)) then
 						table.insert(island_sums,0)
 						table.insert(islands_minmax,{i,j,i,j})
@@ -732,7 +729,7 @@ function tak:check_victory_conditions()
 			end
 		else
 			for i=1,self.size do
-				if (unexplored[i][1] == 1 and 
+				if (unexplored[i][1] and 
 					(board_top[i][1][player][1] == 1 or board_top[i][1][player][3] == 1)) then
 					table.insert(island_sums,0)
 					table.insert(islands_minmax,{i,j,i,j})
@@ -740,7 +737,7 @@ function tak:check_victory_conditions()
 				end
 			end
 			for j=1,self.size do
-				if (unexplored[1][j] == 1 and 
+				if (unexplored[1][j] and 
 					(board_top[1][j][player][1] == 1 or board_top[1][j][player][3] == 1)) then
 					table.insert(island_sums,0)
 					table.insert(islands_minmax,{i,j,i,j})
