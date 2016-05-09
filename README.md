@@ -38,7 +38,7 @@ game:play_game_from_file('game.txt')
 
 -- create a new minimax AI agent doing a depth 3 search
 -- the second arg is the debug flag, so it'll give some info with each move
-takai = make_takai(3,true)
+takai = make_takai_01(3,true)
 
 
 -- create a flat Monte Carlo agent that takes 75s per move to think
@@ -55,7 +55,9 @@ fight_takai(game,human,takai)
 
 To issue commands to the game when it is your turn, give your move in PTN. PTN admits some ambiguity, so here is what is permitted:
 + a1, fa1, Fa1 are all acceptable. (the first letter may be lowercase for placing walls or caps also.)
-+ a1>, 1a1>1 are acceptable. 1a1> is not acceptable.
++ a1>, 1a1>1, and 1a1> are acceptable.
+
+(That is to say, as of a recent update, the game now permits all variants of PTN!)
 
 The game outputs a visual to the command line that looks like this:
 
@@ -123,7 +125,9 @@ Tobias Merkle (asgardiator) wrote a GUI for playing the Tak-AI! An install scrip
 
 ###Some thoughts on Takai: 
 
-You probably should not play at depths greater than 4. The current implementation of the minimax search is fast enough to compete well on depth 4: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. Not sure how it does on 4x4, but probably just fine.
+You probably should not play against the generic minimax_AI at depths greater than 4. The current implementation of the minimax search is fast enough to compete well on depth 4: from my experience, it takes somewhere on the order of 15 seconds to make a move on the 5x5 board, on average, and rarely more than a minute. But for games with many stacks, this can go up. Not sure how it does on 4x4, but probably just fine.
+
+However, if you play against the killer_minimax_AI, depths up to 5 should play at acceptable speeds. It seems that the average move here takes around 30 seconds, and rarely more than a minute. The increased level of play may justify the slowdown.
 
 
 ###Some thoughts on Takarlo:
