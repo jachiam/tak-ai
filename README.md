@@ -115,6 +115,10 @@ agent:move(game)
 which tells the AI agent object to make a move in the game. 
 
 
+## Using a GUI for Tak-AI
+
+Tobias Merkle (asgardiator) wrote a GUI for playing the Tak-AI! An install script for the GUI is available in this library; running install.sh will download everything you need. A readme for his GUI is available [here](https://github.com/asgardiator/tak-ai). 
+
 ## Misc.
 
 ###Some thoughts on Takai: 
