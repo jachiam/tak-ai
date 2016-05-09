@@ -6,9 +6,9 @@ print(arg[3])
 
 board_size = tonumber(arg[2])
 game = tak.new(board_size)
-depth = 4
-if board_size > 6 then depth = 3 end
-takai = make_takai_01(depth,true)
+depth = 5
+if board_size > 6 then depth = 4 end
+takai = make_takai_02(depth,true)
 
 if arg[1] == 'True' then
 	AI_vs_AI(game,takai,human)
@@ -16,7 +16,7 @@ else
 	AI_vs_AI(game,human,takai)
 end
 
-local f = torch.DiskFile('interesting games/takai_playtak.txt','rw')
+local f = torch.DiskFile('interesting games/takai_playtak2.txt','rw')
 f:seekEnd()
 f:writeString('----NEWGAME----\n')
 if arg[1]=='True' then

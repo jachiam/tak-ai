@@ -132,7 +132,7 @@ end
 
 
 
-function score_function_AT2(node,top,player)
+function score_function_AT2(node,player)
 	-- what if it's over?
 	if node:is_terminal() then
 		if node.winner == player then
@@ -151,8 +151,8 @@ end
 
 
 function value_of_node2(node,maxplayeris)
-	local p1_score = score_function_AT2(node,top,1)
-	local p2_score = score_function_AT2(node,top,2)
+	local p1_score = score_function_AT2(node,1)
+	local p2_score = score_function_AT2(node,2)
 	local score = p1_score - p2_score
 	if maxplayeris == 2 then
 		score = -score
@@ -171,6 +171,88 @@ function normalized_value_of_node2(node,maxplayeris)
 		end
 	end
 	local v = value_of_node2(node,maxplayeris)
+	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
+	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	return v
+end
+
+
+
+
+
+function score_function_AT3(node,player,maxplayeris)
+	-- what if it's over?
+	if node:is_terminal() then
+		if node.winner == player then
+			return 400 - node.ply
+		else
+			return 0
+		end
+	end
+	local island_strength = 0
+	for j=1,#node.island_sums[player] do
+		island_strength = island_strength + (node.island_sums[player][j])^1.1
+	end
+
+	local function control(x)
+		if x==nil then return false end
+		return x[player][1] == 1 or x[player][2] == 1 or x[player][3] == 1
+	end
+
+	local stack_mul
+	if player == maxplayeris then
+		stack_mul = 0.5
+	else
+		stack_mul = 0.75
+	end
+
+	local stacks_strength = 0
+	--local position_strength = 0
+	for i=1,node.size do
+		for j=1,node.size do
+			if control(node.board[i][j][node.heights[i][j]]) then
+				local stack_strength = 0
+
+				local blocks = 1
+				if i>1 and node.blocks[i-1][j] then blocks = blocks + 1	end
+				if i<node.size and node.blocks[i+1][j] then blocks = blocks + 1	end
+				if node.blocks[i][j-1] then blocks = blocks + 1	end
+				if node.blocks[i][j+1] then blocks = blocks + 1	end
+
+				for k=1, node.heights[i][j] do
+					stack_strength = stack_strength + node.board[i][j][k][player][1]
+				end
+				
+				stacks_strength = stacks_strength + (stack_strength-1)/blocks
+			end
+		end
+	end
+
+	return stack_mul*stacks_strength + island_strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
+end
+
+
+function value_of_node3(node,maxplayeris)
+	local p1_score = score_function_AT3(node,1,maxplayeris)
+	local p2_score = score_function_AT3(node,2,maxplayeris)
+	local score = p1_score - p2_score
+	if maxplayeris == 2 then
+		score = -score
+	end
+	return score 
+end
+
+
+function normalized_value_of_node3(node,maxplayeris)
+	local start_time = os.clock()
+	local function sign(x)
+		if x == math.abs(x) then
+			return 1
+		else
+			return -1
+		end
+	end
+	local v = value_of_node3(node,maxplayeris)
 	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
 	value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v

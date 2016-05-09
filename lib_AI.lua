@@ -117,9 +117,9 @@ function random_AI:move(node)
 end
 
 
-----------------------
--- MINIMAX AI CLASS --
-----------------------
+-----------------------------------------------------
+-- MINIMAX AI CLASS ver 1: Alpha-Beta Pruning Only --
+-----------------------------------------------------
 
 local minimax_AI = torch.class('minimax_AI','AI')
 
@@ -143,6 +143,64 @@ function minimax_AI:move(node)
 	node:make_move(a)
 	return true
 end
+
+
+-------------------------------------------------------------------
+-- MINIMAX AI CLASS ver 2: Alpha-Beta Pruning + Killer Heuristic --
+-------------------------------------------------------------------
+
+local killer_minimax_AI = torch.class('killer_minimax_AI','AI')
+
+-- minimax_AI needs a value function from (node, player) pair to real scalar value
+function killer_minimax_AI:__init(depth,value,debug)
+	self.depth = depth
+	self.value = value
+	self.debug = debug
+end
+
+function killer_minimax_AI:move(node)
+	if node:is_terminal() then
+		if self.debug then print 'Game is over.' end
+		return false
+	end
+	local start_time = os.clock()
+	local v, a, nl = minimax_move3(node,self.depth,self.value)
+	if self.debug then
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
+	end
+	node:make_move(a)
+	return true
+end
+
+
+-----------------------------------------------------------------------------------------
+-- MINIMAX AI CLASS ver 3: Alpha-Beta Pruning + Killer Heuristic + Iterative Deepening --
+-----------------------------------------------------------------------------------------
+
+local iterative_killer_minimax_AI = torch.class('iterative_killer_minimax_AI','AI')
+
+-- minimax_AI needs a value function from (node, player) pair to real scalar value
+function iterative_killer_minimax_AI:__init(depth,value,debug)
+	self.depth = depth
+	self.value = value
+	self.debug = debug
+end
+
+function iterative_killer_minimax_AI:move(node)
+	if node:is_terminal() then
+		if self.debug then print 'Game is over.' end
+		return false
+	end
+	local start_time = os.clock()
+	local v, a, nl = iterative_killer_search(node,self.depth,self.value)
+	if self.debug then
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
+	end
+	node:make_move(a)
+	return true
+end
+
+
 
 -------------------------------
 -- FLAT MONTE CARLO AI CLASS --
@@ -510,6 +568,66 @@ function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 end
 
 
+
+function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,killer_moves)
+	if depth == 0 or node:is_terminal() then
+		return value_of_node(node,maxplayeris), nil, 1
+	end
+
+	local legal = node:get_legal_move_table()
+	local best_action = 0
+	local v = 0
+	local a,b = alpha,beta
+	local num_leaves, nl = 0, 0
+
+	if not(killer_moves[depth]==nil) then
+		for i=1,#legal do
+			if legal[i] == killer_moves[depth] then
+				legal[1], legal[i] = legal[i], legal[1]
+			end
+		end
+	end
+
+	if maximizingPlayer then
+		v = -1/0
+		for i,move in pairs(legal) do
+			node:make_move(move, depth==1)
+			val, _, nl = alphabeta4(node,depth- 1, a, b, false, maxplayeris,value_of_node,killer_moves)
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val > v then
+				best_action = i
+				v = val
+			end
+			a = math.max(a,v)
+			if b <= a then
+				killer_moves[depth] = move
+				break
+			end
+		end
+	else
+		v = 1/0
+		for i,move in pairs(legal) do
+			node:make_move(move, depth==1)
+			val, _, nl = alphabeta4(node,depth- 1, a, b, true, maxplayeris,value_of_node,killer_moves)
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val < v then
+				best_action = i
+				v = val
+			end
+			b = math.min(b,v)
+			if b <= a then
+				killer_moves[depth] = move
+				break
+			end
+		end
+	end
+
+	return v, legal[best_action], num_leaves
+end
+
+
 -- convenience method
 function minimax_move(node,depth,value)
 	return alphabeta(node,depth,-1/0,1/0,true,node:get_player(),value)
@@ -519,6 +637,28 @@ end
 -- convenience method
 function minimax_move2(node,depth,value)
 	return alphabeta2(node,depth,-1/0,1/0,true,node:get_player(),value)
+end
+
+-- killer heuristic
+function minimax_move3(node,depth,value)
+	local killer_moves = {}
+	local v,a,nl = alphabeta4(node,depth,-1/0,1/0,true,node:get_player(),value,killer_moves)
+	--print(killer_moves)
+	return v,a,nl
+end
+
+-- killer heuristic + iterative deepening
+function iterative_killer_search(node,maxdepth,value_of_node)
+	local a, _ = nil, nil
+	local killer_moves = {}
+	for i=1,maxdepth-1 do
+		killer_moves = {}
+		killer_moves[i] = a
+		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+	end
+	killer_moves = {}
+	killer_moves[maxdepth] = a
+	return alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
 end
 
 
@@ -723,12 +863,12 @@ function async_flat_mc_action_values(pool,node,time,check,
 			pool:addjob(
 				function(jobid)
 					local flag, a, val, gw, gl = select_and_playout_move(node,
-									raw_action_values:clone(),
-									num_visited:clone(),
-									legal_moves:clone(),
+									raw_action_values,--:clone(),
+									num_visited,--:clone(),
+									legal_moves,--:clone(),
 									check,
-									winning_moves:clone(),
-									losing_moves:clone(),
+									winning_moves,--:clone(),
+									losing_moves,--:clone(),
 									rollout_policy,
 									partial,
 									depth,

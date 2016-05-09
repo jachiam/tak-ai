@@ -112,6 +112,8 @@ function tak:__init(size,making_a_copy)
 	self.island_sums = {{},{}}
 	self.islands_minmax = {{},{}}
 	self.player_flats = {0,0}
+	self.top_walls = self:make_filled_table(0)
+	self.blocks = self:make_filled_table(0)
 
 end
 
@@ -281,6 +283,8 @@ function tak:get_legal_moves(player)
 			top_walls[i][j] = (self.board_top[i][j][1][2] == 1 or self.board_top[i][j][2][2] == 1)
 		end
 	end
+	self.top_walls = top_walls
+	self.blocks = blocks
 
 	local function add_stack_moves(pos,dir,seqs)
 		if not(seqs == nil) then

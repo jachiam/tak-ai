@@ -1,0 +1,72 @@
+----NEWGAME----
+bot is white
+opponent is Guest1134
+
+[Size "5"]
+
+1. Fe5 Fd4 
+2. Fd3 Fe1 
+3. Fd5 Fd1 
+4. Fc1 Fd2 
+5. Fc2 Cc3 
+6. Fe2 Fe3 
+7. 1e2<1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Guest1163
+
+[Size "5"]
+
+1. Fa5 Fe5 
+2. Fd3 Fb5 
+3. Fb2 Fa3 
+4. Fb4 Fa4 
+5. Fa2 Fb3 
+6. Fc3 Fc2 
+7. Fb1 Fc4 
+8. Fd4 Fc1 
+9. 1b2+1 Fb2 
+10. 1d4<1 1b2<1 
+11. Fb2 Fa1 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is alphatak
+
+[Size "5"]
+
+1. Fa1 Fa5 
+2. Fb5 Fa2 
+3. Fc5 Fe4 
+4. Ce5 Fd5 
+5. Fd4 1d5<1 
+6. Fc4 Fd5 
+7. Fb4 1e4<1 
+8. Fc3 Fd3 
+9. 1c4+1 1d5<1 
+10. 1b5>1 Cb5 
+11. 4c5-22 1b5>1 
+12. Fb3 2c5-11 
+13. 3c4>21 Fe3 
+14. Fb5 1d3+1 
+15. 1e4<1 Fc5 
+16. Fa4 Fc4 
+17. Fd5 1c4>1 
+18. 1d5-1 4c3<4 
+19. 4d4-22 5b3>32 
+20. 4d4<13 Fc2 
+21. Sb2 Fb3 
+22. Fa3 1a2+1 
+
+
+---WIN---
+
+
