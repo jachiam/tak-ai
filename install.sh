@@ -1,0 +1,10 @@
+git clone https://github.com/torch/distro.git ~/torch --recursive;
+cd ~/torch; bash install-deps;
+./install.sh;
+apt-get -y install love lua5.2 luarocks;
+apt-get -y update;
+apt-get -y upgrade;
+luarocks install utf8;
+git clone https://github.com/asgardiator/tak-ai.git ~/TakAI --recursive;
+cd; echo "love ~/TakAI" >> 'PLAY_TAKAI.sh';
+love ~/TakAI;
