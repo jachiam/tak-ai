@@ -269,6 +269,10 @@ def run():
       msg=read_line()
       if msg.startswith("Login or Register"):
         sys.exit()
+      #if msg.startswith("Seek new"):
+      #  spl = msg.split(' ')
+      #  if spl[3] == 'TakticianBot':
+      #    send('Accept ' + spl[2])
 
     #Game Start no. size player_white vs player_black yourcolor
     print 'game started!'+msg

@@ -128,6 +128,10 @@ function minimax_AI:__init(depth,value,debug)
 	self.depth = depth
 	self.value = value
 	self.debug = debug
+	self.max_time = 0
+	self.total_time = 0
+	self.average_time = 0
+	self.num_moves = 0
 end
 
 function minimax_AI:move(node)
@@ -137,8 +141,16 @@ function minimax_AI:move(node)
 	end
 	local start_time = os.clock()
 	local v, a, nl = minimax_move2(node,self.depth,self.value)	-- minimax_move2 is 3x faster
+	local time_elapsed = os.clock() - start_time
+	self.max_time = math.max(self.max_time,time_elapsed)
+	self.total_time = self.total_time + time_elapsed
+	self.num_moves = self.num_moves + 1
+	self.average_time = self.total_time/self.num_moves
 	if self.debug then
-		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. time_elapsed
+			.. '\nMax Time: ' .. self.max_time 
+			.. ', Total Time: ' .. self.total_time
+			.. ', Average Time: ' .. self.average_time)
 	end
 	node:make_move(a)
 	return true
@@ -156,6 +168,11 @@ function killer_minimax_AI:__init(depth,value,debug)
 	self.depth = depth
 	self.value = value
 	self.debug = debug
+	self.killer_moves = {}
+	self.max_time = 0
+	self.total_time = 0
+	self.average_time = 0
+	self.num_moves = 0
 end
 
 function killer_minimax_AI:move(node)
@@ -164,9 +181,23 @@ function killer_minimax_AI:move(node)
 		return false
 	end
 	local start_time = os.clock()
-	local v, a, nl = minimax_move3(node,self.depth,self.value)
+	local v, a, nl, km = minimax_move3(node,self.depth,self.value,self.killer_moves)
+	local time_elapsed = os.clock() - start_time
+	self.killer_moves = {}
+	for i=self.depth-2,1,-1 do
+		self.killer_moves[i+2] = km[i]
+	end
+	
+	self.max_time = math.max(self.max_time,time_elapsed)
+	self.total_time = self.total_time + time_elapsed
+	self.num_moves = self.num_moves + 1
+	self.average_time = self.total_time/self.num_moves
 	if self.debug then
-		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. time_elapsed
+			.. '\nMax Time: ' .. self.max_time 
+			.. ', Total Time: ' .. self.total_time
+			.. ', Average Time: ' .. self.average_time)
+		--print(km)
 	end
 	node:make_move(a)
 	return true
@@ -184,6 +215,10 @@ function iterative_killer_minimax_AI:__init(depth,value,debug)
 	self.depth = depth
 	self.value = value
 	self.debug = debug
+	self.max_time = 0
+	self.total_time = 0
+	self.average_time = 0
+	self.num_moves = 0
 end
 
 function iterative_killer_minimax_AI:move(node)
@@ -193,8 +228,16 @@ function iterative_killer_minimax_AI:move(node)
 	end
 	local start_time = os.clock()
 	local v, a, nl = iterative_killer_search(node,self.depth,self.value)
+	local time_elapsed = os.clock() - start_time
+	self.max_time = math.max(self.max_time,time_elapsed)
+	self.total_time = self.total_time + time_elapsed
+	self.num_moves = self.num_moves + 1
+	self.average_time = self.total_time/self.num_moves
 	if self.debug then
-		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. (os.clock() - start_time))
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. time_elapsed
+			.. '\nMax Time: ' .. self.max_time 
+			.. ', Total Time: ' .. self.total_time
+			.. ', Average Time: ' .. self.average_time)
 	end
 	node:make_move(a)
 	return true
@@ -640,11 +683,11 @@ function minimax_move2(node,depth,value)
 end
 
 -- killer heuristic
-function minimax_move3(node,depth,value)
-	local killer_moves = {}
+function minimax_move3(node,depth,value,killer_moves)
+	local killer_moves = killer_moves or {}
 	local v,a,nl = alphabeta4(node,depth,-1/0,1/0,true,node:get_player(),value,killer_moves)
 	--print(killer_moves)
-	return v,a,nl
+	return v,a,nl,killer_moves
 end
 
 -- killer heuristic + iterative deepening
@@ -652,7 +695,9 @@ function iterative_killer_search(node,maxdepth,value_of_node)
 	local a, _ = nil, nil
 	local killer_moves = {}
 	for i=1,maxdepth-1 do
-		killer_moves = {}
+		for j=#killer_moves,2,-1 do
+			killer_moves[j] = killer_moves[j-1]
+		end
 		killer_moves[i] = a
 		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
 	end

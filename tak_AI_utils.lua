@@ -146,7 +146,7 @@ function score_function_AT2(node,player)
 		strength = strength + (node.island_sums[player][j])^1.1
 	end
 
-	return strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
+	return strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + 0.25*(torch.uniform() - 0.5)
 end
 
 
@@ -207,10 +207,11 @@ function score_function_AT3(node,player,maxplayeris)
 	end
 
 	local stacks_strength = 0
-	--local position_strength = 0
+	local sign = 1
+	local position_strength = 0
 	for i=1,node.size do
 		for j=1,node.size do
-			if control(node.board[i][j][node.heights[i][j]]) then
+			if control(node.board_top[i][j]) then
 				local stack_strength = 0
 
 				local blocks = 1
@@ -220,22 +221,25 @@ function score_function_AT3(node,player,maxplayeris)
 				if node.blocks[i][j+1] then blocks = blocks + 1	end
 
 				for k=1, node.heights[i][j] do
-					stack_strength = stack_strength + node.board[i][j][k][player][1]
+					stack_strength = stack_strength + node.board[i][j][k][player][1] - 0.5*node.board[i][j][k][3-player][1]
 				end
 				
-				stacks_strength = stacks_strength + (stack_strength-1)/blocks
+				if stack_strength > 0 then sign = 1 else sign = -1 end
+				stacks_strength = stacks_strength + sign*(math.abs(stack_strength)^1.05)/blocks
+
+				position_strength = position_strength - (math.abs((node.size+1)/2 - i) + math.abs((node.size+1)/2 - j))
 			end
 		end
 	end
 
-	return stack_mul*stacks_strength + island_strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + (torch.uniform() - 0.5)
+	return position_strength + stack_mul*stacks_strength + island_strength + 3*node.player_flats[player] - node.player_pieces[player]
 end
 
 
 function value_of_node3(node,maxplayeris)
 	local p1_score = score_function_AT3(node,1,maxplayeris)
 	local p2_score = score_function_AT3(node,2,maxplayeris)
-	local score = p1_score - p2_score
+	local score = p1_score - p2_score + 0.25*(torch.uniform() - 0.5)
 	if maxplayeris == 2 then
 		score = -score
 	end
