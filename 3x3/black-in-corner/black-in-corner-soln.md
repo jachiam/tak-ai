@@ -110,6 +110,7 @@ Supposing that white's first move is a1, black has five unique responses (accoun
    +---+---+---+
      a   b   c 
 ```
+
 2. By following (1. a1 a3, 2. b3) or (1. a1 b3, 2. a3): ```
    +---+---+---+
 3  | w | w |   | 
@@ -120,6 +121,7 @@ Supposing that white's first move is a1, black has five unique responses (accoun
    +---+---+---+
      a   b   c 
 ```
+
 3. By following (1. a1 c3, 2. a3):
 
 ```
