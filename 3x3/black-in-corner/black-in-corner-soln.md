@@ -13,7 +13,7 @@ Below, we'll explain some of the details of the solver, describe the organizatio
 
 ## Solver
 
-The solver uses a minimax search with alpha-beta pruning and the killer heuristic to determine the optimal move for white when it is white's turn to play. The value function used in the search returns a discounted version of the game-theoretic value of the game: 1 - epsilon*ply if the maximizing player (white) has won, 0 if the minimizing player (black) has won, and 0.5 otherwise (which, at terminal nodes, indicates a draw). The value of 'epsilon' is set to 10^-16, so any node where the maximizer has won has higher value than any node where the maximizer has not won. The discount factor guarantees that the solver will always choose the move that leads most quickly to a win for the maximizing player. 
+The solver uses a minimax search with alpha-beta pruning and the killer heuristic to determine the optimal move for white when it is white's turn to play. The value function used in the search returns a discounted version of the game-theoretic value of the game: 1 - epsilon*ply if the maximizing player (white) has won, 0 if the minimizing player (black) has won, and 0.5 otherwise (which, at terminal nodes, indicates a draw). The value of 'epsilon' is set to 10<sup>-16</sup>, so any node where the maximizer has won has higher value than any node where the maximizer has not won. The discount factor guarantees that the solver will always choose the move that leads most quickly to a win for the maximizing player. 
 
 Trial and error was used to determine the depth of search necessary to guarantee a win for white from each variant on the opening moves. 
 
