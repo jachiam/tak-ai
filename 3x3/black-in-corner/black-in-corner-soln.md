@@ -142,4 +142,55 @@ By following (1. a1 c3, 2. a3):
      a   b   c 
 ```
 
+Games are either solved directly from these states (Game 2) or are further subdivided by expert knowledge (Games 1 and 3), depending on their depth. Games 1 and 3 both have maximum depth of 15 plies, whereas Game 2 has maximum depth of 11 plies. 
 
+
+## Subdividing Game 1
+
+Blach has 3 unique non-losing moves at ply 4: c2, Sc2, and a1+. We term these games 1a, 1b, and 1c:
+
+**Game 1a**
+
+By following (1. a1 a2, 2. b2 c2):
+```
+   +---+---+---+
+3  |   |   |   | 
+   +---+---+---+
+2  | w | w | b | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c 
+```
+
+
+**Game 1b**
+
+By following (1. a1 a2, 2. b2 Sc2):
+```
+   +---+---+-----+
+3  |   |   |     | 
+   +---+---+-----+
+2  | w | w | [b] | 
+   +---+---+-----+
+1  | b |   |     | 
+   +---+---+-----+
+     a   b   c 
+```
+
+
+**Game 1c**
+
+By following (1. a1 a2, 2. b2 a1+):
+```
+   +----+---+---+
+3  |    |   |   | 
+   +----+---+---+
+2  | wb | w |   | 
+   +----+---+---+
+1  |    |   |   | 
+   +----+---+---+
+     a    b   c 
+```
+
+Games 1a and 1b go to a maximum depth of 11 plies, and so the solver handles them directly. Game 1c is more complex, so expert knowledge is used to pick b3 as white's move at ply 5. 
