@@ -100,7 +100,8 @@ The history of the game which led to the current state is given in PTN as a conv
 
 Supposing that white's first move is a1, black has five unique responses (accounting for symmetries and reflections): it can place white at a2, b2, a3, b3, or c3. It is then white's turn. We consider a family of responses that lead to three board states in particular which allow white to make road threats immediately. The board states, and corresponding move histories, are:
 
-1. By following (1. a1 a2, 2. b2) or (1. a1 b2, 2. a2): ```
+1. By following (1. a1 a2, 2. b2) or (1. a1 b2, 2. a2): 
+```
    +---+---+---+
 3  |   |   |   | 
    +---+---+---+
@@ -111,7 +112,8 @@ Supposing that white's first move is a1, black has five unique responses (accoun
      a   b   c 
 ```
 
-2. By following (1. a1 a3, 2. b3) or (1. a1 b3, 2. a3): ```
+2. By following (1. a1 a3, 2. b3) or (1. a1 b3, 2. a3): 
+```
    +---+---+---+
 3  | w | w |   | 
    +---+---+---+
@@ -123,7 +125,6 @@ Supposing that white's first move is a1, black has five unique responses (accoun
 ```
 
 3. By following (1. a1 c3, 2. a3):
-
 ```
    +---+---+---+
 3  | w |   | w | 
