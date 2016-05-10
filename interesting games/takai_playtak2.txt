@@ -2571,3 +2571,151 @@ opponent is Guest1370
 ---WIN---
 
 
+----NEWGAME----
+bot is white
+opponent is Guest1380
+
+[Size "5"]
+
+1. Fa5 Fe1 
+2. Fd1 Fa4 
+3. Fc1 Fa1 
+4. Fa2 1a1+1 
+5. Fa1 Fa3 
+6. Fb1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is pweinsh
+
+[Size "5"]
+
+1. Fb4 Fa1 
+2. Fb1 Fb3 
+3. Fc2 Fc3 
+4. Fd2 Fe2 
+5. Fe1 Fd1 
+6. Fc1 1e2<1 
+7. 1c2>1 1d1<1 
+8. 3d2-3 2c1>2 
+9. 1e1<1 Fc2 
+10. 5d1>5 Cc1 
+11. Ce5 Fb5 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is pweinsh
+
+[Size "5"]
+
+1. Fe1 Fd2 
+2. Fc2 Fb1 
+3. Fb2 Fa2 
+4. Fe2 1a2>1 
+5. Fc3 Fb3 
+6. Fb4 Cb5 
+7. Fa3 1b3>1 
+8. Fb3 2c3<2 
+9. 1a3>1 1b5-1 
+10. 4b3-13 Fa2 
+11. Fa1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Caricature
+
+[Size "5"]
+
+1. Fa1 Fe1 
+2. Fd2 Fb2 
+3. Fb4 Fc2 
+4. Fc1 Fa2 
+5. Fc3 Fa3 
+6. Fc4 Fa4 
+7. 1b4<1 1a3+1 
+8. Fc5 3a4>12 
+9. 1c5-1 1b4>1 
+10. 1c3+1 1c2>1 
+11. Fc5 Cc2 
+12. Fe2 Fd3 
+13. Se3 Fd1 
+14. 1c1>1 Fc1 
+15. Fd4 1c1>1 
+16. 1e3<1 2d1>2 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is fwwwwibib
+
+[Size "5"]
+
+1. Fa5 Fa2 
+2. Fb2 Fa4 
+3. Fc2 Fb5 
+4. Fd3 Fc1 
+5. Fc3 Fe3 
+6. Fe4 1e3<1 
+7. Fd2 Fe2 
+8. Fe3 1e2<1 
+9. 1e3<1 2d2<2 
+10. Fb3 3c2<3 
+11. Fa3 4b2+4 
+12. 1a3>1 Cb2 
+13. 5b3>122 Sa3 
+14. Fe5 Sd2 
+15. Ce2 Fe1 
+16. 1e2<1 Sa1 
+17. 2c3-11 
+
+---LOSS---
+
+
+----NEWGAME----
+bot is black
+opponent is Guest1386
+
+[Size "5"]
+
+1. Fa1 Fe5 
+2. Fe3 Fb1 
+3. Fe1 Fe4 
+4. 1e3+1 Fd4 
+5. Fe2 1d4>1 
+6. 1e5-1 Cd4 
+7. 4e4-4 Fe4 
+8. Fe5 1e4-1 
+9. 1e2+1 Fe4 
+10. 4e3-31 2e2-2 
+11. Cd2 1e4-1 
+12. 1d2>1 4e1<4 
+13. Fe4 Fe1 
+14. 2e2-2 Fd5 
+15. 3e1<3 3e3+12 
+16. 4d1+4 Sc1 
+17. Fe1 Fc5 
+18. 3d1>3 Se2 
+19. Fb4 Fb5 
+20. 1b4+1 1c5<1 
+21. Fc5 2b5>2 
+22. Sa5 Fb4 
+23. Sa4 Fb3 
+24. Sb2 Fa3 
+
+
+---WIN---
+
+
