@@ -193,4 +193,70 @@ By following (1. a1 a2, 2. b2 a1+):
      a    b   c 
 ```
 
-Games 1a and 1b go to a maximum depth of 11 plies, and so the solver handles them directly. Game 1c is more complex, so expert knowledge is used to pick b3 as white's move at ply 5. 
+Games 1a and 1b go to a maximum depth of 11 plies, and so the solver handles them directly with a 7-ply-lookahead search. Game 1c is more complex, so expert knowledge is used to pick b3 as white's move at ply 5. 
+
+
+### Subdividing Game 1c
+
+After picking b3 at ply 5, black has four non-losing moves: a2>, 2a2>, b1, and Sb1. We term these games 1ca, 1cb, 1cc, and 1cd. 
+
+**Game 1ca**
+
+By following (1. a1 a2, 2. b2 a1+, 3. b3 a2>):
+```
+   +---+----+---+
+3  |   | w  |   | 
+   +---+----+---+
+2  | w | wb |   | 
+   +---+----+---+
+1  |   |    |   | 
+   +---+----+---+
+     a   b    c 
+```
+
+**Game 1cb**
+
+By following (1. a1 a2, 2. b2 a1+, 3. b3 2a2>):
+```
+   +---+-----+---+
+3  |   | w   |   | 
+   +---+-----+---+
+2  |   | wwb |   | 
+   +---+-----+---+
+1  |   |     |   | 
+   +---+-----+---+
+     a   b     c 
+```
+
+**Game 1cc**
+
+By following (1. a1 a2, 2. b2 a1+, 3. b3 b1):
+```
+   +----+---+---+
+3  |    | w |   | 
+   +----+---+---+
+2  | wb | w |   | 
+   +----+---+---+
+1  |    | b |   | 
+   +----+---+---+
+     a    b   c 
+```
+
+**Game 1cd**
+
+By following (1. a1 a2, 2. b2 a1+, 3. b3 Sb1):
+```
+   +----+-----+---+
+3  |    | w   |   | 
+   +----+-----+---+
+2  | wb | w   |   | 
+   +----+-----+---+
+1  |    | [b] |   | 
+   +----+-----+---+
+     a    b     c 
+```
+
+All of these game states are solved by the solver with (at most) a 9-ply-lookahead search, so the depth of this branch of the gametree is 15 (6+9). Game 1ca is solved by ply 9, Game 1cb is solved by ply 15, Game 1cc is solved by ply 11, and Game 1cd is solved by ply 11.
+
+
+### Subdividing Game 3
