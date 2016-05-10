@@ -5,7 +5,6 @@ interesting games/takai_playtak2.txt
 game*.txt
 *.t7
 run_online.sh
-solve_tak_3x3.lua
 tak_training.lua
 tak_test_suite2.lua
 

@@ -6,7 +6,8 @@ print(arg[3])
 
 board_size = tonumber(arg[2])
 game = tak.new(board_size)
-depth = 5
+if board_size < 5 then depth = 7 end
+if board_size ==5 then depth = 5 end
 if board_size > 6 then depth = 4 end
 takai = make_takai_02(depth,true)
 

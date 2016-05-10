@@ -1,0 +1,9 @@
+Game 1a:  Max depth is 11
+Game 1b:  Max depth is 11
+Game 1ca: Max depth is 9
+Game 1cb: Max depth is 15
+Game 1cc: Max depth is 11
+Game 1cd: Max depth is 11
+Game 2:   Max depth is 11
+Game 3a:  Max depth is 13
+Game 3b:  Max depth is 15
