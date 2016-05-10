@@ -13,7 +13,7 @@ Below, we'll explain some of the details of the solver, describe the organizatio
 
 ## Solver
 
-The solver uses a minimax search with alpha-beta pruning and the killer heuristic to determine the optimal move for white when it is white's turn to play. The value function used in the search returns a discounted version of the game-theoretic value of the game: 1 - \epsilon*ply if the maximizing player (white) has won, 0 if the minimizing player (black) has won, and 0.5 otherwise (which, at terminal nodes, indicates a draw). The value of '\epsilon' is set to 10<sup>-16</sup>, so any node where the maximizer has won has higher value than any node where the maximizer has not won. The discount factor guarantees that the solver will always choose the move that leads most quickly to a win for the maximizing player. 
+The solver uses a minimax search with alpha-beta pruning and the killer heuristic to determine the optimal move for white when it is white's turn to play. The value function used in the search returns a discounted version of the game-theoretic value of the game: 1 - epsilon*ply if the maximizing player (white) has won, 0 if the minimizing player (black) has won, and 0.5 otherwise (which, at terminal nodes, indicates a draw). The value of epsilon is set to 10<sup>-16</sup>, so any node where the maximizer has won has higher value than any node where the maximizer has not won. The discount factor guarantees that the solver will always choose the move that leads most quickly to a win for the maximizing player. 
 
 Trial and error was used to determine the depth of search necessary to guarantee a win for white from each variant on the opening moves. 
 
@@ -97,4 +97,46 @@ The history of the game which led to the current state is given in PTN as a conv
 
 
 ## Expert Knowledge
+
+Supposing that white's first move is a1, black has five unique responses (accounting for symmetries and reflections): it can place white at a2, b2, a3, b3, or c3. It is then white's turn. We consider a family of responses that lead to three board states in particular which allow white to make road threats immediately. The board states, and corresponding move histories, are:
+
+1. By following (1. a1 a2, 2. b2) or (1. a1 b2, 2. a2):
+
+```
+   +---+---+---+
+3  |   |   |   | 
+   +---+---+---+
+2  | w | w |   | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c 
+```
+
+2. By following (1. a1 a3, 2. b3) or (1. a1 b3, 2. a3):
+
+```
+   +---+---+---+
+3  | w | w |   | 
+   +---+---+---+
+2  |   |   |   | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c 
+```
+
+3. By following (1. a1 c3, 2. a3):
+
+```
+   +---+---+---+
+3  | w |   | w | 
+   +---+---+---+
+2  |   |   |   | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c 
+```
+
 
