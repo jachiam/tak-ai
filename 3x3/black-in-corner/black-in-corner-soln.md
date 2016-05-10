@@ -145,7 +145,7 @@ By following (1. a1 c3, 2. a3):
 Games are either solved directly from these states (Game 2) or are further subdivided by expert knowledge (Games 1 and 3), depending on their depth. Games 1 and 3 both have maximum depth of 15 plies, whereas Game 2 has maximum depth of 11 plies. 
 
 
-## Subdividing Game 1
+### Subdividing Game 1
 
 Blach has 3 unique non-losing moves at ply 4: c2, Sc2, and a1+. We term these games 1a, 1b, and 1c:
 
