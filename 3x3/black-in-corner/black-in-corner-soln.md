@@ -297,11 +297,19 @@ Both of these games are solved by the solver with a 9-ply-lookahead search for w
 ## Solutions for the Opening Variants
 
 [Solution for Game 1a](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1a.txt)
+
 [Solution for Game 1b](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1b.txt)
+
 [Solution for Game 1ca](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1ca.txt)
+
 [Solution for Game 1cb](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cb.txt)
+
 [Solution for Game 1cc](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cc.txt)
+
 [Solution for Game 1cd](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cd.txt)
+
 [Solution for Game 2](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game2.txt)
+
 [Solution for Game 3a](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game3a.txt)
+
 [Solution for Game 3b](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game3b.txt)
