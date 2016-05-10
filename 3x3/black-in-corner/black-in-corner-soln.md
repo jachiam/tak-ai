@@ -147,7 +147,7 @@ Games are either solved directly from these states (Game 2) or are further subdi
 
 ### Subdividing Game 1
 
-Blach has 3 unique non-losing moves at ply 4: c2, Sc2, and a1+. We term these games 1a, 1b, and 1c:
+Blach has three non-losing moves at ply 4: c2, Sc2, and a1+. We term these games 1a, 1b, and 1c:
 
 **Game 1a**
 
@@ -260,3 +260,48 @@ All of these game states are solved by the solver with (at most) a 9-ply-lookahe
 
 
 ### Subdividing Game 3
+
+Black has two non-losing moves at ply 4: b3 or Sb3. In either case, expert knowledge is used to select c1 as white's move at ply 5. We term these two games 3a and 3b.
+
+**Game 3a**
+
+By following (1. a1 c3, 2. a3 b3, 3. c1):
+```
+   +---+---+---+
+3  | w | b | w | 
+   +---+---+---+
+2  |   |   |   | 
+   +---+---+---+
+1  | b |   | w | 
+   +---+---+---+
+     a   b   c 
+```
+
+**Game 3b**
+
+By following (1. a1 c3, 2. a3 Sb3, 3. c1):
+```
+   +---+-----+---+
+3  | w | [b] | w | 
+   +---+-----+---+
+2  |   |     |   | 
+   +---+-----+---+
+1  | b |     | w | 
+   +---+-----+---+
+     a   b     c 
+```
+
+Both of these games are solved by the solver with a 9-ply-lookahead search for white's moves. The maximum depth of Game 3a is 13, and the maximum depth of Game 3b is 15.
+
+
+## Solutions for the Opening Variants
+
+[Solution for Game 1a](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1a.txt)
+[Solution for Game 1b](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1b.txt)
+[Solution for Game 1ca](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1ca.txt)
+[Solution for Game 1cb](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cb.txt)
+[Solution for Game 1cc](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cc.txt)
+[Solution for Game 1cd](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game1cd.txt)
+[Solution for Game 2](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game2.txt)
+[Solution for Game 3a](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game3a.txt)
+[Solution for Game 3b](https://github.com/jachiam/tak-ai/blob/master/3x3/black-in-corner/game3b.txt)
