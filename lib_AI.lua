@@ -244,6 +244,47 @@ function iterative_killer_minimax_AI:move(node)
 end
 
 
+-----------------------------------------------------------------------------------------------
+-- MINIMAX AI CLASS ver 4: Alpha-Beta Pruning + Killer Heuristic + Hacky Iterative Deepening --
+-----------------------------------------------------------------------------------------------
+-- hacky iterative deepening only iteratively deepens to even-numbered plies, saving some computational effort
+
+local hacky_iterative_killer_minimax_AI = torch.class('hacky_iterative_killer_minimax_AI','AI')
+
+-- minimax_AI needs a value function from (node, player) pair to real scalar value
+function hacky_iterative_killer_minimax_AI:__init(depth,value,debug)
+	self.depth = depth
+	self.value = value
+	self.debug = debug
+	self.max_time = 0
+	self.total_time = 0
+	self.average_time = 0
+	self.num_moves = 0
+end
+
+function hacky_iterative_killer_minimax_AI:move(node)
+	if node:is_terminal() then
+		if self.debug then print 'Game is over.' end
+		return false
+	end
+	local start_time = os.clock()
+	local v, a, nl = hacky_iterative_killer_search(node,self.depth,self.value)
+	local time_elapsed = os.clock() - start_time
+	self.max_time = math.max(self.max_time,time_elapsed)
+	self.total_time = self.total_time + time_elapsed
+	self.num_moves = self.num_moves + 1
+	self.average_time = self.total_time/self.num_moves
+	if self.debug then
+		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. time_elapsed
+			.. '\nMax Time: ' .. self.max_time 
+			.. ', Total Time: ' .. self.total_time
+			.. ', Average Time: ' .. self.average_time)
+	end
+	node:make_move(a)
+	return true
+end
+
+
 
 -------------------------------
 -- FLAT MONTE CARLO AI CLASS --
@@ -695,16 +736,35 @@ function iterative_killer_search(node,maxdepth,value_of_node)
 	local a, _ = nil, nil
 	local killer_moves = {}
 	for i=1,maxdepth-1 do
-		for j=#killer_moves,2,-1 do
-			killer_moves[j] = killer_moves[j-1]
-		end
 		killer_moves[i] = a
 		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+		for j=#killer_moves-1,1,-1 do
+			killer_moves[j] = killer_moves[j-1]
+		end
 	end
-	killer_moves = {}
+	--killer_moves = {}
 	killer_moves[maxdepth] = a
-	return alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+	local v,a,nl = alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+	return v,a,nl,killer_moves
 end
+
+-- hacky attempt at skipping some effort in iterative deepening
+function hacky_iterative_killer_search(node,maxdepth,value_of_node)
+	local a, _ = nil, nil
+	local killer_moves = {}
+	for i=2,maxdepth-1,2 do
+		killer_moves[i] = a
+		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+		for j=i,i-#killer_moves,-1 do
+			killer_moves[j+2] = killer_moves[j]
+		end
+	end
+	--killer_moves = {}
+	killer_moves[maxdepth] = a
+	local v,a,nl = alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
+	return v,a,nl,killer_moves
+end
+
 
 
 ---------------------------------------------

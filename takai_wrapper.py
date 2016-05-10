@@ -170,13 +170,13 @@ def server_to_bot(move):
       lst = lst+spl[i]
       liftsize = liftsize+int(spl[i])
 
-    #there's an ambiguity here.. is the start sq. empty??.. lets find out
-    send('Game#'+gameno+' Show '+spl[2])
-    msg = wait_for_response('Game#'+gameno+' Show Sq')
-    if 'NOK' in msg:
-      return 'Over'
+    ##there's an ambiguity here.. is the start sq. empty??.. lets find out
+    #send('Game#'+gameno+' Show '+spl[2])
+    #msg = wait_for_response('Game#'+gameno+' Show Sq')
+    #if 'NOK' in msg:
+    #  return 'Over'
     #Game#1 Show Sq [f]
-    origsq = len(msg.split(' ')[3])-2
+    #origsq = len(msg.split(' ')[3])-2
     prefix=liftsize
     return str(prefix)+spl[2].lower()+dir+lst
   return ''
