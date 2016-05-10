@@ -1,0 +1,2051 @@
+=============================================================
+
+
+Ply:	4
+Branch:	
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+
+
+   +---+---+-----+
+3  |   |   |     | 
+   +---+---+-----+
+2  | w | w | [b] | 
+   +---+---+-----+
+1  | b |   |     | 
+   +---+---+-----+
+     a   b   c    
+
+
+
+White's optimal move in this state: 
+
+	1a2-1
+
+
+=============================================================
+
+
+Ply:	5
+Branch:	/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	fa2
+2	sa2
+3	fa3
+4	sa3
+5	fb1
+6	sb1
+7	fb3
+8	sb3
+9	fc1
+10	sc1
+11	1c2<1
+12	1c2-1
+13	1c2+1
+14	fc3
+15	sc3
+
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fa2 
+
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  | b  | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fa2 
+4. Fb1 
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  | b  | w | [b] | 
+   +----+---+-----+
+1  | bw | w |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sa2 
+
+
+   +-----+---+-----+
+3  |     |   |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  |   |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sa2 
+4. Fb1 
+
+   +-----+---+-----+
+3  |     |   |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  | w |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/3
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fa3 
+
+
+   +----+---+-----+
+3  | b  |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/3/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fa3 
+4. Fb1 
+
+   +----+---+-----+
+3  | b  |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw | w |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/4
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sa3 
+
+
+   +-----+---+-----+
+3  | [b] |   |     | 
+   +-----+---+-----+
+2  |     | w | [b] | 
+   +-----+---+-----+
+1  | bw  |   |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/4/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sa3 
+4. Fb1 
+
+   +-----+---+-----+
+3  | [b] |   |     | 
+   +-----+---+-----+
+2  |     | w | [b] | 
+   +-----+---+-----+
+1  | bw  | w |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/5
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw | b |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa3
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/5/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+4. Fa3 
+
+   +----+---+-----+
+3  | w  |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw | b |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	sa2
+2	1b1<1
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/5/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+4. Fa3 Sa2 
+
+
+   +-----+---+-----+
+3  | w   |   |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  | b |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/5/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+4. Fa3 Sa2 
+5. Fb3 
+
+   +-----+---+-----+
+3  | w   | w |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  | b |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/5/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+4. Fa3 1b1<1 
+
+
+   +-----+---+-----+
+3  | w   |   |     | 
+   +-----+---+-----+
+2  |     | w | [b] | 
+   +-----+---+-----+
+1  | bwb |   |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/5/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb1 
+4. Fa3 1b1<1 
+5. Fb3 
+
+   +-----+---+-----+
+3  | w   | w |     | 
+   +-----+---+-----+
+2  |     | w | [b] | 
+   +-----+---+-----+
+1  | bwb |   |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/6
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+
+
+   +----+-----+-----+
+3  |    |     |     | 
+   +----+-----+-----+
+2  |    | w   | [b] | 
+   +----+-----+-----+
+1  | bw | [b] |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+White's optimal move in this state: 
+
+	fa3
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/6/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+4. Fa3 
+
+   +----+-----+-----+
+3  | w  |     |     | 
+   +----+-----+-----+
+2  |    | w   | [b] | 
+   +----+-----+-----+
+1  | bw | [b] |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	sa2
+2	1b1<1
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/6/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+4. Fa3 Sa2 
+
+
+   +-----+-----+-----+
+3  | w   |     |     | 
+   +-----+-----+-----+
+2  | [b] | w   | [b] | 
+   +-----+-----+-----+
+1  | bw  | [b] |     | 
+   +-----+-----+-----+
+     a     b     c    
+
+
+
+White's optimal move in this state: 
+
+	fb3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/6/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+4. Fa3 Sa2 
+5. Fb3 
+
+   +-----+-----+-----+
+3  | w   | w   |     | 
+   +-----+-----+-----+
+2  | [b] | w   | [b] | 
+   +-----+-----+-----+
+1  | bw  | [b] |     | 
+   +-----+-----+-----+
+     a     b     c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/6/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+4. Fa3 1b1<1 
+
+
+   +-------+---+-----+
+3  | w     |   |     | 
+   +-------+---+-----+
+2  |       | w | [b] | 
+   +-------+---+-----+
+1  | bw[b] |   |     | 
+   +-------+---+-----+
+     a       b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/6/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb1 
+4. Fa3 1b1<1 
+5. Fb3 
+
+   +-------+---+-----+
+3  | w     | w |     | 
+   +-------+---+-----+
+2  |       | w | [b] | 
+   +-------+---+-----+
+1  | bw[b] |   |     | 
+   +-------+---+-----+
+     a       b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/7
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+
+
+   +----+---+-----+
+3  |    | b |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa3
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/7/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+4. Fa3 
+
+   +----+---+-----+
+3  | w  | b |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	sa2
+2	1b3<1
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/7/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+4. Fa3 Sa2 
+
+
+   +-----+---+-----+
+3  | w   | b |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  |   |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/7/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+4. Fa3 Sa2 
+5. Fb1 
+
+   +-----+---+-----+
+3  | w   | b |     | 
+   +-----+---+-----+
+2  | [b] | w | [b] | 
+   +-----+---+-----+
+1  | bw  | w |     | 
+   +-----+---+-----+
+     a     b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/7/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+4. Fa3 1b3<1 
+
+
+   +----+---+-----+
+3  | wb |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/7/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fb3 
+4. Fa3 1b3<1 
+5. Fb1 
+
+   +----+---+-----+
+3  | wb |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw | w |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/8
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+
+
+   +----+-----+-----+
+3  |    | [b] |     | 
+   +----+-----+-----+
+2  |    | w   | [b] | 
+   +----+-----+-----+
+1  | bw |     |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/8/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+4. Fa2 
+
+   +----+-----+-----+
+3  |    | [b] |     | 
+   +----+-----+-----+
+2  | w  | w   | [b] | 
+   +----+-----+-----+
+1  | bw |     |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	fa3
+2	sa3
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/8/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+4. Fa2 Fa3 
+
+
+   +----+-----+-----+
+3  | b  | [b] |     | 
+   +----+-----+-----+
+2  | w  | w   | [b] | 
+   +----+-----+-----+
+1  | bw |     |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/8/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+4. Fa2 Fa3 
+5. Fb1 
+
+   +----+-----+-----+
+3  | b  | [b] |     | 
+   +----+-----+-----+
+2  | w  | w   | [b] | 
+   +----+-----+-----+
+1  | bw | w   |     | 
+   +----+-----+-----+
+     a    b     c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/8/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+4. Fa2 Sa3 
+
+
+   +-----+-----+-----+
+3  | [b] | [b] |     | 
+   +-----+-----+-----+
+2  | w   | w   | [b] | 
+   +-----+-----+-----+
+1  | bw  |     |     | 
+   +-----+-----+-----+
+     a     b     c    
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/8/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sb3 
+4. Fa2 Sa3 
+5. Fb1 
+
+   +-----+-----+-----+
+3  | [b] | [b] |     | 
+   +-----+-----+-----+
+2  | w   | w   | [b] | 
+   +-----+-----+-----+
+1  | bw  | w   |     | 
+   +-----+-----+-----+
+     a     b     c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/9
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fc1 
+
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   | b   | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/9/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fc1 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  | w  | w | [b] | 
+   +----+---+-----+
+1  | bw |   | b   | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/10
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sc1 
+
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   | [b] | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/10/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sc1 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  | w  | w | [b] | 
+   +----+---+-----+
+1  | bw |   | [b] | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/11
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+
+
+   +----+------+---+
+3  |    |      |   | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc3
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/11/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 
+
+   +----+------+---+
+3  |    |      | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	fa2
+2	sa2
+3	fa3
+4	sa3
+5	1b2<1
+6	2b2<2
+7	1b2>1
+8	2b2>2
+9	fb3
+10	sb3
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fa2 
+
+
+   +----+------+---+
+3  |    |      | w | 
+   +----+------+---+
+2  | b  | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fa2 
+5. Fc1 
+
+   +----+------+---+
+3  |    |      | w | 
+   +----+------+---+
+2  | b  | w[b] |   | 
+   +----+------+---+
+1  | bw |      | w | 
+   +----+------+---+
+     a    b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/2
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sa2 
+
+
+   +-----+------+---+
+3  |     |      | w | 
+   +-----+------+---+
+2  | [b] | w[b] |   | 
+   +-----+------+---+
+1  | bw  |      |   | 
+   +-----+------+---+
+     a     b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/2/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sa2 
+5. Fc1 
+
+   +-----+------+---+
+3  |     |      | w | 
+   +-----+------+---+
+2  | [b] | w[b] |   | 
+   +-----+------+---+
+1  | bw  |      | w | 
+   +-----+------+---+
+     a     b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/3
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fa3 
+
+
+   +----+------+---+
+3  | b  |      | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/3/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fa3 
+5. Fc1 
+
+   +----+------+---+
+3  | b  |      | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      | w | 
+   +----+------+---+
+     a    b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/4
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sa3 
+
+
+   +-----+------+---+
+3  | [b] |      | w | 
+   +-----+------+---+
+2  |     | w[b] |   | 
+   +-----+------+---+
+1  | bw  |      |   | 
+   +-----+------+---+
+     a     b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/4/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sa3 
+5. Fc1 
+
+   +-----+------+---+
+3  | [b] |      | w | 
+   +-----+------+---+
+2  |     | w[b] |   | 
+   +-----+------+---+
+1  | bw  |      | w | 
+   +-----+------+---+
+     a     b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/5
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 1b2<1 
+
+
+   +-----+---+---+
+3  |     |   | w | 
+   +-----+---+---+
+2  | [b] | w |   | 
+   +-----+---+---+
+1  | bw  |   |   | 
+   +-----+---+---+
+     a     b   c  
+
+
+
+White's optimal move in this state: 
+
+	fb1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/5/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 1b2<1 
+5. Fb1 
+
+   +-----+---+---+
+3  |     |   | w | 
+   +-----+---+---+
+2  | [b] | w |   | 
+   +-----+---+---+
+1  | bw  | w |   | 
+   +-----+---+---+
+     a     b   c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/6
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 2b2<2 
+
+
+   +------+---+---+
+3  |      |   | w | 
+   +------+---+---+
+2  | w[b] |   |   | 
+   +------+---+---+
+1  | bw   |   |   | 
+   +------+---+---+
+     a      b   c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/6/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 2b2<2 
+5. Fc1 
+
+   +------+---+---+
+3  |      |   | w | 
+   +------+---+---+
+2  | w[b] |   |   | 
+   +------+---+---+
+1  | bw   |   | w | 
+   +------+---+---+
+     a      b   c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/7
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 1b2>1 
+
+
+   +----+---+-----+
+3  |    |   | w   | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/7/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 1b2>1 
+5. Fa2 
+
+   +----+---+-----+
+3  |    |   | w   | 
+   +----+---+-----+
+2  | w  | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/8
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 2b2>2 
+
+
+   +----+---+------+
+3  |    |   | w    | 
+   +----+---+------+
+2  |    |   | w[b] | 
+   +----+---+------+
+1  | bw |   |      | 
+   +----+---+------+
+     a    b   c     
+
+
+
+White's optimal move in this state: 
+
+	fa3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/8/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 2b2>2 
+5. Fa3 
+
+   +----+---+------+
+3  | w  |   | w    | 
+   +----+---+------+
+2  |    |   | w[b] | 
+   +----+---+------+
+1  | bw |   |      | 
+   +----+---+------+
+     a    b   c     
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/9
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fb3 
+
+
+   +----+------+---+
+3  |    | b    | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/9/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Fb3 
+5. Fc1 
+
+   +----+------+---+
+3  |    | b    | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      | w | 
+   +----+------+---+
+     a    b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/11/1/10
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sb3 
+
+
+   +----+------+---+
+3  |    | [b]  | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      |   | 
+   +----+------+---+
+     a    b      c  
+
+
+
+White's optimal move in this state: 
+
+	fc1
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/11/1/10/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2<1 
+4. Fc3 Sb3 
+5. Fc1 
+
+   +----+------+---+
+3  |    | [b]  | w | 
+   +----+------+---+
+2  |    | w[b] |   | 
+   +----+------+---+
+1  | bw |      | w | 
+   +----+------+---+
+     a    b      c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/12
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2-1 
+
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  |    | w |     | 
+   +----+---+-----+
+1  | bw |   | [b] | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/12/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2-1 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   |     | 
+   +----+---+-----+
+2  | w  | w |     | 
+   +----+---+-----+
+1  | bw |   | [b] | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/13
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2+1 
+
+
+   +----+---+-----+
+3  |    |   | [b] | 
+   +----+---+-----+
+2  |    | w |     | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/13/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 1c2+1 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   | [b] | 
+   +----+---+-----+
+2  | w  | w |     | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/14
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fc3 
+
+
+   +----+---+-----+
+3  |    |   | b   | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/14/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Fc3 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   | b   | 
+   +----+---+-----+
+2  | w  | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/15
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sc3 
+
+
+   +----+---+-----+
+3  |    |   | [b] | 
+   +----+---+-----+
+2  |    | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+White's optimal move in this state: 
+
+	fa2
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/15/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Sc2 
+3. 1a2-1 Sc3 
+4. Fa2 
+
+   +----+---+-----+
+3  |    |   | [b] | 
+   +----+---+-----+
+2  | w  | w | [b] | 
+   +----+---+-----+
+1  | bw |   |     | 
+   +----+---+-----+
+     a    b   c    
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+

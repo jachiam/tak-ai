@@ -1,0 +1,180 @@
+=============================================================
+
+
+Ply:	4
+Branch:	
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+
+
+   +---+---+---+
+3  |   |   |   | 
+   +---+---+---+
+2  | w | w | b | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c  
+
+
+
+White's optimal move in this state: 
+
+	fb3
+
+
+=============================================================
+
+
+Ply:	5
+Branch:	/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+3. Fb3 
+
+   +---+---+---+
+3  |   | w |   | 
+   +---+---+---+
+2  | w | w | b | 
+   +---+---+---+
+1  | b |   |   | 
+   +---+---+---+
+     a   b   c  
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	1c2<1
+
+
+
+=============================================================
+
+
+Ply:	6
+Branch:	/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+3. Fb3 1c2<1 
+
+
+   +---+----+---+
+3  |   | w  |   | 
+   +---+----+---+
+2  | w | wb |   | 
+   +---+----+---+
+1  | b |    |   | 
+   +---+----+---+
+     a   b    c  
+
+
+
+White's optimal move in this state: 
+
+	1a2>1
+
+
+=============================================================
+
+
+Ply:	7
+Branch:	/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+3. Fb3 1c2<1 
+4. 1a2>1 
+
+   +---+-----+---+
+3  |   | w   |   | 
+   +---+-----+---+
+2  |   | wbw |   | 
+   +---+-----+---+
+1  | b |     |   | 
+   +---+-----+---+
+     a   b     c  
+
+
+
+Unique non-losing moves for black at this state: 
+
+1	sb1
+
+
+
+=============================================================
+
+
+Ply:	8
+Branch:	/1/1/1/1
+Player to move: White
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+3. Fb3 1c2<1 
+4. 1a2>1 Sb1 
+
+
+   +---+-----+---+
+3  |   | w   |   | 
+   +---+-----+---+
+2  |   | wbw |   | 
+   +---+-----+---+
+1  | b | [b] |   | 
+   +---+-----+---+
+     a   b     c  
+
+
+
+White's optimal move in this state: 
+
+	fa3
+
+
+=============================================================
+
+
+Ply:	9
+Branch:	/1/1/1/1/1
+Player to move: Black
+
+[Size "3"]
+
+1. Fa1 Fa2 
+2. Fb2 Fc2 
+3. Fb3 1c2<1 
+4. 1a2>1 Sb1 
+5. Fa3 
+
+   +---+-----+---+
+3  | w | w   |   | 
+   +---+-----+---+
+2  |   | wbw |   | 
+   +---+-----+---+
+1  | b | [b] |   | 
+   +---+-----+---+
+     a   b     c  
+
+
+
+Black has no non-losing moves at this state. White wins next round.
+
+
