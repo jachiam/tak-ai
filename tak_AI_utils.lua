@@ -232,14 +232,16 @@ function score_function_AT3(node,player,maxplayeris)
 		end
 	end
 
-	return position_strength + stack_mul*stacks_strength + island_strength + 3*node.player_flats[player] - node.player_pieces[player]
+	local position_mul = 0.2
+
+	return -position_mul*math.sqrt(-position_strength) + stack_mul*stacks_strength + island_strength + 3*node.player_flats[player] - node.player_pieces[player] - 2*node.player_caps[player]
 end
 
 
 function value_of_node3(node,maxplayeris)
 	local p1_score = score_function_AT3(node,1,maxplayeris)
 	local p2_score = score_function_AT3(node,2,maxplayeris)
-	local score = p1_score - p2_score + 0.25*(torch.uniform() - 0.5)
+	local score = p1_score - p2_score + (torch.uniform() - 0.5)
 	if maxplayeris == 2 then
 		score = -score
 	end

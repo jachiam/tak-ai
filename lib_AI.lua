@@ -760,6 +760,11 @@ function hacky_iterative_killer_search(node,maxdepth,value_of_node)
 		end
 	end
 	--killer_moves = {}
+	if maxdepth % 2 == 1 then
+		for j=1,#killer_moves do
+			killer_moves[j] = killer_moves[j+1]
+		end
+	end
 	killer_moves[maxdepth] = a
 	local v,a,nl = alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
 	return v,a,nl,killer_moves

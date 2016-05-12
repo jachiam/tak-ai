@@ -2719,3 +2719,137 @@ opponent is Guest1386
 ---WIN---
 
 
+----NEWGAME----
+bot is white
+opponent is StPenguin
+
+[Size "5"]
+
+1. Fe5 Fe1 
+2. Fc3 Fd4 
+3. Fc4 Fd3 
+4. Fc2 Fc1 
+5. Fc5 Fd2 
+6. Fb2 Fb1 
+7. Fd1 1d2-1 
+8. 1e1<1 1c1+1 
+9. Fb3 1b1+1 
+10. 3d1+12 Cd1 
+11. Fa3 2b2+2 
+12. 1a3>1 2c2+2 
+13. 4b3>112 1d4<1 
+14. 3c3<12 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is rustythoughts
+
+[Size "5"]
+
+1. Fe5 Fa1 
+2. Fb1 Fc1 
+3. Fb2 Fc3 
+4. Fb3 Fc4 
+5. Fb4 Fc5 
+6. Cb5 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is rustythoughts
+
+[Size "5"]
+
+1. Fe5 Fa1 
+2. Fc3 Fc4 
+3. Fe3 Fd4 
+4. Fb4 Fd3 
+5. Fd2 Fc5 
+6. Fa3 Fb3 
+7. Fb5 Fa4 
+8. Fa2 1b3+1 
+9. 1b5-1 1a4>1 
+10. Cb3 1c4-1 
+11. 1b3+1 Fa4 
+12. 1a3+1 Fa3 
+13. 1a2+1 Fc2 
+14. Fa5 2c3<11 
+15. 1b3<1 Cb3 
+16. Fa2 
+
+---LOSS---
+
+
+----NEWGAME----
+bot is white
+opponent is dove_queen
+
+[Size "5"]
+
+1. Fa1 Fe5 
+2. Fd4 Fc3 
+3. Fe4 Fc4 
+4. Fd3 Fd2 
+5. Fe2 Fe1 
+6. Fd1 1d2-1 
+7. Fc1 Fd2 
+8. 1e2<1 1c3>1 
+9. 2d2-2 Cd2 
+10. 3d1>3 Se2 
+11. Fb3 1e2-1 
+12. Fb4 Fc3 
+13. Fb5 4e1+112 
+14. Fc5 Fd5 
+15. 1d4+1 3e4+3 
+16. Fb2 1c4<1 
+17. Fc4 Sa4 
+18. 1b3>1 1d2<1 
+19. Fb1 1c2+1 
+20. 1c4<1 1a4>1 
+21. Fd2 4b4-22 
+22. Fa3 Fb4 
+23. Fa4 1b4<1 
+24. 1a3>1 Fd4 
+25. 1d2>1 1e1+1 
+26. Cd2 Fa2 
+27. 1d2+1 Fa5 
+28. 1b1<1 Fa3 
+29. 2d3+2 3e2<12 
+30. Fe2 2c3>2 
+31. Fb1 1a2-1 
+32. 2b3<2 3a1+12 
+33. 1b3<1 1a2+1 
+34. 1e2+1 5a3-32 
+
+
+---LOSS---
+
+
+----NEWGAME----
+bot is black
+opponent is redbeluga
+
+[Size "5"]
+
+1. Fa5 Fe5 
+2. Fd4 Fb2 
+3. Fd3 Fb3 
+4. Fd2 Fd1 
+5. Fe2 Fe1 
+6. Fe3 Fb1 
+7. Cc1 Fa3 
+8. Sa4 Fb4 
+9. Sb5 Fc4 
+10. 1b5-1 Fc3 
+11. 2b4>2 Cb4 
+12. 1a4-1 1a5>1 
+
+
+---WIN---
+
+
