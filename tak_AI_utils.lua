@@ -191,7 +191,7 @@ function score_function_AT3(node,player,maxplayeris)
 	end
 	local island_strength = 0
 	for j=1,#node.island_sums[player] do
-		island_strength = island_strength + (node.island_sums[player][j])^1.1
+		island_strength = island_strength + (node.island_sums[player][j])^1.2
 	end
 
 	local function control(x)
@@ -199,11 +199,50 @@ function score_function_AT3(node,player,maxplayeris)
 		return x[player][1] == 1 or x[player][2] == 1 or x[player][3] == 1
 	end
 
-	local stack_mul
-	if player == maxplayeris then
-		stack_mul = 0.5
-	else
+	local stack_mul, is_player_turn
+	if player == node:get_player() then
 		stack_mul = 0.75
+		is_player_turn = 1
+	else
+		stack_mul = 0.5
+		is_player_turn = 0
+	end
+
+	local function rough_influence_measure(i,j)
+		local enemy_flats = 0
+		local enemy_blocks = 0
+		local enemy_caps = 0
+		local self_flats = 0
+		local self_blocks = 0
+		if i>1 then
+			enemy_flats = enemy_flats + node.board_top[i-1][j][3-player][1]
+			enemy_blocks = enemy_blocks + node.board_top[i-1][j][3-player][2] + node.board_top[i-1][j][3-player][3]
+			enemy_caps = enemy_caps + node.board_top[i-1][j][3-player][3]
+			self_flats = self_flats + node.board_top[i-1][j][player][1]
+			self_blocks = self_blocks + node.board_top[i-1][j][player][2] + node.board_top[i-1][j][player][3]
+		end
+		if j>1 then
+			enemy_flats = enemy_flats + node.board_top[i][j-1][3-player][1]
+			enemy_blocks = enemy_blocks + node.board_top[i][j-1][3-player][2] + node.board_top[i][j-1][3-player][3]
+			enemy_caps = enemy_caps + node.board_top[i][j-1][3-player][3]
+			self_flats = self_flats + node.board_top[i][j-1][player][1]
+			self_blocks = self_blocks + node.board_top[i][j-1][player][2] + node.board_top[i][j-1][player][3]
+		end
+		if i<node.size then
+			enemy_flats = enemy_flats + node.board_top[i+1][j][3-player][1]
+			enemy_blocks = enemy_blocks + node.board_top[i+1][j][3-player][2] + node.board_top[i+1][j][3-player][3]
+			enemy_caps = enemy_caps + node.board_top[i+1][j][3-player][3]
+			self_flats = self_flats + node.board_top[i+1][j][player][1]
+			self_blocks = self_blocks + node.board_top[i+1][j][player][2] + node.board_top[i+1][j][player][3]
+		end
+		if j<node.size then
+			enemy_flats = enemy_flats + node.board_top[i][j+1][3-player][1]
+			enemy_blocks = enemy_blocks + node.board_top[i][j+1][3-player][2] + node.board_top[i][j+1][3-player][3]
+			enemy_caps = enemy_caps + node.board_top[i][j+1][3-player][3]
+			self_flats = self_flats + node.board_top[i][j+1][player][1]
+			self_blocks = self_blocks + node.board_top[i][j+1][player][2] + node.board_top[i][j+1][player][3]
+		end
+		return enemy_flats, enemy_blocks, enemy_caps, self_flats, self_blocks
 	end
 
 	local stacks_strength = 0
@@ -211,8 +250,10 @@ function score_function_AT3(node,player,maxplayeris)
 	local position_strength = 0
 	for i=1,node.size do
 		for j=1,node.size do
-			if control(node.board_top[i][j]) then
+			if control(node.board_top[i][j]) and node.heights[i][j] > 1 then
 				local stack_strength = 0
+				local reserves = 0
+				local captives = 0
 
 				local blocks = 1
 				if i>1 and node.blocks[i-1][j] then blocks = blocks + 1	end
@@ -221,9 +262,25 @@ function score_function_AT3(node,player,maxplayeris)
 				if node.blocks[i][j+1] then blocks = blocks + 1	end
 
 				for k=1, node.heights[i][j] do
-					stack_strength = stack_strength + node.board[i][j][k][player][1] - 0.5*node.board[i][j][k][3-player][1]
+					reserves =  reserves + node.board[i][j][k][player][1] 
+					captives =  captives + node.board[i][j][k][3-player][1]
 				end
-				
+
+				stack_strength = reserves - 0.5*captives
+
+				local ef, eb, ec, sf, sb = rough_influence_measure(i,j)
+
+				local walltop, captop = 0,0
+				if node.top_walls[i][j] then walltop = 1 end
+				if node.board_top[i][j][player][3] == 1 then captop = 1 end
+
+				stack_strength = stack_strength - (1.5-is_player_turn)*ef*(1-captop)
+								+ 1.5*sf
+								+ 2*sb
+								- (3-is_player_turn)*eb*(1+ captives/2)*(1-captop)
+								- (3-is_player_turn)*ec*captives*(1-captop)
+								- captives*captop
+											
 				if stack_strength > 0 then sign = 1 else sign = -1 end
 				stacks_strength = stacks_strength + sign*(math.abs(stack_strength)^1.05)/blocks
 

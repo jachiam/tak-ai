@@ -1,0 +1,692 @@
+----NEWGAME----
+bot is white
+opponent is sffubs
+
+[Size "5"]
+
+1. Fa2 Fc5 
+2. Fc4 Fb2 
+3. Fc2 1b2>1 
+4. Fc1 2c2-2 
+5. Fd1 3c1>3 
+6. Fd2 4d1+4 
+7. Fc2 Fd1 
+8. Fc3 Fc1 
+9. Fb2 Fb1 
+10. Fb3 Fa1 
+11. 1b2-1 1a1>1 
+12. Cb2 2b1<2 
+13. 1b2-1 Fb2 
+14. 1b3-1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is rjclarkmu
+
+[Size "5"]
+
+1. Fa5 Fe1 
+2. Fe2 Fc4 
+3. Fe3 Fd4 
+4. Fe4 1d4>1 
+5. 1e3+1 Fd5 
+6. Fe3 Se5 
+7. 3e4<12 Fb3 
+8. Fd3 Fa3 
+9. Fc5 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is rustythoughts
+
+[Size "5"]
+
+1. Fa5 Fe5 
+2. Fb5 Fb4 
+3. Fb3 Fc5 
+4. Fc4 Fa4 
+5. Fc2 Fa3 
+6. Fa2 1a5>1 
+7. Fd3 Fd4 
+8. Cc3 Fe4 
+9. 1d3+1 Fd5 
+10. 1e5<1 Fc1 
+11. Fe5 1c5>1 
+12. 2d4+2 Fc5 
+13. 5d5<23 1b4+1 
+14. 3c5<3 Fa5 
+15. 4b5>4 1a5>1 
+16. Fd4 4b5>112 
+17. 1c4+1 1d5<1 
+18. Sd5 5c5<32 
+19. Fd3 5b5-1112 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is rustythoughts
+
+[Size "5"]
+
+1. Fe1 Fb1 
+2. Fc2 Fc3 
+3. Fb2 Fd2 
+4. Fb3 Fd3 
+5. Fb4 Fb5 
+6. Fc4 Fc5 
+7. Fa5 1c3<1 
+8. Fa4 Cc3 
+9. Fa3 1b5<1 
+10. Cb5 Sa2 
+11. 1a3>1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is StPenguin
+
+[Size "5"]
+
+1. Fa1 Fe5 
+2. Fd5 Fb5 
+3. Fd4 Fb3 
+4. Fd3 Fd1 
+5. Fd2 Fc1 
+6. Fe1 1d1+1 
+7. Fe2 Se3 
+8. Fc2 1e3<1 
+9. Ce3 2d2>2 
+10. Fc4 Fb4 
+11. 1e3-1 2d3>2 
+12. Fd2 Cb2 
+13. Fc3 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is StPenguin
+
+[Size "5"]
+
+1. Fb5 Fd5 
+2. Fd4 Fa4 
+3. Fd3 Fb4 
+4. Fd2 Fd1 
+5. Fe2 Fe1 
+6. Fc1 1d1+1 
+7. 1e2<1 Fa3 
+8. 1c1>1 
+
+---LOSS---
+
+
+----NEWGAME----
+bot is white
+opponent is timerot
+
+[Size "5"]
+
+1. Fe5 Fa5 
+2. Fb5 Fc3 
+3. Fc4 Fd4 
+4. Fc5 Fd3 
+5. Fd5 Fe4 
+6. Fe3 Fc2 
+7. 1c4>1 1d3+1 
+8. Fa4 2d4+2 
+9. Fc1 Fb2 
+10. 1e3+1 1e5-1 
+11. Cd3 Fc4 
+12. 1d3+1 Fa2 
+13. Fd2 3e4-12 
+14. Fd3 2e2<2 
+15. 1c1+1 1c3-1 
+16. Se2 Fd1 
+17. 1e2<1 2c2+2 
+18. 2d4+2 Se5 
+19. 4d5<4 Fc1 
+20. 4d2<112 Fb1 
+21. 5c5-14 Sb4 
+22. 5c3-23 1b4>1 
+23. Fd4 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is fhantom
+
+[Size "5"]
+
+1. Fa5 Fe2 
+2. Fd2 Fa3 
+3. Fe3 Fb4 
+4. Fe4 Fe5 
+5. Fd5 Fc5 
+6. 1d5>1 Se1 
+7. Cd1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Autoson1009
+
+[Size "5"]
+
+1. Fa5 Fe1 
+2. Fe5 Fa4 
+3. Fe3 Fe4 
+4. 1e3+1 Fd4 
+5. 2e4<2 Fd3 
+6. 3d4-3 Fe3 
+7. 4d3>4 Fd3 
+8. Fe2 1d3>1 
+9. Ce4 5e3<1112 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Autoson1009
+
+[Size "5"]
+
+1. Fb4 Fa1 
+2. Fb1 Fc4 
+3. Fc1 Fb5 
+4. Fc2 Fd4 
+5. 1c2-1 Fe4 
+6. Sa4 Fa5 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Autoson1009
+
+[Size "5"]
+
+1. Fc5 Fe1 
+2. Cc4 Fb5 
+3. Fd2 Fd5 
+4. Fc2 Fe5 
+5. 1c4+1 Fc4 
+6. 2c5>11 Fe4 
+7. Fa2 Fb2 
+8. Fc1 Fb4 
+9. 2e5-11 Fa5 
+10. Sd4 Fb3 
+11. 1c2<1 Fe5 
+12. Fe2 Cc5 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is timerot
+
+[Size "5"]
+
+1. Fa1 Fe1 
+2. Fc1 Fb3 
+3. Fd1 Fa2 
+4. Fc2 Fb4 
+5. Fb5 Fa5 
+6. Fa4 Fa3 
+7. 1b5-1 Cc4 
+8. Fb2 1c4<1 
+9. 1b2<1 Fb2 
+10. 2a2-2 Fb1 
+11. 3a1>3 Sa1 
+12. 4b1+13 2b4-2 
+13. Cc3 Fb1 
+14. 1c2<1 5b3-5 
+15. 1c3<1 4b2>13 
+16. 2b3-2 Fc3 
+17. Fa2 1b1>1 
+18. Fb3 Fc4 
+19. 3b2>3 1a3+1 
+20. Fa3 Fd3 
+21. 1b3>1 Fd4 
+22. 2c3+2 1d4<1 
+23. 4c2+13 3d2<3 
+24. Fb3 3c2<3 
+25. 4c4<4 1c3+1 
+26. 1a3+1 3c4-12 
+27. 1d1<1 Fc5 
+28. 3c1+12 5b2>14 
+29. 2a4+2 2c2+2 
+30. 1b3>1 1d3<1 
+31. 5b4>5 5c3>5 
+32. Sc1 Fd4 
+33. Fd1 Fd5 
+34. 1c1+1 Fc1 
+35. 3c2-3 Fb1 
+36. 4c1+22 Fc1 
+37. 4c3>13 1c1>1 
+
+
+---LOSS---
+
+
+----NEWGAME----
+bot is white
+opponent is fhantom
+
+[Size "5"]
+
+1. Fc5 Fa5 
+2. Fa4 Fb3 
+3. Fa3 Fa1 
+4. Fa2 Fb1 
+5. Fb2 1b3-1 
+6. Fc2 Fb3 
+7. 1a2>1 1b3-1 
+8. Fc1 2b2>2 
+9. Fc3 Fd2 
+10. 1c3-1 2b2>2 
+11. Fd1 Fb2 
+12. Fe2 5c2>23 
+13. 1c2>1 Cc2 
+14. 2d2>2 Se3 
+15. 5e2-5 Fc3 
+16. Fc4 1c5-1 
+17. Fc5 Fd4 
+18. 5e1<113 1b2-1 
+19. 2c1<11 Fd5 
+20. 2b1>2 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is fhantom
+
+[Size "5"]
+
+1. Fe3 Fe1 
+2. Fc2 Fd2 
+3. Fc4 Fd3 
+4. Fc3 Fc1 
+5. Fd1 Fb2 
+6. Fb3 1c1+1 
+7. 1b3-1 Fb3 
+8. Se2 Fa3 
+9. 2b2+2 Fb2 
+10. 1e2<1 1a3>1 
+11. Fc1 Fa2 
+12. 1c3<1 Fc3 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is fhantom
+
+[Size "5"]
+
+1. Fa5 Fa1 
+2. Fc2 Fb4 
+3. Fc3 Fb3 
+4. Fc1 Fc4 
+5. Fb2 Fd4 
+6. Sc5 Fb5 
+7. 1c5-1 Fc5 
+8. Sd5 Fa2 
+9. Fe1 Cb1 
+10. Ca3 1a2>1 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Hackthulhu
+
+[Size "5"]
+
+1. Fb1 Fa1 
+2. Fa3 Fb2 
+3. Fc3 Fc2 
+4. Fd3 Fb3 
+5. 1a3>1 Fa3 
+6. Sb4 Fa2 
+7. Fe3 Fa4 
+8. Fa5 Fb5 
+9. 1a5-1 1b2+1 
+10. Fb2 3b3>12 
+11. 1e3<1 2c3>2 
+12. 2a4-11 2a3-11 
+13. Fe3 2a2>2 
+14. 1e3<1 Cd2 
+15. Se2 Fe1 
+16. Cd1 1d2+1 
+17. Fc1 5d3<32 
+18. 1c1<1 Fe3 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is chris2c2
+
+[Size "5"]
+
+1. Fa1 Fd2 
+2. Fd1 Fa2 
+3. Fd3 Fa3 
+4. Fd4 Fd5 
+5. Fe5 Ce4 
+6. 1e5<1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is TexMemelord
+
+[Size "5"]
+
+1. Fa1 Fe5 
+2. Fd5 Fa5 
+3. Fd4 Fe1 
+4. Fc4 Fc3 
+5. Fb4 Fa4 
+6. Fa3 Fb3 
+7. 1a3+1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is TexMemelord
+
+[Size "5"]
+
+1. Fe1 Fb5 
+2. Fc5 Fe2 
+3. Fb4 Fe4 
+4. Fe5 Fd5 
+5. 1e5<1 Fe5 
+6. Fe3 Fd3 
+7. 2d5>2 1e4+1 
+8. Se4 4e5<112 
+9. Fa5 Fd2 
+10. 1e4<1 Fc2 
+11. 1b4+1 Fa2 
+12. Fb2 Fb1 
+13. 1b2<1 Ca1 
+14. 1e3-1 Fc1 
+15. Sd1 Fe3 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is Swizy
+
+[Size "5"]
+
+1. Fe4 Fa1 
+2. Fa2 Fb4 
+3. Fa4 Fb3 
+4. Fa3 Fa5 
+5. Fb5 Fc5 
+6. 1b5<1 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is alphatak
+
+[Size "5"]
+
+1. Fa1 Fe4 
+2. Fd4 Fb1 
+3. Fc4 Fb4 
+4. Fb5 Fc5 
+5. Fc3 Fb3 
+6. Fa4 1c5-1 
+7. 1c3+1 1b4>1 
+8. 1d4<1 Fc3 
+9. 4c4>22 1c3+1 
+10. Fc5 Cd5 
+11. Fe1 Fb4 
+12. 1c5-1 1d5-1 
+13. 3e4-12 3d4<3 
+14. Ce4 Se5 
+15. Fd5 4c4>4 
+16. Fc5 Fb2 
+17. 1b5-1 Fc3 
+18. 1c5-1 2d4<2 
+19. 2b4-2 Fc2 
+20. Sc5 1c3<1 
+21. 1e4<1 4b3>112 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Turing
+
+[Size "5"]
+
+1. Fa5 Fe2 
+2. Fd2 Fa4 
+3. Fb2 Fa2 
+4. Fa3 Fb3 
+5. Fa1 1a2>1 
+6. Ca2 Fb4 
+7. 1a2>1 Fe1 
+8. Fc2 1e1+1 
+9. Fa2 1b3<1 
+10. Fd3 Fe3 
+11. Fe1 2e2<2 
+12. 1d3-1 2a3-2 
+13. 1a1+1 Se2 
+14. 3d2-3 
+
+---LOSS---
+
+
+----NEWGAME----
+bot is black
+opponent is Oura_In_Flames
+
+[Size "5"]
+
+1. Fc2 Fe4 
+2. Fe2 Fd2 
+3. Fe3 Fe1 
+4. Fd3 Fd1 
+5. Cc3 Fb2 
+6. 1e2-1 1d1>1 
+7. Fa3 3e1+12 
+8. 1c3-1 Fc3 
+9. 1e4-1 Fd4 
+10. 3e3-12 1d2>1 
+11. Fe5 3e2-3 
+12. 1d3+1 Fa1 
+13. 2c2+2 Fb1 
+14. 2d4>2 4e1<22 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is Oura_In_Flames
+
+[Size "5"]
+
+1. Fa1 Fd4 
+2. Fd3 Fa3 
+3. Fd5 Fc3 
+4. Fd2 1c3>1 
+5. Fe3 2d3>2 
+6. Fd3 Sd1 
+7. Fe4 3e3<12 
+8. 1d3<1 Cc2 
+9. 3c3<12 Se3 
+10. Fc3 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is bg125
+
+[Size "5"]
+
+1. Fe5 Fb3 
+2. Fc3 Fe4 
+3. Fe3 Fd4 
+4. Fd3 Sa3 
+5. Fb4 Fd2 
+6. Ca4 
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Beardedluthier7
+
+[Size "5"]
+
+1. Fa1 Fe1 
+2. Fd2 Fa2 
+3. Fd3 Fa4 
+4. Fc3 Fa3 
+5. Fa5 Fb4 
+6. Fb5 1b4+1 
+7. 1c3<1 1b5<1 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is black
+opponent is Oura_In_Flames
+
+[Size "5"]
+
+1. Fb4 Fa5 
+2. Fc5 Fb5 
+3. Fc4 Fb3 
+4. Fb1 Fb2 
+5. Sc2 Fa2 
+6. 1c2<1 Fa1 
+7. 1b1<1 Fa3 
+8. 2b2+2 Fa4 
+9. Fc3 Fb1 
+10. 3b3+3 Fb2 
+11. 4b4+4 Fc2 
+12. 5b5-5 Fd2 
+13. 2a1>2 Fe2 
+
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is Zenith
+
+[Size "5"]
+
+1. Fa1 Fa2 
+2. Fb3 Fc3 
+3. Fb2 Fc4 
+4. Fb4 Fb5 
+5. Fc2 Fc5 
+6. Fd2 Fe2 
+7. Fe3 1e2<1 
+8. Fd3 2d2<2 
+9. 1b2>1 1c3-1 
+10. Cc3 Ca3 
+11. Fa4 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is UnSweet
+
+[Size "5"]
+
+1. Fe1 Fd1 
+2. Fd2 Fe3 
+3. Fd3 Fd4 
+4. Fc3 Fb3 
+5. Fc4 Fc5 
+6. Fd5 1d4<1 
+7. Fd4 
+
+---WIN---
+
+
+----NEWGAME----
+bot is white
+opponent is UnSweet
+
+[Size "5"]
+
+1. Fa5 Fe5 
+2. Fd5 Fc3 
+3. Fd4 Fd3 
+4. Fc4 Fa4 
+5. Fb4 Fb3 
+6. Fa3 1b3+1 
+7. Fb3 Fe3 
+8. Fc2 1c3+1 
+9. Cc3 2c4>2 
+10. Fc4 Cc5 
+11. 1d5-1 1d3+1 
+12. 1c4>1 1c5-1 
+13. 5d4-122 1e3<1 
+14. Fe2 
+
+---WIN---
+
+

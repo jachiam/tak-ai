@@ -286,7 +286,7 @@ def run():
     else:
       opponent = spl[4]
 
-    send('Shout lets do our best to play a beautiful game!')
+    #send('Shout lets do our best to play a beautiful game!')
     global gameno
     gameno = spl[2]
     print 'gameno='+gameno

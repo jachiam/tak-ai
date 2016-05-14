@@ -17,7 +17,7 @@ else
 	AI_vs_AI(game,human,takai)
 end
 
-local f = torch.DiskFile('interesting games/takai_playtak2.txt','rw')
+local f = torch.DiskFile('interesting games/takai_playtak3.txt','rw')
 f:seekEnd()
 f:writeString('----NEWGAME----\n')
 if arg[1]=='True' then

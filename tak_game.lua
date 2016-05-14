@@ -115,6 +115,40 @@ function tak:__init(size,making_a_copy)
 	self.top_walls = self:make_filled_table(0)
 	self.blocks = self:make_filled_table(0)
 
+	--[[
+	self.moves = {}
+	self.l2i = {a=1,b=2,c=3,d=4,e=5,f=6,g=7,h=8}
+	for j=1,#self.move2ptn do
+		local move = self.move2ptn[j]
+		local first = string.sub(move,1,1)
+		if first == 'f' or first == 's' or first == 'c' then
+			self.moves[j] = {ptn=move,
+					 is_place=true,
+					 use_cap= first=='c',
+					 x=self.l2i[string.sub(move,2,2)],
+					 y=tonumber(string.sub(move,3,3))}
+		else
+			self.moves[j] = {ptn=move,
+					 is_place=false,
+					 use_cap=false,
+					 x=self.l2i[string.sub(move,2,2)],
+					 y=tonumber(string.sub(move,3,3)),
+					 sum=tonumber(first),
+					 slide={}}
+			local slide = string.sub(move,4,#move)
+			for k=2,#slide do
+				table.insert(self.moves[j].slide, tonumber(string.sub(slide,k,k)))
+			end
+			self.moves[j].dist = #self.moves[j].slide
+			local dir = string.sub(slide,1,1)
+			self.moves[j].dir = dir
+			if dir=='<' then self.moves[j].del = {-1,0}
+			elseif dir=='+' then self.moves[j].del = {0,1}
+			elseif dir=='>' then self.moves[j].del = {1,0}
+			elseif dir=='-' then self.moves[j].del = {0,-1}
+			end
+		end
+	end]]
 end
 
 

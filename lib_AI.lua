@@ -327,6 +327,11 @@ function flat_mc_AI:move(node)
 	local n = node:get_i2n(a[1])
 	if self.debug then
 		print('MC move: ' .. n .. ', Value: ' .. av[a[1]] .. ', Num Simulations: ' .. nv:sum() .. ', Time taken: ' .. elapsed_time)
+		for j=1,nv:numel() do
+			if nv[j] > 0 then
+				print(node:get_i2n(j) .. '\t av:\t' .. av[j] .. ', nv:\t' .. nv[j] .. ', wm: ' .. wm[j] .. ', lm: ' .. lm[j])
+			end
+		end
 	end
 	node:make_move(a[1])
 	return true
