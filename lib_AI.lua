@@ -679,7 +679,9 @@ function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 
 	if maximizingPlayer then
 		v = -1/0
-		for i,move in pairs(legal) do
+		--for i,move in pairs(legal) do
+		for i=1,#legal do
+			local move = legal[i]
 			node:make_move(move, depth==1)
 			val, _, nl = alphabeta4(node,depth- 1, a, b, false, maxplayeris,value_of_node,killer_moves)
 			num_leaves = num_leaves + nl
@@ -696,7 +698,9 @@ function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 		end
 	else
 		v = 1/0
-		for i,move in pairs(legal) do
+		--for i,move in pairs(legal) do
+		for i=1,#legal do
+			local move = legal[i]
 			node:make_move(move, depth==1)
 			val, _, nl = alphabeta4(node,depth- 1, a, b, true, maxplayeris,value_of_node,killer_moves)
 			num_leaves = num_leaves + nl

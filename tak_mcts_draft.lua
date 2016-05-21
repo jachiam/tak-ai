@@ -34,6 +34,7 @@ function mcts_node:__init(game_state,maxplayeris,no_rollouts)
 	self.Q  = torch.zeros(#self.legal_move_table)
 	self.Nr_sum = 0		-- how many rollouts did we explore from this node?
 	self.value = nil	-- value of this node as a leaf
+	self.game_value = 0.5
 
 	self.guaranteed_losses = torch.zeros(#self.legal_move_table)
 	self.guaranteed_wins = torch.zeros(#self.legal_move_table)

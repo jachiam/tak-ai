@@ -137,12 +137,12 @@ def server_to_bot(move):
   spl = move.split(' ')
   #Game#1 P A4 (C|W)
   if spl[1] == 'P':
-    stone=''
+    stone='f'
     if len(spl) == 4:
       if spl[3]=='W':
-        stone='S'
+        stone='s'
       else:
-        stone='C'
+        stone='c'
     return stone+spl[2].lower()
 
   #Game#1 M A2 A5 2 1
