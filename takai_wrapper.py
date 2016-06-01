@@ -60,7 +60,7 @@ def send(msg):
     print 'Socket error when trying to send ', e, sock, connected
 
 def post_seek(size, time):
-  send('Seek '+str(size)+' '+str(time))
+  send('Seek '+str(size)+' '+str(time) + ' 0')
 
 def bot_to_server(move):
   move = move.strip()

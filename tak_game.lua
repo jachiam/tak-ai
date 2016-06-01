@@ -1,8 +1,10 @@
 require 'torch'
 require 'math'
 require 'move_enumerator'
-ffi = require('ffi')
-require 'bit'
+--ffi = require('ffi')
+--require 'bit'
+
+local min, max = math.min, math.max
 
 local tak = torch.class('tak')
 
@@ -306,7 +308,7 @@ end
 
 function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 	local start_time = os.clock()
-	local hand = math.min(self.heights[i],self.size)
+	local hand = min(self.heights[i],self.size)
 	local top_is_cap = self.board_top[i][player][3] == 1
 	local seqs, dist, x
 
@@ -435,6 +437,31 @@ function tak:get_legal_moves(player)
 		end
 	end
 
+	--[[
+	for i=1,board_size do
+		self.blocks[i] = (board_top[i][1] == self.s or board_top[i][1] == self.c
+				or board_top[i][2] == self.s or board_top[i][2] == self.c)
+		self.top_walls[i] = board_top[i][1] == self.s or board_top[i][2] == self.s
+		if empty[i]==1 and ply > 1 then
+			if player_pieces[player] > 0 then
+				legal_moves_ptn[#legal_moves_ptn+1] = 'f' .. pos[i]
+				legal_moves_ptn[#legal_moves_ptn+1] = 's' .. pos[i]
+			end
+			if player_caps[player] > 0 then
+				legal_moves_ptn[#legal_moves_ptn+1] = 'c' .. pos[i]
+			end
+		elseif empty[i]==1 then
+			legal_moves_ptn[#legal_moves_ptn+1] = 'f' .. pos[i]
+		end
+	end
+
+	if ply > 1 then
+		for i=1,board_size do
+			if not(board_top[i][player] == self.em) then
+				self:check_stack_moves(legal_moves_ptn,player,i,pos[i])
+			end
+		end
+	end]]
 
 	local legal_moves_check = {}
 	for i=1,#legal_moves_ptn do
@@ -729,9 +756,6 @@ function tak:make_filled_table(n)
 	end
 	return ntab
 end
-
-
-local min, max = math.min, math.max
 
 function tak:check_victory_conditions()
 	local player_one_remaining = self.player_pieces[1] + self.player_caps[1]
