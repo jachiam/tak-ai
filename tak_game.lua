@@ -12,6 +12,9 @@ local tak = torch.class('tak')
 -- which is helpful in the AI tree search.
 function tak:__init(size,making_a_copy)
 
+	self.switch = true
+	self.floodswitch=false
+
 	self.verbose = false
 	self.size = size or 5
 	if self.size == 3 then
@@ -67,6 +70,7 @@ function tak:__init(size,making_a_copy)
 			self.board[i][k] = {self.em,self.em}
 		end
 	end
+	self.board_size = self.size*self.size
 
 	-- convenience variable for keeping track of the topmost entry in each position
 	self.heights = {}
@@ -95,8 +99,8 @@ function tak:__init(size,making_a_copy)
 	--sbsd1: when the last stone is a cap crushing a wall
 	self.move2ptn, self.ptn2move, _, _, _, _, _, self.sbsd, self.sbsd1 = ptn_moves(self.carry_limit)
 
-	self.top_walls = self:make_filled_table(0)
-	self.blocks = self:make_filled_table(0)
+	self.top_walls = self:make_filled_table(false)
+	self.blocks = self:make_filled_table(false)
 
 	self.is_up_boundary = {}
 	self.is_down_boundary = {}
@@ -154,7 +158,11 @@ function tak:__init(size,making_a_copy)
 		end
 	end
 
+	self.queue = {}
+	for i=1,self.board_size do self.queue[i] = 0 end
+
 	self.explored = {}
+	self:generate_all_moves()
 	self:populate_legal_moves_at_this_ply()
 
 	self.game_over = false
@@ -162,12 +170,82 @@ function tak:__init(size,making_a_copy)
 	self.win_type = 'NA'
 
 	self.island_sums = {{},{}}
-	self.islands_minmax = {{},{}}
+	self.island_max_dims = {0,0}
+	self.island_len_sums = {0,0}
 	self.player_flats = {0,0}
 
+	self.loop_count = 0
+	self.loop_len = 0
 end
 
+function tak:generate_all_moves()
+	self.place_flat = {}
+	self.place_wall = {}
+	self.place_cap  = {}
+	self.moves = {}
+	self.moves1 = {}
+	self.move2pos = {}
+	--self.move2type = {}
+	self.is_place_flat = {}
+	self.is_place_wall = {}
+	self.is_place_cap  = {}
+	self.move2stacksum = {}
+	self.move2stackdel = {}
+	self.move2stackstr = {}
+	local move_type,ptn,stackdir,stackstr
+	for i=1,#self.move2ptn do
+		ptn = self.move2ptn[i]
+		move_type = string.sub(ptn,1,1)
+		self.is_place_flat[ptn] = move_type == 'f'
+		self.is_place_wall[ptn] = move_type == 's'
+		self.is_place_cap[ptn] = move_type == 'c'
 
+		self.move2stacksum[ptn] = tonumber(move_type)
+		if tonumber(move_type) then
+			stackdir = string.sub(ptn,4,4)
+			stackstr = string.sub(ptn,5,#ptn)
+			if stackdir == '<' then self.move2stackdel[ptn] = -1
+			elseif stackdir == '+' then self.move2stackdel[ptn] = self.size
+			elseif stackdir == '>' then self.move2stackdel[ptn] = 1
+			elseif stackdir == '-' then self.move2stackdel[ptn] = -self.size
+			end
+			self.move2stackstr[ptn] = stackstr
+		end
+
+		self.move2pos[ptn] = self.pos2index[string.sub(ptn,2,3)]
+	end
+
+	local dirs = {'<','+','>','-'}
+	for i=1, self.board_size do
+		self.place_flat[i] = 'f' .. self.pos[i]
+		self.place_wall[i] = 's' .. self.pos[i]
+		self.place_cap[i]  = 'c' .. self.pos[i]
+		self.moves[i] = {}
+		self.moves1[i] = {}
+		for k=1,4 do
+			self.moves[i][k] = {}
+			self.moves1[i][k] = {}
+			if (k==1 and self.has_left[i]) or (k==2 and self.has_up[i]) or (k==3 and self.has_right[i]) or (k==4 and self.has_down[i]) then
+				for j=1,self.size do
+					self.moves[i][k][j] = {}
+					self.moves1[i][k][j] = {}
+					for l=1,j do
+						self.moves[i][k][j][l] = {}
+						self.moves1[i][k][j][l] = {}
+						local seqs = self.sbsd[j][l]
+						for m=1,#seqs do
+							self.moves[i][k][j][l][m] = seqs[m][1] .. self.pos[i] .. dirs[k] .. seqs[m][2]
+						end
+						local seqs1 = self.sbsd1[j][l]
+						for m=1,#seqs1 do
+							self.moves1[i][k][j][l][m] = seqs1[m][1] .. self.pos[i] .. dirs[k] .. seqs1[m][2]
+						end
+					end
+				end
+			end
+		end
+	end
+end
 
 function tak:get_history()
 	return self.move_history_ptn
@@ -218,7 +296,9 @@ function tak:undo()
 	local most_recent_move = self.move_history_ptn[#self.move_history_ptn]
 	self.move_history_ptn[#self.move_history_ptn] = nil
 	self.move_history_idx[#self.move_history_idx] = nil
-	self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
+	if #self.legal_moves_by_ply > self.ply + 1 then
+		self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
+	end
 
 	self:undo_move(most_recent_move,true,true)
 
@@ -275,6 +355,11 @@ function tak:fast_clone()
 	copy.ptn2move = self.ptn2move
 	copy.sbsd = self.sbsd
 	copy.sbsd1 = self.sbsd1
+	copy.place_flat = self.place_flat
+	copy.place_wall = self.place_wall
+	copy.place_cap  = self.place_cap
+	copy.moves      = self.moves
+	copy.moves1     = self.moves1
 	copy.island_sums = {{},{}}
 	copy.islands_minmax = {{},{}}
 	copy.player_flats = {0,0}
@@ -313,6 +398,7 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 	local seqs, dist, x
 
 	local sbsd, sbsd1 = self.sbsd, self.sbsd1
+	local n = #legal_moves_ptn
 
 	dist = 0
 	x = i - 1
@@ -320,15 +406,19 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 		dist = dist + 1
 		x = x - 1
 	end
-	if dist<hand and not(self.is_left_boundary[x]) and top_is_cap and self.top_walls[x] then 
+	if top_is_cap and dist<hand and not(self.is_left_boundary[x]) and self.top_walls[x] then 
 		dist = dist + 1
 		seqs = sbsd1[hand][dist]
 	else
 		seqs = sbsd[hand][dist]
 	end
-	if dist>0 then
-		local n=#legal_moves_ptn
+	if hand == 1 and dist == 1 then
+		n = n + 1
+		legal_moves_ptn[n] = seqs[1][1] .. pos .. '<' .. seqs[1][2]
+	elseif dist>0 then
 		local N = #seqs
+		self.loop_count = self.loop_count + 1
+		self.loop_len = self.loop_len + N
 		for m=1,N do
 			n = n + 1
 			legal_moves_ptn[n] = seqs[m][1] .. pos .. '<' .. seqs[m][2]
@@ -341,15 +431,20 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 		dist = dist + 1
 		x = x - self.size
 	end
-	if dist<hand and x > 0 and top_is_cap and self.top_walls[x] then 
+	if top_is_cap and dist<hand and x > 0 and self.top_walls[x] then 
 		dist = dist + 1
 		seqs = sbsd1[hand][dist]
 	else
 		seqs = sbsd[hand][dist]
 	end
-	if dist>0 then
-		local n=#legal_moves_ptn
+	--if dist>0 then
+	if hand == 1 and dist == 1 then
+		n = n + 1
+		legal_moves_ptn[n] = seqs[1][1] .. pos .. '-' .. seqs[1][2]
+	elseif dist>0 then
 		local N = #seqs
+		self.loop_count = self.loop_count + 1
+		self.loop_len = self.loop_len + N
 		for m=1,N do
 			n = n + 1
 			legal_moves_ptn[n] = seqs[m][1] .. pos .. '-' .. seqs[m][2]
@@ -363,15 +458,20 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 		dist = dist + 1
 		x = x + 1
 	end
-	if dist<hand and not(self.is_right_boundary[x]) and top_is_cap and self.top_walls[x] then 
+	if top_is_cap and dist<hand and not(self.is_right_boundary[x]) and self.top_walls[x] then 
 		dist = dist + 1
 		seqs = sbsd1[hand][dist]
 	else
 		seqs = sbsd[hand][dist]
 	end
-	if dist>0 then
-		local n=#legal_moves_ptn
+	--if dist>0 then
+	if hand == 1 and dist == 1 then
+		n = n + 1
+		legal_moves_ptn[n] = seqs[1][1] .. pos .. '>' .. seqs[1][2]
+	elseif dist>0 then
 		local N = #seqs
+		self.loop_count = self.loop_count + 1
+		self.loop_len = self.loop_len + N
 		for m=1,N do
 			n = n + 1
 			legal_moves_ptn[n] = seqs[m][1] .. pos .. '>' .. seqs[m][2]
@@ -385,15 +485,20 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 		dist = dist + 1
 		x = x + self.size
 	end
-	if dist<hand and not(self.is_up_boundary[x]) and top_is_cap and self.top_walls[x] then 
+	if top_is_cap and dist<hand and not(self.is_up_boundary[x]) and self.top_walls[x] then 
 		dist = dist + 1
 		seqs = sbsd1[hand][dist]
 	else
 		seqs = sbsd[hand][dist]
 	end
-	if dist>0 then
-		local n=#legal_moves_ptn
+	--if dist>0 then
+	if hand == 1 and dist == 1 then
+		n = n + 1
+		legal_moves_ptn[n] = seqs[1][1] .. pos .. '+' .. seqs[1][2]
+	elseif dist>0 then
 		local N = #seqs
+		self.loop_count = self.loop_count + 1
+		self.loop_len = self.loop_len + N
 		for m=1,N do
 			n = n + 1
 			legal_moves_ptn[n] = seqs[m][1] .. pos .. '+' .. seqs[m][2]
@@ -403,6 +508,7 @@ function tak:check_stack_moves(legal_moves_ptn,player,i,pos)
 	self.check_stack_moves_time = self.check_stack_moves_time + (os.clock() - start_time)
 end
 
+
 function tak:get_legal_moves(player)
 
 	local legal_moves_ptn = {}
@@ -411,13 +517,13 @@ function tak:get_legal_moves(player)
 
 	local empty, player_pieces, player_caps, board_top, pos, ply = self.empty_squares, self.player_pieces, self.player_caps, self.board_top, self.pos, self.ply
 	local control
-	local board_size = self.size*self.size
+	local board_size = self.board_size
 
-	for i=1,board_size do
+	--[[for i=1,board_size do
 		self.blocks[i] = (board_top[i][1] == self.s or board_top[i][1] == self.c
 				or board_top[i][2] == self.s or board_top[i][2] == self.c)
 		self.top_walls[i] = board_top[i][1] == self.s or board_top[i][2] == self.s
-	end
+	end]]
 
 	for i=1,board_size do
 		if empty[i]==1 and ply > 1 then
@@ -437,45 +543,311 @@ function tak:get_legal_moves(player)
 		end
 	end
 
-	--[[
-	for i=1,board_size do
-		self.blocks[i] = (board_top[i][1] == self.s or board_top[i][1] == self.c
-				or board_top[i][2] == self.s or board_top[i][2] == self.c)
-		self.top_walls[i] = board_top[i][1] == self.s or board_top[i][2] == self.s
-		if empty[i]==1 and ply > 1 then
-			if player_pieces[player] > 0 then
-				legal_moves_ptn[#legal_moves_ptn+1] = 'f' .. pos[i]
-				legal_moves_ptn[#legal_moves_ptn+1] = 's' .. pos[i]
-			end
-			if player_caps[player] > 0 then
-				legal_moves_ptn[#legal_moves_ptn+1] = 'c' .. pos[i]
-			end
-		elseif empty[i]==1 then
-			legal_moves_ptn[#legal_moves_ptn+1] = 'f' .. pos[i]
+	--local legal_moves_check = {}
+	--for i=1,#legal_moves_ptn do
+	--	legal_moves_check[legal_moves_ptn[i]] = true
+	--end
+
+	self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
+	
+	return legal_moves_ptn --, legal_moves_check
+end
+
+
+
+
+
+
+
+
+function tak:check_stack_moves_dry(w,player,i,pos)
+	local start_time = os.clock()
+	local hand = min(self.heights[i],self.size)
+	local top_is_cap = self.board_top[i][player][3] == 1
+	local seqs, dist, x
+
+	local sbsd, sbsd1 = self.sbsd, self.sbsd1
+
+	dist = 0
+	x = i - 1
+	while (not(self.is_left_boundary[x]) and not(self.blocks[x]) and dist<hand) do
+		dist = dist + 1
+		x = x - 1
+	end
+	if top_is_cap and dist<hand and not(self.is_left_boundary[x]) and self.top_walls[x] then 
+		dist = dist + 1
+		seqs = sbsd1[hand][dist]
+	else
+		seqs = sbsd[hand][dist]
+	end
+	if hand == 1 and dist == 1 then
+		--w = w .. seqs[1][1] .. pos .. '<' .. seqs[1][2] .. ','
+	elseif dist>0 then
+		local N = #seqs
+		for m=1,N do
+			--w = w .. seqs[m][1] .. pos .. '<' .. seqs[m][2] .. ','
 		end
 	end
 
-	if ply > 1 then
-		for i=1,board_size do
-			if not(board_top[i][player] == self.em) then
-				self:check_stack_moves(legal_moves_ptn,player,i,pos[i])
-			end
+	dist = 0
+	x = i - self.size
+	while (x > 0 and not(self.blocks[x]) and dist<hand) do 
+		dist = dist + 1
+		x = x - self.size
+	end
+	if top_is_cap and dist<hand and x > 0 and self.top_walls[x] then 
+		dist = dist + 1
+		seqs = sbsd1[hand][dist]
+	else
+		seqs = sbsd[hand][dist]
+	end
+	--if dist>0 then
+	if hand == 1 and dist == 1 then
+		--w = w .. seqs[1][1] .. pos .. '-' .. seqs[1][2] .. ','
+	elseif dist>0 then
+		local N = #seqs
+		for m=1,N do
+			--w = w .. seqs[m][1] .. pos .. '-' .. seqs[m][2] .. ','
 		end
-	end]]
+	end
 
-	local legal_moves_check = {}
-	for i=1,#legal_moves_ptn do
-		legal_moves_check[legal_moves_ptn[i]] = true
+
+	dist = 0
+	x = i + 1
+	while (not(self.is_right_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+		dist = dist + 1
+		x = x + 1
+	end
+	if top_is_cap and dist<hand and not(self.is_right_boundary[x]) and self.top_walls[x] then 
+		dist = dist + 1
+		seqs = sbsd1[hand][dist]
+	else
+		seqs = sbsd[hand][dist]
+	end
+	--if dist>0 then
+	if hand == 1 and dist == 1 then
+		--w = w .. seqs[1][1] .. pos .. '>' .. seqs[1][2] .. ','
+	elseif dist>0 then
+		local N = #seqs
+		for m=1,N do
+			--w = w .. seqs[m][1] .. pos .. '>' .. seqs[m][2] .. ','
+		end
+	end
+
+
+	dist = 0
+	x = i + self.size
+	while (not(self.is_up_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+		dist = dist + 1
+		x = x + self.size
+	end
+	if top_is_cap and dist<hand and not(self.is_up_boundary[x]) and self.top_walls[x] then 
+		dist = dist + 1
+		seqs = sbsd1[hand][dist]
+	else
+		seqs = sbsd[hand][dist]
+	end
+	if hand == 1 and dist == 1 then
+		--w = w .. seqs[1][1] .. pos .. '+' .. seqs[1][2] .. ','
+	elseif dist>0 then
+		local N = #seqs
+		for m=1,N do
+			--w = w .. seqs[m][1] .. pos .. '+' .. seqs[m][2] .. ','
+		end
+	end
+
+	self.check_stack_moves_time = self.check_stack_moves_time + (os.clock() - start_time)
+	return w
+end
+
+
+function tak:get_legal_moves_dry(player)
+
+	local legal_moves_ptn = {}
+
+	local start_time = os.clock()
+
+	local empty, player_pieces, player_caps, board_top, pos, ply = self.empty_squares, self.player_pieces, self.player_caps, self.board_top, self.pos, self.ply
+	local control
+	local board_size = self.board_size
+
+	local w = ''
+	for i=1,board_size do
+		if empty[i]==1 and ply > 1 then
+			if player_pieces[player] > 0 then
+				--legal_moves_ptn[#legal_moves_ptn+1] = 0 --w = w .. 'f' .. pos[i] .. ','
+				--legal_moves_ptn[#legal_moves_ptn+1] = 0 --w = w ..'s' .. pos[i] .. ','
+			end
+			if player_caps[player] > 0 then
+				--legal_moves_ptn[#legal_moves_ptn+1] = 0 --w = w .. 'c' .. pos[i] .. ','
+			end
+		elseif ply > 1 then
+			if not(board_top[i][player] == self.em) then
+				self:check_stack_moves_dry(w,player,i,pos[i])
+			end
+		elseif empty[i]==1 then
+			--w = w .. 'f' .. pos[i] .. ','
+		end
 	end
 
 	self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
 	
-	return legal_moves_ptn, legal_moves_check
+	return w
 end
 
 
+
+function tak:check_stack_moves2(legal_moves_ptn,player,i)
+	local start_time = os.clock()
+	local hand = min(self.heights[i],self.size)
+	local top_is_cap = self.board_top[i][player][3] == 1
+	local seqs, dist, x
+
+	local moves, moves1 = self.moves[i], self.moves1[i]
+	local n = #legal_moves_ptn
+
+	if self.has_left[i] then
+		dist = 0
+		x = i - 1
+		while (not(self.is_left_boundary[x]) and not(self.blocks[x]) and dist<hand) do
+			dist = dist + 1
+			x = x - 1
+		end
+		if top_is_cap and dist<hand and not(self.is_left_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[1][hand][dist]
+		else
+			seqs = moves[1][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
+			legal_moves_ptn[n] = seqs[1]
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				legal_moves_ptn[n] = seqs[m]
+			end
+		end
+	end
+
+	if self.has_down[i] then
+		dist = 0
+		x = i - self.size
+		while (x > 0 and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x - self.size
+		end
+		if top_is_cap and dist<hand and x > 0 and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[4][hand][dist]
+		else
+			seqs = moves[4][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
+			legal_moves_ptn[n] = seqs[1]
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				legal_moves_ptn[n] = seqs[m]
+			end
+		end
+	end
+
+	if self.has_right[i] then
+		dist = 0
+		x = i + 1
+		while (not(self.is_right_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x + 1
+		end
+		if top_is_cap and dist<hand and not(self.is_right_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[3][hand][dist]
+		else
+			seqs = moves[3][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
+			legal_moves_ptn[n] = seqs[1]
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				legal_moves_ptn[n] = seqs[m]
+			end
+		end
+	end
+
+	if self.has_up[i] then
+		dist = 0
+		x = i + self.size
+		while (not(self.is_up_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x + self.size
+		end
+		if top_is_cap and dist<hand and not(self.is_up_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[2][hand][dist]
+		else
+			seqs = moves[2][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
+			legal_moves_ptn[n] = seqs[1]
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				legal_moves_ptn[n] = seqs[m]
+			end
+		end
+	end
+
+	self.check_stack_moves_time = self.check_stack_moves_time + (os.clock() - start_time)
+end
+
+
+function tak:get_legal_moves2(player)
+
+	local legal_moves_ptn = {}
+
+	local start_time = os.clock()
+
+	local empty, player_pieces, player_caps, board_top, pos, ply = self.empty_squares, self.player_pieces, self.player_caps, self.board_top, self.pos, self.ply
+	local control
+	local board_size = self.board_size
+
+	for i=1,board_size do
+		if empty[i]==1 and ply > 1 then
+			if player_pieces[player] > 0 then
+				legal_moves_ptn[#legal_moves_ptn+1] = self.place_flat[i]
+				legal_moves_ptn[#legal_moves_ptn+1] = self.place_wall[i]
+			end
+			if player_caps[player] > 0 then
+				legal_moves_ptn[#legal_moves_ptn+1] = self.place_cap[i]
+			end
+		elseif ply > 1 then
+			if not(board_top[i][player] == self.em) then
+				self:check_stack_moves2(legal_moves_ptn,player,i)
+			end
+		elseif empty[i]==1 then
+			legal_moves_ptn[#legal_moves_ptn+1] = self.place_flat[i]
+		end
+	end
+
+	self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
+	
+	return legal_moves_ptn
+end
+
+
+
+
 function tak:get_legal_move_table()
-	return self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+	return self.legal_moves_by_ply[#self.legal_moves_by_ply]--[2]
 end
 
 function tak:get_legal_move_mask(as_bool)
@@ -495,8 +867,14 @@ end
 function tak:populate_legal_moves_at_this_ply()
 	local player = self:get_player()
 	if #self.legal_moves_by_ply < self.ply+1 then
-		local legal_moves_ptn, legal_moves_check = self:get_legal_moves(player)
-		table.insert(self.legal_moves_by_ply,{player,legal_moves_ptn,legal_moves_check})
+		local legal_moves_ptn
+		--local legal_moves_ptn = self:get_legal_moves(player)--, legal_moves_check = self:get_legal_moves(player)
+		if self.switch == true then
+			legal_moves_ptn = self:get_legal_moves2(player)
+		else
+			legal_moves_ptn = self:get_legal_moves(player)
+		end
+		table.insert(self.legal_moves_by_ply,legal_moves_ptn) --{player,legal_moves_ptn,legal_moves_check})
 	end
 end
 
@@ -546,46 +924,60 @@ function tak:make_move(move_ptn,flag,undo)
 	end
 
 	table.insert(self.move_history_ptn,ptn)
-	table.insert(self.move_history_idx,self.ptn2move[ptn])
+	--table.insert(self.move_history_idx,self.ptn2move[ptn])
 
 	local move_type = string.sub(ptn,1,1)
-	local i = self.pos2index[string.sub(ptn,2,3)]
+	--local i = self.pos2index[string.sub(ptn,2,3)]
+	local i = self.move2pos[ptn]
 
 	local flattening_flag = false
 	if move_type == 'f' then
+	--if self.is_place_flat[ptn] then
 		self.heights[i] = 1
 		self.board[i][1][player] = self.f 
 		self.player_pieces[player] = self.player_pieces[player] - 1
 		self.board_top[i][player] = self.board[i][1][player] 
 		self.empty_squares[i] = 0
 	elseif move_type == 's' then
+	--elseif self.is_place_wall[ptn] then
 		self.heights[i] = 1
 		self.board[i][1][player] = self.s 		
 		self.player_pieces[player] = self.player_pieces[player] - 1
 		self.board_top[i][player] = self.board[i][1][player] 
 		self.empty_squares[i] = 0
+		self.blocks[i] = true
+		self.top_walls[i] = true
 	elseif move_type == 'c' then
+	--elseif self.is_place_cap[ptn] then
 		self.heights[i] = 1
 		self.board[i][1][player] = self.c 
 		self.player_caps[player] = self.player_caps[player] - 1	
 		self.board_top[i][player] = self.board[i][1][player] 
 		self.empty_squares[i] = 0
+		self.blocks[i] = true
 	else
 		-- oooh this is gonna be hard, especially the 'undo' run
 		-- welcome to index magic and duct tape... but you're reading this code, so you already knew that
 		stacksum = tonumber(move_type)
 		stackdir = string.sub(ptn,4,4)
 		stackstr = string.sub(ptn,5,#ptn)
+		--[[stacksum = self.move2stacksum[ptn]
+		local del = self.move2stackdel[ptn]
+		stackstr = self.move2stackstr[ptn]
+		]]
 		local h
 
 
 		h = self.heights[i] - stacksum
 		self.heights[i] = h
 		if h == 0 then 
-			self.board_top[i] = {self.em,self.em}
+			--self.board_top[i] = {self.em,self.em}
 			self.empty_squares[i] = 1 
+			self.board_top[i][1] = self.em
+			self.board_top[i][2] = self.em
 		else
-			self.board_top[i] = self.board[i][h]
+			self.board_top[i][1] = self.board[i][h][1]
+			self.board_top[i][2] = self.board[i][h][2]
 		end
 
 		local del
@@ -607,11 +999,17 @@ function tak:make_move(move_ptn,flag,undo)
 
 			self.empty_squares[x] = 0
 			self.heights[x] = self.heights[x] + 1
-			self.board[x][self.heights[x]] = self.board[i][h+k]
-			self.board_top[x] = self.board[x][self.heights[x]]
-			self.board[i][h+k] = {self.em,self.em}
+			--self.board[x][self.heights[x]] = self.board[i][h+k]
+			self.board[x][self.heights[x]][1] = self.board[i][h+k][1]
+			self.board[x][self.heights[x]][2] = self.board[i][h+k][2]
+			--self.board_top[x] = self.board[x][self.heights[x]]
+			self.board_top[x][1] = self.board[x][self.heights[x]][1]
+			self.board_top[x][2] = self.board[x][self.heights[x]][2]
+			--self.board[i][h+k] = {self.em,self.em}
+			self.board[i][h+k][1] = self.em
+			self.board[i][h+k][2] = self.em
 			-- flattening logic
-			if (k == stacksum and self.board_top[x][player][3] == 1 
+			if (k == stacksum and self.board_top[x][player]==self.c --[3] == 1 
 				and self.heights[x] > 1) then
 				local h2 = self.heights[x]
 				if self.board[x][h2-1][player][2] == 1 then
@@ -621,6 +1019,7 @@ function tak:make_move(move_ptn,flag,undo)
 					self.board[x][h2-1][3 - player] = self.f
 					flattening_flag = true
 				end
+				self.top_walls[x] = false
 			end
 
 			if m == D then
@@ -631,6 +1030,14 @@ function tak:make_move(move_ptn,flag,undo)
 			end
 			m = m + 1
 		end
+		self.blocks[i] = (self.board_top[i][1] == self.s or self.board_top[i][1] == self.c
+					or self.board_top[i][2] == self.s or self.board_top[i][2] == self.c)
+		self.top_walls[i] = (self.board_top[i][1] == self.s or self.board_top[i][2] == self.s)
+
+		x = x - del
+		self.blocks[x] = (self.board_top[x][1] == self.s or self.board_top[x][1] == self.c
+					or self.board_top[x][2] == self.s or self.board_top[x][2] == self.c)
+		self.top_walls[x] = (self.board_top[x][1] == self.s or self.board_top[x][2] == self.s)
 	end
 
 	self.ply = self.ply + 1
@@ -662,33 +1069,45 @@ function tak:undo_move(move_ptn)
 	end
 
 	local move_type = string.sub(ptn,1,1)
-	local i = self.pos2index[string.sub(ptn,2,3)]
+	--local i = self.pos2index[string.sub(ptn,2,3)]
+	local i = self.move2pos[ptn]
 
 	local flattening_flag = false
 	if move_type == 'f' then
+	--if self.is_place_flat[ptn] then
 		self.heights[i] = 0
 		self.board[i][1][player] = self.em
 		self.player_pieces[player] = self.player_pieces[player] + 1
 		self.board_top[i][player] = self.em 
 		self.empty_squares[i] = 1
 	elseif move_type == 's' then
+	--elseif self.is_place_wall[ptn] then
 		self.heights[i] = 0
 		self.board[i][1][player] = self.em 
 		self.player_pieces[player] = self.player_pieces[player] + 1
 		self.board_top[i][player] = self.em 
 		self.empty_squares[i] = 1
+		self.blocks[i] = false
+		self.top_walls[i] = false
 	elseif move_type == 'c' then
+	--elseif self.is_place_cap[ptn] then
 		self.heights[i] = 0
 		self.board[i][1][player] = self.em 
 		self.player_caps[player] = self.player_caps[player] + 1	
 		self.board_top[i][player] = self.em 
 		self.empty_squares[i] = 1
+		self.blocks[i] = false
 	else
 		-- oooh this is gonna be hard, especially the 'undo' run
 		-- welcome to index magic and duct tape... but you're reading this code, so you already knew that
 		stacksum = tonumber(move_type)
 		stackdir = string.sub(ptn,4,4)
 		stackstr = string.sub(ptn,5,#ptn)
+		--[[stacksum = self.move2stacksum[ptn]
+		local del = self.move2stackdel[ptn]
+		stackstr = self.move2stackstr[ptn]
+		]]
+
 		local h
 
 		self.empty_squares[i] = 0
@@ -709,21 +1128,29 @@ function tak:undo_move(move_ptn)
 		local D = tonumber(string.sub(stackstr,d,d))
 		local m, n = D, 0
 		for k=1,stacksum do
-			self.board[i][h+n+m] = self.board[x][self.heights[x]]
-			self.board[x][self.heights[x]] = {self.em,self.em}--{{0,0,0},{0,0,0}}
+			--self.board[i][h+n+m] = self.board[x][self.heights[x]]
+			self.board[i][h+n+m][1] = self.board[x][self.heights[x]][1]
+			self.board[i][h+n+m][2] = self.board[x][self.heights[x]][2]
+			--self.board[x][self.heights[x]] = {self.em,self.em}
+			self.board[x][self.heights[x]][1] = self.em
+			self.board[x][self.heights[x]][2] = self.em
 			self.heights[x] = self.heights[x] - 1
 			-- unflattening logic
 			if (k==stacksum and self.flattening_history[#self.flattening_history]) then
 				if self.board[x][self.heights[x]][player][1] == 1 then
-					self.board[x][self.heights[x]][player] = self.s --{0,1,0}
+					self.board[x][self.heights[x]][player] = self.s
 				elseif self.board[x][self.heights[x]][3 - player][1] == 1 then
-					self.board[x][self.heights[x]][3 - player] = self.s --{0,1,0}
+					self.board[x][self.heights[x]][3 - player] = self.s 
 				end
 			end
 			if self.heights[x] > 0 then
-				self.board_top[x] = self.board[x][self.heights[x]]
+				--self.board_top[x] = self.board[x][self.heights[x]]
+				self.board_top[x][1] = self.board[x][self.heights[x]][1]
+				self.board_top[x][2] = self.board[x][self.heights[x]][2]
 			else
-				self.board_top[x] = {self.em,self.em}--{{0,0,0},{0,0,0}}
+				--self.board_top[x] = {self.em,self.em}
+				self.board_top[x][1] = self.em
+				self.board_top[x][2] = self.em
 				self.empty_squares[x] = 1
 			end
 			if m == 1 and d < #stackstr then
@@ -737,7 +1164,17 @@ function tak:undo_move(move_ptn)
 		end
 
 		self.heights[i] = h + stacksum
-		self.board_top[i] = self.board[i][self.heights[i]]
+		--self.board_top[i] = self.board[i][self.heights[i]]
+		self.board_top[i][1] = self.board[i][self.heights[i]][1]
+		self.board_top[i][2] = self.board[i][self.heights[i]][2]
+
+		self.blocks[i] = (self.board_top[i][1] == self.s or self.board_top[i][1] == self.c
+					or self.board_top[i][2] == self.s or self.board_top[i][2] == self.c)
+		self.top_walls[i] = (self.board_top[i][1] == self.s or self.board_top[i][2] == self.s)
+
+		self.blocks[x] = (self.board_top[x][1] == self.s or self.board_top[x][1] == self.c
+					or self.board_top[x][2] == self.s or self.board_top[x][2] == self.c)
+		self.top_walls[x] = (self.board_top[x][1] == self.s or self.board_top[x][2] == self.s)
 	end
 
 	self.flattening_history[#self.flattening_history] = nil
@@ -767,13 +1204,15 @@ function tak:check_victory_conditions()
 	local explored = self.explored
 
 	self.num_empty_squares = 0
-	self.player_flats = {0,0}
-	for i=1,self.size*self.size do
+	--self.player_flats = {0,0}
+	self.player_flats[1] = 0
+	self.player_flats[2] = 0
+	for i=1,self.board_size do
 		explored[i] = false
 		self.num_empty_squares = self.num_empty_squares + empty[i]
-		if board_top[i][1][1] == 1 then 
+		if board_top[i][1] == self.f then
 			self.player_flats[1] = self.player_flats[1] + 1
-		elseif board_top[i][2][1] == 1 then
+		elseif board_top[i][2] == self.f then
 			self.player_flats[2] = self.player_flats[2] + 1
 		end
 	end
@@ -785,88 +1224,130 @@ function tak:check_victory_conditions()
 	-- let's find us some island information
 
 	local start_time = os.clock()
-	local island_sums, islands_minmax
+	local island_sums
 
 	local x, y = self.x, self.y
 	local has_left, has_right, has_down, has_up = self.has_left, self.has_right, self.has_down, self.has_up
-	local minmax
+	local min_x, max_x, min_y, max_y, sum
+	local p1_rw, p2_rw = false, false
+
 	--local em, f, s, c = self.em, self.f, self.s, self.c
 
-	local function flood_fill(i,player)
-		if (not(explored[i]) and (board_top[i][player][1] == 1 or board_top[i][player][3] == 1) ) then
-			explored[i] = true
-			island_sums[player][#island_sums[player]] = island_sums[player][#island_sums[player]] + 1
+	local function flood_fill(j,player)
+		if (not(explored[j]) and (board_top[j][player][1] == 1 or board_top[j][player][3] == 1) ) then
+			explored[j] = true
+			sum = sum + 1
 
-			minmax[1] = min(x[i],minmax[1])
-			minmax[2] = min(y[i],minmax[2])
-			minmax[3] = max(x[i],minmax[3])
-			minmax[4] = max(y[i],minmax[4])
+			min_x = min(x[j],min_x)
+			max_x = max(x[j],max_x)
+			min_y = min(y[j],min_y)
+			max_y = max(y[j],max_y)
 
-			if has_left[i] and not(explored[i-1]) then
-				flood_fill(i-1,player)
+			if has_left[j] and not(explored[j-1]) then
+				flood_fill(j-1,player)
 			end
-			if has_right[i] and not(explored[i+1]) then
-				flood_fill(i+1,player)
+			if has_right[j] and not(explored[j+1]) then
+				flood_fill(j+1,player)
 			end
-			if has_down[i] and not(explored[i-self.size]) then
-				flood_fill(i-self.size,player)
+			if has_down[j] and not(explored[j-self.size]) then
+				flood_fill(j-self.size,player)
 			end
-			if has_up[i] and not(explored[i+self.size]) then
-				flood_fill(i+self.size,player)
+			if has_up[j] and not(explored[j+self.size]) then
+				flood_fill(j+self.size,player)
 			end
 		end
 	end
 
+	local function flood_fill2(start,player)
+		local queue = self.queue
+		local pointer = 1
+		local end_of_queue = 1
+		queue[1] = start
+		repeat
+			local j = queue[pointer]
+			if (not(explored[j]) and (board_top[j][player][1] == 1 or board_top[j][player][3] == 1) ) then
+				explored[j] = true
+				sum = sum + 1
+
+				min_x = min(x[j],min_x)
+				max_x = max(x[j],max_x)
+				min_y = min(y[j],min_y)
+				max_y = max(y[j],max_y)
+
+				if has_left[j] and not(explored[j-1]) then
+					end_of_queue = end_of_queue + 1
+					queue[end_of_queue] = j - 1
+				end
+				if has_right[j] and not(explored[j+1]) then
+					end_of_queue = end_of_queue + 1
+					queue[end_of_queue] = j + 1
+				end
+				if has_down[j] and not(explored[j-game.size]) then
+					end_of_queue = end_of_queue + 1
+					queue[end_of_queue] = j - game.size
+				end
+				if has_up[j] and not(explored[j+game.size]) then
+					end_of_queue = end_of_queue + 1
+					queue[end_of_queue] = j + game.size
+				end
+			end
+			pointer = pointer + 1
+		until pointer > end_of_queue
+	end
+
+
 
 	local p1_rw, p2_rw = false, false
-	island_sums = {{},{}}
-	islands_minmax = {{},{}}
-	for i=1,self.size*self.size do
+	local dim1, dim2 = 0,0
+	local dimsum1, dimsum2 = 0,0
+	--island_sums = {{},{}}
+	local p1_isles, p2_isles = {},{}
+	for i=1,self.board_size do
 		if not(explored[i]) then
 			if board_top[i][1][1] == 1 or board_top[i][1][3] == 1 then
-				island_sums[1][#island_sums[1]+1] = 0
-				islands_minmax[1][#islands_minmax[1]+1] = {self.x[i],self.y[i],
-									   self.x[i],self.y[i]}
-				minmax = islands_minmax[1][#islands_minmax[1]]
-				flood_fill(i,1)
+				sum = 0
+				min_x, max_x, min_y, max_y = self.x[i], self.x[i], self.y[i], self.y[i]
+				if not(self.floodswitch) then
+					flood_fill(i,1)
+				else
+					flood_fill2(i,1)
+				end
+				--flood_fill(i,1)
+				--island_sums[1][#island_sums[1]+1] = sum
+				p1_isles[#p1_isles+1] = sum
+				dim1 = max(max_x - min_x, max_y - min_y, dim1)
+				dimsum1 = dimsum1 + dim1
+				--p1_rw = p1_rw or max(max_x - min_x, max_y - min_y) == self.size - 1
 			elseif board_top[i][2][1] == 1 or board_top[i][2][3] == 1 then
-				island_sums[2][#island_sums[2]+1] = 0
-				islands_minmax[2][#islands_minmax[2]+1] = {self.x[i],self.y[i],
-									   self.x[i],self.y[i]}
-				minmax = islands_minmax[2][#islands_minmax[2]]
-				flood_fill(i,2)
+				sum = 0
+				min_x, max_x, min_y, max_y = self.x[i], self.x[i], self.y[i], self.y[i]
+				if not(self.floodswitch) then
+					flood_fill(i,2)
+				else
+					flood_fill2(i,2)
+				end
+				--flood_fill(i,2)
+				--island_sums[2][#island_sums[2]+1] = sum
+				p2_isles[#p2_isles+1] = sum
+				dim2 = max(max_x - min_x, max_y - min_y, dim2)
+				dimsum2 = dimsum2 + dim1
+				--p2_rw = p2_rw or max(max_x - min_x, max_y - min_y) == self.size - 1
 			end
 		end
 	end
 
+	self.island_max_dims[1] = dim1
+	self.island_max_dims[2] = dim2
+	self.island_len_sums[1] = dimsum1
+	self.island_len_sums[2] = dimsum2
+	p1_rw = dim1 == self.size - 1
+	p2_rw = dim2 == self.size - 1
+
+	--self.island_sums = island_sums
+	self.island_sums[1] = p1_isles
+	self.island_sums[2] = p2_isles
+
 	self.flood_fill_time = self.flood_fill_time + (os.clock() - start_time)
-	self.island_sums, self.islands_minmax = island_sums,islands_minmax
-
-	local p1_rw, p2_rw = false, false
-
-	local start_time = os.clock()
-	local j = 1
-	while not(p1_rw) and j <= #self.island_sums[1] do
-		if self.island_sums[1][j] >= self.size then
-			p1_rw = (self.islands_minmax[1][j][1] == 1
-					and self.islands_minmax[1][j][3] == self.size) or
-					(self.islands_minmax[1][j][2] == 1 
-					and self.islands_minmax[1][j][4] == self.size)
-		end
-		j = j + 1
-	end
-	j = 1
-	while not(p2_rw) and j <= #self.island_sums[2] do
-		if self.island_sums[2][j] >= self.size then
-			p2_rw = (self.islands_minmax[2][j][1] == 1
-					and self.islands_minmax[2][j][3] == self.size) or
-					(self.islands_minmax[2][j][2] == 1 
-					and self.islands_minmax[2][j][4] == self.size)
-		end
-		j = j + 1
-	end
-
-	self.road_check_time = self.road_check_time + (os.clock() - start_time)
 
 	if p1_rw or p2_rw then
 		self.win_type = 'R'
@@ -913,7 +1394,7 @@ end
 
 
 function tak:get_children()
-	local legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+	local legal = self.legal_moves_by_ply[#self.legal_moves_by_ply]--[2]
 	-- slightly hacky lua black magic to reduce number of table rehashes, saves some time
 	local children = {nil,nil,nil,nil,nil}
 	for _,ptn in pairs(legal) do
@@ -927,7 +1408,7 @@ end
 
 function tak:generate_random_game(max_moves)
 	for i=1,max_moves do
-		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply]--[2]
 		move = torch.random(1,#legal)
 		self:make_move(legal[move])
 	end
@@ -935,7 +1416,7 @@ end
 
 function tak:simulate_random_game()
 	while not(self.game_over) do
-		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply][2]
+		legal = self.legal_moves_by_ply[#self.legal_moves_by_ply]--[2]
 		if #legal == 0 then break end
 		move = torch.random(1,#legal)
 		self:make_move(legal[move])
@@ -1111,7 +1592,7 @@ function tak.print_any_tak_board(board,mark_squares,just_top)
 end
 
 function tak:move_test()
-	local moves = game.legal_moves_by_ply[#game.legal_moves_by_ply][2]
+	local moves = game.legal_moves_by_ply[#game.legal_moves_by_ply]--[2]
 	for i=1,#moves do
 		print('Player to move is ' .. self:get_player())
 		print('Length of legal_moves_by_ply is ' .. #game.legal_moves_by_ply)

@@ -25,6 +25,10 @@ function make_takai_04(depth,debug)
 	return killer_minimax_AI.new(depth,normalized_value_of_node3,debug)
 end
 
+function make_takai_05(depth,debug)
+	return killer_minimax_AI.new(depth,normalized_value_of_node4,debug)
+end
+
 
 function make_takarlo_00(time,debug)
 	return async_flat_mc_AI.new(time,true,default_rollout_policy.new(), 
