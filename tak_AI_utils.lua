@@ -17,10 +17,25 @@ More interesting variants to come.
 require 'tak_game'
 
 value_of_node_time = 0
+stochastic = true
 
 ----------------------------------------------------------
 --	   TAK-AI UTILITY AND VALUE FUNCTIONS		--
 ----------------------------------------------------------
+
+--------------------------------------------
+-- FT: Flat Tak Agent
+-- only cares about flat difference
+
+function flat_value_of_node(node,maxplayeris)
+	local score = node.player_flats[1] - node.player_flats[2]
+	if node.winner == 1 then score = node.board_size 
+	elseif node.winner == 2 then score = -node.board_size end
+	if maxplayeris == 2 then
+		score = -score
+	end
+	return score
+end
 
 
 --------------------------------------------
@@ -36,7 +51,7 @@ function score_function_AT0(node,player)
 		end
 	end
 	local strength = 0
-	for j=1,#node.island_sums[player] do
+	for j=1,node.num_islands[player] do--#node.island_sums[player] do
 		strength = strength + (node.island_sums[player][j])^1.1
 	end
 
@@ -63,10 +78,10 @@ local function sign(x)
 end
 
 function debug_value_of_node(node,maxplayeris)
-	local start_time = os.clock()
+	--local start_time = os.clock()
 	local v = value_of_node(node,maxplayeris)
 	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
-	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	--value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
 end
 
@@ -86,11 +101,13 @@ function score_function_AT2(node,player)
 		end
 	end
 	local strength = 0
-	for j=1,#node.island_sums[player] do
+	for j=1,node.num_islands[player] do--#node.island_sums[player] do
 		strength = strength + (node.island_sums[player][j])^1.1
 	end
 
-	return strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player] + 0.25*(torch.uniform() - 0.5)
+	if stochastic then strength = strength + 0.25*(torch.uniform() - 0.5) end
+
+	return strength + 3*node.player_flats[player] + node.player_pieces[3-player] - 0.01*node.player_caps[player]
 end
 
 
@@ -106,17 +123,10 @@ end
 
 
 function normalized_value_of_node2(node,maxplayeris)
-	local start_time = os.clock()
-	local function sign(x)
-		if x == math.abs(x) then
-			return 1
-		else
-			return -1
-		end
-	end
+	--local start_time = os.clock()
 	local v = value_of_node2(node,maxplayeris)
 	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
-	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	--value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
 end
 
@@ -126,6 +136,7 @@ end
 --------------------------------------------
 -- AT3: "AlphaTak Modern"
 
+local abs = math.abs
 function score_function_AT3(node,player,maxplayeris)
 	-- what if it's over?
 	if node:is_terminal() then
@@ -136,7 +147,7 @@ function score_function_AT3(node,player,maxplayeris)
 		end
 	end
 	local island_strength = 0
-	for j=1,#node.island_sums[player] do
+	for j=1,node.num_islands[player] do--#node.island_sums[player] do
 		island_strength = island_strength + (node.island_sums[player][j])^1.2
 	end
 
@@ -194,7 +205,7 @@ function score_function_AT3(node,player,maxplayeris)
 	local stacks_strength = 0
 	local sign = 1
 	local position_strength = 0
-	for i=1,node.size*node.size do
+	for i=1,node.board_size do
 		if control(node.board_top[i]) and node.heights[i] > 1 then
 			local stack_strength = 0
 			local reserves = 0
@@ -221,9 +232,9 @@ function score_function_AT3(node,player,maxplayeris)
 							- captives*captop
 										
 			if stack_strength > 0 then sign = 1 else sign = -1 end
-			stacks_strength = stacks_strength + sign*(math.abs(stack_strength)^1.05)/(1+eb+sb)
+			stacks_strength = stacks_strength + sign*(abs(stack_strength)^1.05)/(1+eb+sb)
 
-			position_strength = position_strength - (math.abs((node.size+1)/2 - node.x[i]) + math.abs((node.size+1)/2 - node.y[i]))
+			position_strength = position_strength - (abs((node.size+1)/2 - node.x[i]) + abs((node.size+1)/2 - node.y[i]))
 		end
 	end
 
@@ -236,7 +247,8 @@ end
 function value_of_node3(node,maxplayeris)
 	local p1_score = score_function_AT3(node,1,maxplayeris)
 	local p2_score = score_function_AT3(node,2,maxplayeris)
-	local score = p1_score - p2_score + (torch.uniform() - 0.5)
+	local score = p1_score - p2_score
+	if stochastic then score = score + (torch.uniform() - 0.5) end
 	if maxplayeris == 2 then
 		score = -score
 	end
@@ -245,17 +257,10 @@ end
 
 
 function normalized_value_of_node3(node,maxplayeris)
-	local start_time = os.clock()
-	local function sign(x)
-		if x == math.abs(x) then
-			return 1
-		else
-			return -1
-		end
-	end
+	--local start_time = os.clock()
 	local v = value_of_node3(node,maxplayeris)
-	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
-	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	v = (sign(v)*(math.log(1+abs(v))/math.log(401)) + 1)/2
+	--value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
 end
 
@@ -274,7 +279,7 @@ function score_function_AT4(node,player,maxplayeris)
 		end
 	end
 	local island_strength = 0
-	for j=1,#node.island_sums[player] do
+	for j=1,node.num_islands[player] do--#node.island_sums[player] do
 		island_strength = island_strength + (node.island_sums[player][j])^1.2
 	end
 
@@ -370,7 +375,8 @@ end
 function value_of_node4(node,maxplayeris)
 	local p1_score = score_function_AT4(node,1,maxplayeris)
 	local p2_score = score_function_AT4(node,2,maxplayeris)
-	local score = p1_score - p2_score + (torch.uniform() - 0.5)
+	local score = p1_score - p2_score 
+	if stochastic then score = score + (torch.uniform() - 0.5) end
 	if maxplayeris == 2 then
 		score = -score
 	end
@@ -379,10 +385,10 @@ end
 
 
 function normalized_value_of_node4(node,maxplayeris)
-	local start_time = os.clock()
+	--local start_time = os.clock()
 	local v = value_of_node4(node,maxplayeris)
 	v = (sign(v)*(math.log(1+math.abs(v))/math.log(401)) + 1)/2
-	value_of_node_time = value_of_node_time + (os.clock() - start_time)
+	--value_of_node_time = value_of_node_time + (os.clock() - start_time)
 	return v
 end
 
@@ -399,7 +405,7 @@ function feature_vector_ATg(node,player,maxplayeris,as_table)
 
 	-- island strength
 	local island_strength = 0
-	for j=1,#node.island_sums[player] do
+	for j=1,node.num_islands[player] do--#node.island_sums[player] do
 		island_strength = island_strength + (node.island_sums[player][j])^1.2
 	end
 

@@ -14,19 +14,15 @@ function make_takai_01(depth,debug)
 end
 
 function make_takai_02(depth,debug)
-	return iterative_killer_minimax_AI.new(depth,normalized_value_of_node2,debug)
+	return iterative_killer_minimax_AI.new(depth,normalized_value_of_node2,false,debug)
 end
 
 function make_takai_03(depth,debug)
-	return hacky_iterative_killer_minimax_AI.new(depth,normalized_value_of_node2,debug)
-end
-
-function make_takai_04(depth,debug)
 	return killer_minimax_AI.new(depth,normalized_value_of_node3,debug)
 end
 
-function make_takai_05(depth,debug)
-	return killer_minimax_AI.new(depth,normalized_value_of_node4,debug)
+function make_takai_04(depth,debug)
+	return iterative_killer_minimax_AI.new(depth,normalized_value_of_node3,false,debug)
 end
 
 

@@ -211,9 +211,10 @@ end
 local iterative_killer_minimax_AI = torch.class('iterative_killer_minimax_AI','AI')
 
 -- minimax_AI needs a value function from (node, player) pair to real scalar value
-function iterative_killer_minimax_AI:__init(depth,value,debug)
+function iterative_killer_minimax_AI:__init(depth,value,shuffle,debug)
 	self.depth = depth
 	self.value = value
+	self.shuffle = shuffle
 	self.debug = debug
 	self.max_time = 0
 	self.total_time = 0
@@ -227,48 +228,7 @@ function iterative_killer_minimax_AI:move(node)
 		return false
 	end
 	local start_time = os.clock()
-	local v, a, nl = iterative_killer_search(node,self.depth,self.value)
-	local time_elapsed = os.clock() - start_time
-	self.max_time = math.max(self.max_time,time_elapsed)
-	self.total_time = self.total_time + time_elapsed
-	self.num_moves = self.num_moves + 1
-	self.average_time = self.total_time/self.num_moves
-	if self.debug then
-		print('AI move: ' .. a .. ', Value: ' .. v .. ', Num Leaves: ' .. nl .. ', Time taken: ' .. time_elapsed
-			.. '\nMax Time: ' .. self.max_time 
-			.. ', Total Time: ' .. self.total_time
-			.. ', Average Time: ' .. self.average_time)
-	end
-	node:make_move(a)
-	return true
-end
-
-
------------------------------------------------------------------------------------------------
--- MINIMAX AI CLASS ver 4: Alpha-Beta Pruning + Killer Heuristic + Hacky Iterative Deepening --
------------------------------------------------------------------------------------------------
--- hacky iterative deepening only iteratively deepens to even-numbered plies, saving some computational effort
-
-local hacky_iterative_killer_minimax_AI = torch.class('hacky_iterative_killer_minimax_AI','AI')
-
--- minimax_AI needs a value function from (node, player) pair to real scalar value
-function hacky_iterative_killer_minimax_AI:__init(depth,value,debug)
-	self.depth = depth
-	self.value = value
-	self.debug = debug
-	self.max_time = 0
-	self.total_time = 0
-	self.average_time = 0
-	self.num_moves = 0
-end
-
-function hacky_iterative_killer_minimax_AI:move(node)
-	if node:is_terminal() then
-		if self.debug then print 'Game is over.' end
-		return false
-	end
-	local start_time = os.clock()
-	local v, a, nl = hacky_iterative_killer_search(node,self.depth,self.value)
+	local v, a, nl = correct_iterative_killer_search(node,self.depth,self.value,self.shuffle,self.debug)
 	local time_elapsed = os.clock() - start_time
 	self.max_time = math.max(self.max_time,time_elapsed)
 	self.total_time = self.total_time + time_elapsed
@@ -590,75 +550,8 @@ function alphabeta2(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	return v, legal[best_action], num_leaves
 end
 
--- alphabeta2, but with iterative deepening
-function iterative_deepening_search(node,maxdepth,value_of_node)
-	local a, _ = nil, nil
-	for i=1,maxdepth-1 do
-		_, a = alphabeta3(node,i,-1/0,1/0,true,node:get_player(),value_of_node,a,true)
-	end
-	return alphabeta3(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,a,true)
-end
-
-function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,firstmove,top)
-	if depth == 0 or node:is_terminal() then
-		return value_of_node(node,maxplayeris), nil, 1
-	end
-
-	local legal = node:get_legal_move_table()
-	local best_action = 0
-	local v = 0
-	local a,b = alpha,beta
-	local num_leaves, nl = 0, 0
-
-	if not(firstmove==nil) and top then
-		for i=1,#legal do
-			if legal[i] == firstmove then
-				legal[1], legal[i] = legal[i], legal[1]
-				break
-			end
-		end
-	end
-
-	if maximizingPlayer then
-		v = -1/0
-		for i,move in pairs(legal) do
-			node:make_move(move, depth==1)
-			val, _, nl = alphabeta3(node,depth- 1, a, b, false, maxplayeris,value_of_node,nil,false)
-			num_leaves = num_leaves + nl
-			node:undo()
-			if val > v then
-				best_action = i
-				v = val
-			end
-			a = math.max(a,v)
-			if b <= a then
-				break
-			end
-		end
-	else
-		v = 1/0
-		for i,move in pairs(legal) do
-			node:make_move(move, depth==1)
-			val, _, nl = alphabeta3(node,depth- 1, a, b, true, maxplayeris,value_of_node,nil,false)
-			num_leaves = num_leaves + nl
-			node:undo()
-			if val < v then
-				best_action = i
-				v = val
-			end
-			b = math.min(b,v)
-			if b <= a then
-				break
-			end
-		end
-	end
-
-	return v, legal[best_action], num_leaves
-end
-
-
-
-function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,killer_moves)
+-- alphabeta with killer heuristic
+function alphabeta3(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,killer_moves)
 	if depth == 0 or node:is_terminal() then
 		return value_of_node(node,maxplayeris), nil, 1
 	end
@@ -679,11 +572,10 @@ function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 
 	if maximizingPlayer then
 		v = -1/0
-		--for i,move in pairs(legal) do
 		for i=1,#legal do
 			local move = legal[i]
 			node:make_move(move, depth==1)
-			val, _, nl = alphabeta4(node,depth- 1, a, b, false, maxplayeris,value_of_node,killer_moves)
+			val, _, nl = alphabeta3(node,depth- 1, a, b, false, maxplayeris,value_of_node,killer_moves)
 			num_leaves = num_leaves + nl
 			node:undo()
 			if val > v then
@@ -698,11 +590,10 @@ function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 		end
 	else
 		v = 1/0
-		--for i,move in pairs(legal) do
 		for i=1,#legal do
 			local move = legal[i]
 			node:make_move(move, depth==1)
-			val, _, nl = alphabeta4(node,depth- 1, a, b, true, maxplayeris,value_of_node,killer_moves)
+			val, _, nl = alphabeta3(node,depth- 1, a, b, true, maxplayeris,value_of_node,killer_moves)
 			num_leaves = num_leaves + nl
 			node:undo()
 			if val < v then
@@ -720,12 +611,101 @@ function alphabeta4(node,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_
 	return v, legal[best_action], num_leaves
 end
 
+function shuffle_moves(legal)
+	local n = #legal
+	while n > 2 do
+		local k = math.random(n)
+		legal[n], legal[k] = legal[k], legal[n]
+		n = n - 1
+	end
+end
+
+-- alphabeta with killer heuristic, returning principle variation and other stats, including game theoretic value of node
+function alphabeta4(node,maxdepth,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,killer_moves,cutlog,shuffle)
+	if depth == maxdepth or node:is_terminal() then
+		local gtv = 0.5
+		if node.winner == maxplayeris then gtv = 1
+		elseif node.winner == 3 - maxplayeris then gtv = 0 end
+		return value_of_node(node,maxplayeris), nil, 1, {}, 0, gtv
+	end
+
+	local legal = node:get_legal_move_table()
+	local best_action = 0
+	local v,gtv = 0,0.5
+	local a,b = alpha,beta
+	local num_leaves, nl = 0, 0
+	local val,gtval, vari, pvari, nc
+	local pnc = 1
+
+	if shuffle then shuffle_moves(legal) end
+
+	if not(killer_moves[depth]==nil) then
+		for i=1,#legal do
+			if legal[i] == killer_moves[depth] then
+				legal[1], legal[i] = legal[i], legal[1]
+			end
+		end
+	end
+
+	if maximizingPlayer then
+		v = -1/0
+		for i=1,#legal do
+			local move = legal[i]
+			node:make_move(move, depth==maxdepth-1)
+			val, _, nl, vari, nc, gtval = alphabeta4(node,maxdepth,depth+1, a, b, false, maxplayeris,value_of_node,killer_moves,cutlog,shuffle)
+			pnc = pnc + nc
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val > v then
+				best_action = i
+				v = val
+				gtv = gtval
+				pvari = vari
+				pvari[depth] = move
+			end
+			a = math.max(a,v)
+			if b <= a then
+				killer_moves[depth] = move
+				if not(cutlog[depth]) then cutlog[depth] = 0 end
+				cutlog[depth] = cutlog[depth] + 1
+				break
+			end
+		end
+	else
+		v = 1/0
+		for i=1,#legal do
+			local move = legal[i]
+			node:make_move(move, depth==maxdepth-1)
+			val, _, nl, vari, nc, gtval = alphabeta4(node,maxdepth,depth+1, a, b, true, maxplayeris,value_of_node,killer_moves,cutlog,shuffle)
+			pnc = pnc + nc
+			num_leaves = num_leaves + nl
+			node:undo()
+			if val < v then
+				best_action = i
+				v = val
+				gtv = gtval
+				pvari = vari
+				pvari[depth] = move
+			end
+			b = math.min(b,v)
+			if b <= a then
+				killer_moves[depth] = move
+				if not(cutlog[depth]) then cutlog[depth] = 0 end
+				cutlog[depth] = cutlog[depth] + 1
+				break
+			end
+		end
+	end
+
+	return v, legal[best_action], num_leaves, pvari, pnc, gtv
+end
+
+
 
 -- convenience method
 function minimax_move(node,depth,value)
 	return alphabeta(node,depth,-1/0,1/0,true,node:get_player(),value)
 end
-
 
 -- convenience method
 function minimax_move2(node,depth,value)
@@ -735,50 +715,44 @@ end
 -- killer heuristic
 function minimax_move3(node,depth,value,killer_moves)
 	local killer_moves = killer_moves or {}
-	local v,a,nl = alphabeta4(node,depth,-1/0,1/0,true,node:get_player(),value,killer_moves)
-	--print(killer_moves)
+	local v,a,nl = alphabeta3(node,depth,-1/0,1/0,true,node:get_player(),value,killer_moves)
 	return v,a,nl,killer_moves
 end
 
--- killer heuristic + iterative deepening
-function iterative_killer_search(node,maxdepth,value_of_node)
-	local a, _ = nil, nil
-	local killer_moves = {}
-	for i=1,maxdepth-1 do
-		killer_moves[i] = a
-		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
-		for j=#killer_moves-1,1,-1 do
-			killer_moves[j] = killer_moves[j-1]
-		end
-	end
-	--killer_moves = {}
-	killer_moves[maxdepth] = a
-	local v,a,nl = alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
-	return v,a,nl,killer_moves
+-- killer heuristic + return principle variation
+function minimax_move4(node,depth,value,variation)
+	local killer_moves = variation or {}
+	local v,a,nl,pv = alphabeta4(node,depth,0,-1/0,1/0,true,node:get_player(),value,killer_moves,{})
+	return v,a,nl,killer_moves,pv
 end
 
--- hacky attempt at skipping some effort in iterative deepening
-function hacky_iterative_killer_search(node,maxdepth,value_of_node)
-	local a, _ = nil, nil
-	local killer_moves = {}
-	for i=2,maxdepth-1,2 do
-		killer_moves[i] = a
-		_, a = alphabeta4(node,i,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
-		for j=i,i-#killer_moves,-1 do
-			killer_moves[j+2] = killer_moves[j]
-		end
-	end
-	--killer_moves = {}
-	if maxdepth % 2 == 1 then
-		for j=1,#killer_moves do
-			killer_moves[j] = killer_moves[j+1]
-		end
-	end
-	killer_moves[maxdepth] = a
-	local v,a,nl = alphabeta4(node,maxdepth,-1/0,1/0,true,node:get_player(),value_of_node,killer_moves)
-	return v,a,nl,killer_moves
-end
 
+-- killer heuristic + iterative deepening, but correctly implemented
+function correct_iterative_killer_search(node,maxdepth,value_of_node,shuffle,debug)
+	local v,a,nl,km,pv,nc,gtv
+	local pv = {}
+	local nl_prev = 1
+	for i=1,maxdepth do
+		local cutlog = {}
+		v,a,nl_cur,pv,nc,gtv = alphabeta4(node,i,0,-1/0,1/0,true,node:get_player(),value_of_node,pv,cutlog,shuffle)
+		if debug then
+			print('------Search Depth ' .. i .. '------')
+			print('Value: ' .. v .. ', Action: ' .. a .. ', Leaves Searched: ' .. nl_cur)
+			if not(gtv == 0.5) then print('Game Theoretic Value: ' .. gtv) end
+			print('Approximate Branching Factor: ' .. nl_cur / nl_prev)
+			print('Interior Node Count: ' .. nc)
+			print('Principle Variation:')
+			print(pv)
+			print('Cut Log:')
+			print(cutlog)
+		end
+		nl_prev = nl_cur
+		if gtv == 1 or gtv == 0 then
+			break
+		end
+	end
+	return v,a,nl_cur,pv
+end
 
 
 ---------------------------------------------
