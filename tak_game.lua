@@ -292,7 +292,7 @@ function tak:undo()
 		self.legal_moves_by_ply[#self.legal_moves_by_ply] = nil
 	end
 
-	self:undo_move(most_recent_move,true,true)
+	self:undo_move(most_recent_move)
 
 	--self.undo_time = self.undo_time + os.clock() - start_time
 
@@ -374,102 +374,117 @@ function tak:deep_clone()
 end
 
 
-function tak:check_stack_moves_dry(w,player,i,pos)
+
+function tak:check_stack_moves_dry(legal_moves_ptn,player,i)
 	--local start_time = os.clock()
 	local hand = min(self.heights[i],self.size)
 	local top_is_cap = self.board_top[i][player][3] == 1
 	local seqs, dist, x
 
-	local sbsd, sbsd1 = self.sbsd, self.sbsd1
+	local moves, moves1 = self.moves[i], self.moves1[i]
+	local n = #legal_moves_ptn
 
-	dist = 0
-	x = i - 1
-	while (not(self.is_left_boundary[x]) and not(self.blocks[x]) and dist<hand) do
-		dist = dist + 1
-		x = x - 1
-	end
-	if top_is_cap and dist<hand and not(self.is_left_boundary[x]) and self.top_walls[x] then 
-		dist = dist + 1
-		seqs = sbsd1[hand][dist]
-	else
-		seqs = sbsd[hand][dist]
-	end
-	if hand == 1 and dist == 1 then
-		--
-	elseif dist>0 then
-		local N = #seqs
-		for m=1,N do
+	if self.has_left[i] then
+		dist = 0
+		x = i - 1
+		while (not(self.is_left_boundary[x]) and not(self.blocks[x]) and dist<hand) do
+			dist = dist + 1
+			x = x - 1
+		end
+		if top_is_cap and dist<hand and not(self.is_left_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[1][hand][dist]
+		else
+			seqs = moves[1][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
 			--
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				--
+			end
 		end
 	end
 
-	dist = 0
-	x = i - self.size
-	while (x > 0 and not(self.blocks[x]) and dist<hand) do 
-		dist = dist + 1
-		x = x - self.size
-	end
-	if top_is_cap and dist<hand and x > 0 and self.top_walls[x] then 
-		dist = dist + 1
-		seqs = sbsd1[hand][dist]
-	else
-		seqs = sbsd[hand][dist]
-	end
-	if hand == 1 and dist == 1 then
-		--
-	elseif dist>0 then
-		local N = #seqs
-		for m=1,N do
+	if self.has_down[i] then
+		dist = 0
+		x = i - self.size
+		while (x > 0 and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x - self.size
+		end
+		if top_is_cap and dist<hand and x > 0 and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[4][hand][dist]
+		else
+			seqs = moves[4][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
 			--
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				--
+			end
 		end
 	end
 
-
-	dist = 0
-	x = i + 1
-	while (not(self.is_right_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
-		dist = dist + 1
-		x = x + 1
-	end
-	if top_is_cap and dist<hand and not(self.is_right_boundary[x]) and self.top_walls[x] then 
-		dist = dist + 1
-		seqs = sbsd1[hand][dist]
-	else
-		seqs = sbsd[hand][dist]
-	end
-	if hand == 1 and dist == 1 then
-		--
-	elseif dist>0 then
-		local N = #seqs
-		for m=1,N do
+	if self.has_right[i] then
+		dist = 0
+		x = i + 1
+		while (not(self.is_right_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x + 1
+		end
+		if top_is_cap and dist<hand and not(self.is_right_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[3][hand][dist]
+		else
+			seqs = moves[3][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
 			--
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				--
+			end
 		end
 	end
 
-
-	dist = 0
-	x = i + self.size
-	while (not(self.is_up_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
-		dist = dist + 1
-		x = x + self.size
-	end
-	if top_is_cap and dist<hand and not(self.is_up_boundary[x]) and self.top_walls[x] then 
-		dist = dist + 1
-		seqs = sbsd1[hand][dist]
-	else
-		seqs = sbsd[hand][dist]
-	end
-	if hand == 1 and dist == 1 then
-		--
-	elseif dist>0 then
-		local N = #seqs
-		for m=1,N do
+	if self.has_up[i] then
+		dist = 0
+		x = i + self.size
+		while (not(self.is_up_boundary[x]) and not(self.blocks[x]) and dist<hand) do 
+			dist = dist + 1
+			x = x + self.size
+		end
+		if top_is_cap and dist<hand and not(self.is_up_boundary[x]) and self.top_walls[x] then 
+			dist = dist + 1
+			seqs = moves1[2][hand][dist]
+		else
+			seqs = moves[2][hand][dist]
+		end
+		if hand == 1 and dist == 1 then
+			n = n + 1
 			--
+		elseif dist>0 then
+			local N = #seqs
+			for m=1,N do
+				n = n + 1
+				--
+			end
 		end
 	end
 
 	--self.check_stack_moves_time = self.check_stack_moves_time + (os.clock() - start_time)
-	return w
 end
 
 
@@ -479,11 +494,8 @@ function tak:get_legal_moves_dry(player)
 
 	--local start_time = os.clock()
 
-	local empty, player_pieces, player_caps, board_top, pos, ply = self.empty_squares, self.player_pieces, self.player_caps, self.board_top, self.pos, self.ply
-	local control
-	local board_size = self.board_size
+	local empty, player_pieces, player_caps, board_top, pos, ply,board_size = self.empty_squares, self.player_pieces, self.player_caps, self.board_top, self.pos, self.ply, self.board_size
 
-	local w = ''
 	for i=1,board_size do
 		if empty[i]==1 and ply > 1 then
 			if player_pieces[player] > 0 then
@@ -495,7 +507,7 @@ function tak:get_legal_moves_dry(player)
 			end
 		elseif ply > 1 then
 			if not(board_top[i][player] == self.em) then
-				self:check_stack_moves_dry(w,player,i,pos[i])
+				self:check_stack_moves(legal_moves_ptn,player,i)
 			end
 		elseif empty[i]==1 then
 			--
@@ -504,7 +516,7 @@ function tak:get_legal_moves_dry(player)
 
 	--self.get_legal_moves_time = self.get_legal_moves_time + (os.clock() - start_time)
 	
-	return w
+	return legal_moves_ptn
 end
 
 
@@ -694,7 +706,8 @@ function tak:make_move(ptn,flag)
 		player = self:get_player()
 	end
 
-	table.insert(self.move_history_ptn,ptn)
+	--table.insert(self.move_history_ptn,ptn)
+	self.move_history_ptn[#self.move_history_ptn + 1] = ptn
 
 	local move_type = string.sub(ptn,1,1)
 	local i = self.pos2index[string.sub(ptn,2,3)]
@@ -726,7 +739,8 @@ function tak:make_move(ptn,flag)
 	end
 
 	self:check_victory_conditions()
-	table.insert(self.flattening_history,flattening_flag)
+	--table.insert(self.flattening_history,flattening_flag)
+	self.flattening_history[#self.flattening_history+1] = flattening_flag
 
 	return true
 end
@@ -840,7 +854,6 @@ function tak:undo_move(ptn)
 	end
 
 	self.flattening_history[#self.flattening_history] = nil
-	return true
 end
 
 function tak:undo_slide_move(player,move_type,ptn,i)
@@ -1079,7 +1092,7 @@ function tak:check_victory_conditions()
 		self.outstr = outstr
 	end
 
-	return self.game_over, self.winner, self.win_type, p1_rw, p2_rw
+	--return self.game_over, self.winner, self.win_type, p1_rw, p2_rw
 
 end
 

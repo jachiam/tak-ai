@@ -228,7 +228,7 @@ function iterative_killer_minimax_AI:move(node)
 		return false
 	end
 	local start_time = os.clock()
-	local v, a, nl = correct_iterative_killer_search(node,self.depth,self.value,self.shuffle,self.debug)
+	local v, a, nl = correct_iterative_killer_search(node,self.depth,self.value,self.shuffle,1,self.debug)
 	local time_elapsed = os.clock() - start_time
 	self.max_time = math.max(self.max_time,time_elapsed)
 	self.total_time = self.total_time + time_elapsed
@@ -620,7 +620,7 @@ function shuffle_moves(legal)
 	end
 end
 
--- alphabeta with killer heuristic, returning principle variation and other stats, including game theoretic value of node
+-- alphabeta with killer heuristic, returning principal variation and other stats, including game theoretic value of node
 function alphabeta4(node,maxdepth,depth,alpha,beta,maximizingPlayer,maxplayeris,value_of_node,killer_moves,cutlog,shuffle)
 	if depth == maxdepth or node:is_terminal() then
 		local gtv = 0.5
@@ -719,7 +719,7 @@ function minimax_move3(node,depth,value,killer_moves)
 	return v,a,nl,killer_moves
 end
 
--- killer heuristic + return principle variation
+-- killer heuristic + return principal variation
 function minimax_move4(node,depth,value,variation)
 	local killer_moves = variation or {}
 	local v,a,nl,pv = alphabeta4(node,depth,0,-1/0,1/0,true,node:get_player(),value,killer_moves,{})
@@ -728,11 +728,11 @@ end
 
 
 -- killer heuristic + iterative deepening, but correctly implemented
-function correct_iterative_killer_search(node,maxdepth,value_of_node,shuffle,debug)
+function correct_iterative_killer_search(node,maxdepth,value_of_node,shuffle,increment,debug)
 	local v,a,nl,km,pv,nc,gtv
 	local pv = {}
 	local nl_prev = 1
-	for i=1,maxdepth do
+	for i=1,maxdepth,increment do
 		local cutlog = {}
 		v,a,nl_cur,pv,nc,gtv = alphabeta4(node,i,0,-1/0,1/0,true,node:get_player(),value_of_node,pv,cutlog,shuffle)
 		if debug then
@@ -741,10 +741,10 @@ function correct_iterative_killer_search(node,maxdepth,value_of_node,shuffle,deb
 			if not(gtv == 0.5) then print('Game Theoretic Value: ' .. gtv) end
 			print('Approximate Branching Factor: ' .. nl_cur / nl_prev)
 			print('Interior Node Count: ' .. nc)
-			print('Principle Variation:')
+			print('Principal Variation:')
 			print(pv)
-			print('Cut Log:')
-			print(cutlog)
+			--print('Cut Log:')
+			--print(cutlog)
 		end
 		nl_prev = nl_cur
 		if gtv == 1 or gtv == 0 then
