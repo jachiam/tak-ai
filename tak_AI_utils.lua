@@ -337,6 +337,7 @@ function score_function_AT4(node,player,maxplayeris)
 	local stacks_strength = 0
 	local sign = 1
 	local position_strength = 0
+    local total_captives = 0
 	for i=1,node.size*node.size do
 		if control(node.board_top[i]) and node.heights[i] > 1 then
 			local stack_strength = 0
@@ -348,6 +349,7 @@ function score_function_AT4(node,player,maxplayeris)
 				captives =  captives + node.board[i][k][3-player][1]
 			end
 
+            total_captives = total_captives + captives
 			stack_strength = reserves - 0.5*captives
 
 			local ef, eb, ec, sf, sb = rough_influence_measure(i)
@@ -369,7 +371,26 @@ function score_function_AT4(node,player,maxplayeris)
 		end
 	end
 
-	return stack_mul*stacks_strength + 2.5*island_strength + 3*node.player_flats[player] - node.player_pieces[player] - 2*node.player_caps[player] + 2*(node.island_max_dims[player]+is_player_turn)^1.2 + 0.5*node.island_len_sums[player]^1.05
+    local endgame_bonus = 0
+    if node.player_pieces[player] < 7 then
+        local flat_diff = node.player_flats[player] - node.player_flats[3 - player]
+        local sign = 1
+        if flat_diff > 0 then sign = 1 else sign = -1 end
+        endgame_bonus = 7*sign*(flat_diff^2)
+    end
+
+    local val = 0
+	if node.ply >= 20 then
+        val = math.max(0,math.min(400 - node.ply - 10, stack_mul*stacks_strength + 2.5*island_strength + 3*node.player_flats[player] - node.player_pieces[player] - 2*node.player_caps[player] +2*node.island_max_dims[player] + endgame_bonus)) -- + 2*(node.island_max_dims[player]+is_player_turn)^1.2 + 0.5*node.island_len_sums[player]^1.05
+    else
+        if player==1 then
+            val = 2.5*island_strength + 5*node.island_max_dims[player] + 3*node.player_flats[player] - 10*total_captives
+        else
+            val = 1.5*island_strength + 2*node.island_max_dims[player] + 5*node.player_flats[player] - 5*total_captives
+        end
+    end
+
+    return val
 end
 
 function value_of_node4(node,maxplayeris)

@@ -5745,3 +5745,23 @@ opponent is alphatak
 ---WIN---
 
 
+----NEWGAME----
+bot is white
+opponent is alphatak
+
+[Size "5"]
+
+1. Fe5 Fa1 
+2. Fb1 Fc1 
+3. Fb2 Fc2 
+4. Fa3 Fc3 
+5. Fa2 Fd4 
+6. Fa4 Fa5 
+7. Cb4 Cb5 
+8. 1b4<1 1b5<1 
+9. Fb5 Sb4 
+10. 1a4>1 
+
+---WIN---
+
+

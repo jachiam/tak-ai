@@ -77,7 +77,6 @@ function tak:__init(size,making_a_copy)
 
 	self.ply = 0	-- how many plys have elapsed since the start of the game?
 	self.move_history_ptn = {}
-	self.move_history_idx = {}
 	self.board_top = {} 
 	for i=1,self.size*self.size do
 		self.board_top[i] = {self.em,self.em}
@@ -706,7 +705,6 @@ function tak:make_move(ptn,flag)
 		player = self:get_player()
 	end
 
-	--table.insert(self.move_history_ptn,ptn)
 	self.move_history_ptn[#self.move_history_ptn + 1] = ptn
 
 	local move_type = string.sub(ptn,1,1)
@@ -739,7 +737,6 @@ function tak:make_move(ptn,flag)
 	end
 
 	self:check_victory_conditions()
-	--table.insert(self.flattening_history,flattening_flag)
 	self.flattening_history[#self.flattening_history+1] = flattening_flag
 
 	return true
@@ -940,7 +937,6 @@ function tak:check_victory_conditions()
 	local player_two_remaining = self.player_pieces[2] + self.player_caps[2]
 
 	local empty, board_top = self.empty_squares, self.board_top
-	local end_is_nigh = false
 	local explored = self.explored
 
 	self.num_empty_squares = 0
@@ -949,17 +945,12 @@ function tak:check_victory_conditions()
 	for i=1,self.board_size do
 		explored[i] = false
 		self.num_empty_squares = self.num_empty_squares + empty[i]
-		if board_top[i][1] == self.f then
-			self.player_flats[1] = self.player_flats[1] + 1
-		elseif board_top[i][2] == self.f then
-			self.player_flats[2] = self.player_flats[2] + 1
-		end
+		self.player_flats[1] = self.player_flats[1] + board_top[i][1][1]
+		self.player_flats[2] = self.player_flats[2] + board_top[i][2][1]
 	end
 
 	-- if the game board is full or either player has run out of pieces, trigger end
-	if self.num_empty_squares == 0 or player_one_remaining == 0 or player_two_remaining == 0 then
-		end_is_nigh = true
-	end
+	local end_is_nigh = self.num_empty_squares == 0 or player_one_remaining == 0 or player_two_remaining == 0
 
 	-- let's find us some island information
 
@@ -1049,6 +1040,15 @@ function tak:check_victory_conditions()
 
 	--self.flood_fill_time = self.flood_fill_time + (os.clock() - start_time)
 
+	self.game_over = p1_rw or p2_rw or end_is_nigh
+
+	if self.game_over then self:notate_game_end(p1_rw, p2_rw, end_is_nigh) end
+	--return self.game_over, self.winner, self.win_type, p1_rw, p2_rw
+
+end
+
+
+function tak:notate_game_end(p1_rw, p2_rw, end_is_nigh)
 	if p1_rw or p2_rw then
 		self.win_type = 'R'
 		if p1_rw and not(p2_rw) then
@@ -1074,8 +1074,6 @@ function tak:check_victory_conditions()
 		end	
 	end
 
-	self.game_over = p1_rw or p2_rw or end_is_nigh
-
 	if self.game_over then
 		local outstr
 		if self.winner == 1 and self.win_type == 'F' then
@@ -1091,11 +1089,7 @@ function tak:check_victory_conditions()
 		end
 		self.outstr = outstr
 	end
-
-	--return self.game_over, self.winner, self.win_type, p1_rw, p2_rw
-
 end
-
 
 function tak:get_children()
 	local legal = self.legal_moves_by_ply[#self.legal_moves_by_ply]
